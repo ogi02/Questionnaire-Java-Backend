@@ -2,6 +2,9 @@ package org.tu.sofia.java.questionnaire.controllers;
 
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.tu.sofia.java.questionnaire.config.JwtTokenUtil;
 import org.tu.sofia.java.questionnaire.schemas.DefaultErrorResponseSchema;
 import org.tu.sofia.java.questionnaire.schemas.JwtRequestSchema;
@@ -22,6 +25,7 @@ import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping(value = "/api/auth", consumes = "application/json", produces = "application/json")
+@Tag(name = "Authentication")
 public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
@@ -35,6 +39,18 @@ public class AuthenticationController {
     }
 
     @PostMapping(value = "/login")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    description = "Successful login.",
+                    responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = JwtResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "Invalid username or password.",
+                    responseCode = "403",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+    })
     public ResponseEntity<?> login(@RequestBody JwtRequestSchema request) {
         try {
             // authenticate with given credentials
@@ -65,6 +81,18 @@ public class AuthenticationController {
     }
 
     @PostMapping(value = "/register")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    description = "Successful register.",
+                    responseCode = "201",
+                    content = @Content(schema = @Schema(implementation = JwtResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "Username already taken",
+                    responseCode = "403",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+    })
     public ResponseEntity<?> register(@RequestBody JwtRequestSchema request) {
         UserDetails userDetails;
 

@@ -5,8 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.tu.sofia.java.questionnaire.entities.QuestionnaireEntity;
 import org.tu.sofia.java.questionnaire.entities.UserEntity;
@@ -27,6 +32,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping(value = "/api/questionnaire")
+@Tag(name = "Questionnaire")
 public class QuestionnaireController {
 
     private final AuthenticationService authenticationService;
@@ -38,6 +44,22 @@ public class QuestionnaireController {
     }
 
     @GetMapping(value = "/public", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    description = "Questionnaires found.",
+                    responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = QuestionnaireEntity.class))
+            ),
+            @ApiResponse(
+                    description = "No Questionnaires found.",
+                    responseCode = "204"
+            ),
+            @ApiResponse(
+                    description = "JSON encoding error.",
+                    responseCode = "500",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+    })
     public ResponseEntity<?> getPublicQuestionnaires() {
         try {
             // get public questionnaires from db
@@ -72,6 +94,28 @@ public class QuestionnaireController {
     }
 
     @GetMapping(value = "/user")
+    @SecurityRequirement(name = "JWTBearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    description = "Questionnaires found.",
+                    responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = QuestionnaireEntity.class))
+            ),
+            @ApiResponse(
+                    description = "No Questionnaires found.",
+                    responseCode = "204"
+            ),
+            @ApiResponse(
+                    description = "Unauthorized.",
+                    responseCode = "401",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "JSON encoding error.",
+                    responseCode = "500",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+    })
     public ResponseEntity<?> getUserQuestionnaires(Principal principal) {
         try {
             // get user model for current user
@@ -109,6 +153,19 @@ public class QuestionnaireController {
     }
 
     @PostMapping(value = "/", consumes = "application/json", produces = "application/json")
+    @Operation(description = "Create a questionnaire with questions and options.")
+    @SecurityRequirement(name = "JWTBearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    description = "Successfully created a new questionnaire.",
+                    responseCode = "201"
+            ),
+            @ApiResponse(
+                    description = "Unauthorized.",
+                    responseCode = "401",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+    })
     public ResponseEntity<?> createQuestionnaire(Principal principal, @Valid @RequestBody QuestionnaireEntity questionnaire) {
         // get user model for current user
         UserEntity currentUser = authenticationService.loadUserModelByUsername(principal.getName());
@@ -132,6 +189,23 @@ public class QuestionnaireController {
     }
 
     @PutMapping(value = "/{id}/state/{isOpen}", produces = "application/json")
+    @SecurityRequirement(name = "JWTBearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    description = "Questionnaire state updated.",
+                    responseCode = "200"
+            ),
+            @ApiResponse(
+                    description = "Unauthorized.",
+                    responseCode = "401",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "Questionnaire not found.",
+                    responseCode = "404",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            )
+    })
     public ResponseEntity<?> changeQuestionnaireState(Principal principal, @PathVariable("id") Long id, @PathVariable Boolean isOpen) {
         try {
             // get user model for current user
@@ -161,6 +235,22 @@ public class QuestionnaireController {
     }
 
     @GetMapping(value = "/vote/{url}")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    description = "Questionnaire found.",
+                    responseCode = "200"
+            ),
+            @ApiResponse(
+                    description = "Questionnaire not found.",
+                    responseCode = "404",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "JSON encoding error.",
+                    responseCode = "500",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            )
+    })
     public ResponseEntity<?> getQuestionnaire(@PathVariable("url") String votingUrl) {
         try {
             // get questionnaire from db
@@ -205,6 +295,22 @@ public class QuestionnaireController {
     }
 
     @PostMapping(value = "/vote/{url}")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    description = "Voted.",
+                    responseCode = "201"
+            ),
+            @ApiResponse(
+                    description = "Questionnaire is closed.",
+                    responseCode = "403",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "Questionnaire, question or option not found.",
+                    responseCode = "404",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            )
+    })
     public ResponseEntity<?> vote(@PathVariable("url") String votingUrl, @RequestBody VoteSchema request) {
         try {
             // get questionnaire from db
@@ -247,6 +353,34 @@ public class QuestionnaireController {
     }
 
     @GetMapping(value = "/results/{url}")
+    @SecurityRequirement(name = "JWTBearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    description = "Results for this questionnaire found.",
+                    responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = QuestionnaireEntity.class))
+            ),
+            @ApiResponse(
+                    description = "Unauthorized.",
+                    responseCode = "401",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "No access to this questionnaire.",
+                    responseCode = "403",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "Questionnaire not found.",
+                    responseCode = "404",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "JSON encoding error.",
+                    responseCode = "500",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            )
+    })
     public ResponseEntity<?> getQuestionnaireResults(Principal principal, @PathVariable("url") String resultsUrl) {
         try {
             // get user model for current user
