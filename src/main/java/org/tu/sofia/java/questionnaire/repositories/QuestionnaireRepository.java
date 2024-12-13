@@ -17,9 +17,9 @@ public interface QuestionnaireRepository extends JpaRepository<QuestionnaireEnti
     @Query("SELECT q FROM QuestionnaireEntity q WHERE q.isPublic = TRUE AND q.isOpen = TRUE")
     Optional<Set<QuestionnaireEntity>> findPublic();
 
-    @Query("SELECT q FROM QuestionnaireEntity q WHERE q.id = ?1 AND q.owner.id = ?2")
-    Optional<QuestionnaireEntity> findByQuestionnaireIdAndOwnerId(Long questionnaireId, Long ownerId);
+    @Query("SELECT q FROM QuestionnaireEntity q JOIN q.administrators u WHERE q.id = :questionnaireId AND u.id = :administratorId")
+    Optional<QuestionnaireEntity> findByQuestionnaireIdAndAdministratorId(Long questionnaireId, Long administratorId);
 
-    @Query("SELECT q FROM QuestionnaireEntity q WHERE q.resultsUrl = ?1 AND q.owner.id = ?2")
-    Optional<QuestionnaireEntity> findByResultsUrlAndOwnerId(String resultsUrl, Long ownerId);
+    @Query("SELECT q FROM QuestionnaireEntity q JOIN q.administrators u WHERE q.resultsUrl = :resultsUrl AND u.id = :administratorId")
+    Optional<QuestionnaireEntity> findByResultsUrlAndAdministratorId(String resultsUrl, Long administratorId);
 }

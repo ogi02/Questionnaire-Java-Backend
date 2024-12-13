@@ -1,5 +1,7 @@
 package org.tu.sofia.java.questionnaire.services;
 
+import jakarta.persistence.EntityNotFoundException;
+import org.tu.sofia.java.questionnaire.entities.QuestionnaireEntity;
 import org.tu.sofia.java.questionnaire.entities.UserEntity;
 import org.tu.sofia.java.questionnaire.repositories.AuthenticationRepository;
 import org.springframework.security.core.userdetails.User;
@@ -38,6 +40,15 @@ public class AuthenticationService implements UserDetailsService {
         Optional<UserEntity> optionalUser = authenticationRepository.findByUsername(username);
         if (optionalUser.isEmpty()) {
             throw new UsernameNotFoundException(username);
+        }
+
+        return optionalUser.get();
+    }
+
+    public UserEntity getById(Long id) throws EntityNotFoundException {
+        Optional<UserEntity> optionalUser = authenticationRepository.findById(id);
+        if (optionalUser.isEmpty()) {
+            throw new EntityNotFoundException(String.valueOf(id));
         }
 
         return optionalUser.get();

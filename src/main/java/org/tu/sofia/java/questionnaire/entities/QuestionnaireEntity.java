@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import jakarta.persistence.*;
+
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -36,6 +38,15 @@ public class QuestionnaireEntity {
     @JoinColumn(name = "owner_id", referencedColumnName = "id")
     @JsonIgnore
     private UserEntity owner;
+
+    @ManyToMany
+    @JoinTable(
+            name = "questionnaire_administrators",
+            joinColumns = @JoinColumn(name = "questionnaire_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @JsonIgnore
+    private Set<UserEntity> administrators = new HashSet<>();
 
     @OneToMany(mappedBy = "questionnaire", cascade = CascadeType.ALL)
     private Set<QuestionEntity> questions;

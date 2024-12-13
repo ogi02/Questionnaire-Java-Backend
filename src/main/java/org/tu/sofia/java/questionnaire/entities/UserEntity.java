@@ -27,6 +27,9 @@ public class UserEntity {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private Set<QuestionnaireEntity> questionnaires;
 
+    @ManyToMany(mappedBy = "administrators")
+    private Set<QuestionnaireEntity> administratedQuestionnaires;
+
     public UserEntity(Long id) {
         this.id = id;
     }

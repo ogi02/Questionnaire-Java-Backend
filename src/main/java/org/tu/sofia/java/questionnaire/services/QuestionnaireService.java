@@ -1,7 +1,9 @@
 package org.tu.sofia.java.questionnaire.services;
 
+import jakarta.transaction.Transactional;
 import org.tu.sofia.java.questionnaire.entities.QuestionnaireEntity;
 import org.tu.sofia.java.questionnaire.entities.UserEntity;
+import org.tu.sofia.java.questionnaire.repositories.AuthenticationRepository;
 import org.tu.sofia.java.questionnaire.repositories.QuestionnaireRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,10 +16,12 @@ import java.util.Set;
 public class QuestionnaireService {
 
     private final QuestionnaireRepository questionnaireRepository;
+    private final AuthenticationRepository authenticationRepository;
 
     @Autowired
-    public QuestionnaireService(QuestionnaireRepository questionnaireRepository) {
+    public QuestionnaireService(QuestionnaireRepository questionnaireRepository, AuthenticationRepository authenticationRepository) {
         this.questionnaireRepository = questionnaireRepository;
+        this.authenticationRepository = authenticationRepository;
     }
 
     public void save(QuestionnaireEntity questionnaire) {
@@ -33,10 +37,10 @@ public class QuestionnaireService {
         return optionalQuestionnaire.get();
     }
 
-    public QuestionnaireEntity findByQuestionnaireIdAndOwnerId(Long questionnaireId, Long ownerId) throws EntityNotFoundException {
-        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByQuestionnaireIdAndOwnerId(questionnaireId, ownerId);
+    public QuestionnaireEntity findByQuestionnaireIdAndAdministratorId(Long questionnaireId, Long administratorId) throws EntityNotFoundException {
+        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByQuestionnaireIdAndAdministratorId(questionnaireId, administratorId);
         if (optionalQuestionnaire.isEmpty()) {
-            throw new EntityNotFoundException("Questionnaire ID for this user is not found!");
+            throw new EntityNotFoundException("Questionnaire ID or this administrator ID is not found!");
         }
 
         return optionalQuestionnaire.get();
@@ -51,8 +55,8 @@ public class QuestionnaireService {
         return optionalQuestionnaire.get();
     }
 
-    public QuestionnaireEntity findByResultsUrlAndOwnerId(String resultsUrl, Long ownerId) throws EntityNotFoundException {
-        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByResultsUrlAndOwnerId(resultsUrl, ownerId);
+    public QuestionnaireEntity findByResultsUrlAndAdministratorId(String resultsUrl, Long administratorId) throws EntityNotFoundException {
+        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByResultsUrlAndAdministratorId(resultsUrl, administratorId);
         if (optionalQuestionnaire.isEmpty()) {
             throw new EntityNotFoundException("Questionnaire results url not found!");
         }
@@ -68,5 +72,21 @@ public class QuestionnaireService {
     public Set<QuestionnaireEntity> findByOwner(UserEntity owner) {
         Optional<Set<QuestionnaireEntity>> optionalQuestionnaireSet = questionnaireRepository.findByOwnerId(owner.getId());
         return optionalQuestionnaireSet.orElse(null);
+    }
+
+    @Transactional
+    public void addAdministratorToQuestionnaire(Long questionnaireId, Long userId) {
+        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findById(questionnaireId);
+        Optional<UserEntity> optionalUser = authenticationRepository.findById(userId);
+
+        if (optionalQuestionnaire.isPresent() && optionalUser.isPresent()) {
+            QuestionnaireEntity questionnaire = optionalQuestionnaire.get();
+            UserEntity user = optionalUser.get();
+
+            questionnaire.getAdministrators().add(user);
+            user.getAdministratedQuestionnaires().add(questionnaire);
+
+            authenticationRepository.save(user);
+        }
     }
 }

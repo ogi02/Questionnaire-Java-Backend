@@ -180,6 +180,7 @@ public class QuestionnaireController {
 
         // set questionnaire's owner
         questionnaire.setOwner(currentUser);
+        questionnaire.getAdministrators().add(currentUser);
 
         // save questionnaire
         questionnaireService.save(questionnaire);
@@ -212,7 +213,7 @@ public class QuestionnaireController {
             UserEntity currentUser = authenticationService.loadUserModelByUsername(principal.getName());
 
             // get questionnaire from db
-            QuestionnaireEntity questionnaire = questionnaireService.findByQuestionnaireIdAndOwnerId(id, currentUser.getId());
+            QuestionnaireEntity questionnaire = questionnaireService.findByQuestionnaireIdAndAdministratorId(id, currentUser.getId());
 
             // change questionnaire state
             questionnaire.setIsOpen(isOpen);
@@ -230,6 +231,55 @@ public class QuestionnaireController {
                     HttpStatus.NOT_FOUND.value(),
                     e.getMessage(),
                     "/api/questionnaire/%d/state/%s".formatted(id, isOpen.toString())
+            ));
+        }
+    }
+
+    @PostMapping("/{id}/admin/{userId}")
+    @SecurityRequirement(name = "JWTBearerAuth")
+    @ApiResponses(value ={
+            @ApiResponse(
+                    description = "Questionnaire admin.",
+                    responseCode = "200"
+            ),
+            @ApiResponse(
+                    description = "Unauthorized.",
+                    responseCode = "401",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "Questionnaire or user not found.",
+                    responseCode = "404",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            )
+    })
+    public ResponseEntity<?> addAdministratorToQuestionnaire(Principal principal, @PathVariable("id") Long id, @PathVariable Long userId) {
+        try {
+            // get user model for current user
+            UserEntity currentUser = authenticationService.loadUserModelByUsername(principal.getName());
+
+            // get questionnaire from db
+            QuestionnaireEntity questionnaire = questionnaireService.findByQuestionnaireIdAndAdministratorId(id, currentUser.getId());
+
+            // verify that candidate admin exists
+            UserEntity candidateAdmin = authenticationService.getById(userId);
+
+            // add admin to questionnaire
+            questionnaireService.addAdministratorToQuestionnaire(questionnaire.getId(), candidateAdmin.getId());
+
+            // save questionnaire
+            questionnaireService.save(questionnaire);
+
+            // return ok response
+            return ResponseEntity.status(HttpStatus.OK).build();
+
+        } catch (EntityNotFoundException e) {
+            // return error response
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
+                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+                    HttpStatus.NOT_FOUND.value(),
+                    e.getMessage(),
+                    "/api/questionnaire/%d/admin/%s".formatted(id, userId)
             ));
         }
     }
@@ -387,7 +437,7 @@ public class QuestionnaireController {
             UserEntity currentUser = authenticationService.loadUserModelByUsername(principal.getName());
 
             // get questionnaire from db
-            QuestionnaireEntity questionnaire = questionnaireService.findByResultsUrlAndOwnerId(resultsUrl, currentUser.getId());
+            QuestionnaireEntity questionnaire = questionnaireService.findByResultsUrlAndAdministratorId(resultsUrl, currentUser.getId());
 
             // create filter for the options
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
