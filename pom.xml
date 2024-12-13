@@ -14,7 +14,7 @@
     <name>questionnaire</name>
     <description>Questionnaire project for Java Project in TU-Sofia.</description>
     <properties>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
     </properties>
     <dependencies>
         <!-- Spring Boot Starter Pack -->

@@ -3,6 +3,6 @@ Questionnaire application, written in Java for Java course in TU-Sofia
 
 ## Requirements
 
-Java 17
+Java 21
 
 PostgreSQL
