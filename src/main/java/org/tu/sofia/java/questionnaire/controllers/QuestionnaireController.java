@@ -1,10 +1,5 @@
 package org.tu.sofia.java.questionnaire.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,14 +7,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.tu.sofia.java.questionnaire.dto.QuestionnaireCreationDTO;
 import org.tu.sofia.java.questionnaire.dto.QuestionnaireDTO;
 import org.tu.sofia.java.questionnaire.entities.QuestionnaireEntity;
-import org.tu.sofia.java.questionnaire.entities.UserEntity;
 import org.tu.sofia.java.questionnaire.schemas.DefaultErrorResponseSchema;
-import org.tu.sofia.java.questionnaire.schemas.VoteSchema;
-import org.tu.sofia.java.questionnaire.services.AuthenticationService;
 import org.tu.sofia.java.questionnaire.services.QuestionnaireService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,11 +29,9 @@ import java.util.Set;
 @Tag(name = "Questionnaire")
 public class QuestionnaireController {
 
-    private final AuthenticationService authenticationService;
     private final QuestionnaireService questionnaireService;
 
-    public QuestionnaireController(AuthenticationService authenticationService, QuestionnaireService questionnaireService) {
-        this.authenticationService = authenticationService;
+    public QuestionnaireController(QuestionnaireService questionnaireService) {
         this.questionnaireService = questionnaireService;
     }
 
@@ -83,6 +73,57 @@ public class QuestionnaireController {
 
     }
 
+    @DeleteMapping(value = "/{id}", produces = "application/json")
+    @Operation(description = "Delete a questionnaire.")
+    @SecurityRequirement(name = "JWTBearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    description = "Successfully deleted the questionnaire.",
+                    responseCode = "204"
+            ),
+            @ApiResponse(
+                    description = "Unauthorized.",
+                    responseCode = "401",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "User is not an owner or administrator of this questionnaire.",
+                    responseCode = "403",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "Questionnaire not found.",
+                    responseCode = "404",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+    })
+    public ResponseEntity<?> deleteQuestionnaire(Principal principal, @PathVariable("id") Long questionnaireId) {
+        try {
+            // Delete the questionnaire
+            questionnaireService.deleteQuestionnaire(principal.getName(), questionnaireId);
+
+            // Return 204 response
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (EntityNotFoundException e) {
+            // Return 404 response
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
+                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+                    HttpStatus.NOT_FOUND.value(),
+                    e.getMessage(),
+                    "/api/questionnaire"
+            ));
+        } catch (IllegalAccessException e) {
+            // Return 403 response
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DefaultErrorResponseSchema(
+                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+                    HttpStatus.FORBIDDEN.value(),
+                    e.getMessage(),
+                    "/api/questionnaire"
+            ));
+        }
+
+    }
+
     @GetMapping(value = "/public", produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(
@@ -107,111 +148,95 @@ public class QuestionnaireController {
         // Return 200 response with the found questionnaires
         return ResponseEntity.status(HttpStatus.OK).body(publicQuestionnaires);
     }
-//
-//    @GetMapping(value = "/user")
-//    @SecurityRequirement(name = "JWTBearerAuth")
-//    @ApiResponses(value = {
-//            @ApiResponse(
-//                    description = "Questionnaires found.",
-//                    responseCode = "200",
-//                    content = @Content(schema = @Schema(implementation = QuestionnaireEntity.class))
-//            ),
-//            @ApiResponse(
-//                    description = "No Questionnaires found.",
-//                    responseCode = "204"
-//            ),
-//            @ApiResponse(
-//                    description = "Unauthorized.",
-//                    responseCode = "401",
-//                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
-//            ),
-//            @ApiResponse(
-//                    description = "JSON encoding error.",
-//                    responseCode = "500",
-//                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
-//            ),
-//    })
-//    public ResponseEntity<?> getUserQuestionnaires(Principal principal) {
-//        try {
-//            // get user model for current user
-//            UserEntity currentUser = authenticationService.loadUserModelByUsername(principal.getName());
-//
-//            // get user questionnaires from db
-//            Set<QuestionnaireEntity> userQuestionnaires = questionnaireService.findByOwner(currentUser);
-//
-//            // check for empty set
-//            if (userQuestionnaires.isEmpty()) {
-//                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-//            }
-//
-//            // create filter for the options
-//            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-//            filterProvider.addFilter("questionnaireFilter", SimpleBeanPropertyFilter.serializeAllExcept("questions"));
-//
-//            // init object mapper
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-//            objectMapper.setFilterProvider(filterProvider);
-//
-//            // return ok response
-//            return ResponseEntity.status(HttpStatus.OK).body(objectMapper.writeValueAsString(userQuestionnaires));
-//
-//        } catch (JsonProcessingException e) {
-//            // return error response
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new DefaultErrorResponseSchema(
-//                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
-//                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
-//                    e.getMessage(),
-//                    "/api/questionnaire/user"
-//            ));
-//        }
-//    }
-//
-//    @PutMapping(value = "/{id}/state/{isOpen}", produces = "application/json")
-//    @SecurityRequirement(name = "JWTBearerAuth")
-//    @ApiResponses(value = {
-//            @ApiResponse(
-//                    description = "Questionnaire state updated.",
-//                    responseCode = "200"
-//            ),
-//            @ApiResponse(
-//                    description = "Unauthorized.",
-//                    responseCode = "401",
-//                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
-//            ),
-//            @ApiResponse(
-//                    description = "Questionnaire not found.",
-//                    responseCode = "404",
-//                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
-//            )
-//    })
-//    public ResponseEntity<?> changeQuestionnaireState(Principal principal, @PathVariable("id") Long id, @PathVariable Boolean isOpen) {
-//        try {
-//            // get user model for current user
-//            UserEntity currentUser = authenticationService.loadUserModelByUsername(principal.getName());
-//
-//            // get questionnaire from db
-//            QuestionnaireEntity questionnaire = questionnaireService.findByQuestionnaireIdAndAdministratorId(id, currentUser.getId());
-//
-//            // change questionnaire state
-//            questionnaire.setIsOpen(isOpen);
-//
-//            // save questionnaire
-//            questionnaireService.save(questionnaire);
-//
-//            // return ok response
-//            return ResponseEntity.status(HttpStatus.OK).build();
-//
-//        } catch (EntityNotFoundException e) {
-//            // return error response
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
-//                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
-//                    HttpStatus.NOT_FOUND.value(),
-//                    e.getMessage(),
-//                    "/api/questionnaire/%d/state/%s".formatted(id, isOpen.toString())
-//            ));
-//        }
-//    }
+
+    @GetMapping(value = "/user", produces = "application/json")
+    @SecurityRequirement(name = "JWTBearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    description = "Questionnaires found.",
+                    responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = QuestionnaireEntity.class))
+            ),
+            @ApiResponse(
+                    description = "No Questionnaires found.",
+                    responseCode = "204"
+            ),
+            @ApiResponse(
+                    description = "Unauthorized.",
+                    responseCode = "401",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+    })
+    public ResponseEntity<?> getUserQuestionnaires(Principal principal) {
+        // Get administrated questionnaires by the user
+        Set<QuestionnaireDTO> questionnaireDTOSet = questionnaireService.findUserAdministratedQuestionnaires(principal.getName());
+
+        if (questionnaireDTOSet.isEmpty()) {
+            // Return 204 status
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+        // Return 200 status with body
+        return ResponseEntity.status(HttpStatus.OK).body(questionnaireDTOSet);
+    }
+
+    @PutMapping(value = "/{id}/state/{isOpen}", produces = "application/json")
+    @SecurityRequirement(name = "JWTBearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    description = "Questionnaire state updated.",
+                    responseCode = "204"
+            ),
+            @ApiResponse(
+                    description = "Unauthorized.",
+                    responseCode = "401",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "User is not an administrator of this questionnaire.",
+                    responseCode = "403",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "Questionnaire not found.",
+                    responseCode = "404",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+    })
+    public ResponseEntity<?> updateQuestionnaireState(Principal principal, @PathVariable("id") Long questionnaireId, @PathVariable Boolean isOpen) {
+        try {
+            // Update questionnaire state
+            questionnaireService.updateQuestionnaireState(principal.getName(), questionnaireId, isOpen);
+
+            // Return 204 response
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+        } catch (EntityNotFoundException e) {
+            // Return 404 response
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
+                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+                    HttpStatus.NOT_FOUND.value(),
+                    e.getMessage(),
+                    "/api/questionnaire/%d/state/%s".formatted(questionnaireId, isOpen.toString())
+            ));
+        } catch (IllegalAccessException e) {
+            // Return 403 response
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DefaultErrorResponseSchema(
+                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+                    HttpStatus.FORBIDDEN.value(),
+                    e.getMessage(),
+                    "/api/questionnaire/%d/state/%s".formatted(questionnaireId, isOpen.toString())
+            ));
+        } catch (InvalidDataAccessApiUsageException e) {
+            // Return 500 response
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new DefaultErrorResponseSchema(
+                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    e.getMostSpecificCause().toString(),
+                    "/api/questionnaire/%d/state/%s".formatted(questionnaireId, isOpen.toString())
+            ));
+        }
+    }
 //
 //    @PostMapping("/{id}/admin/{userId}")
 //    @SecurityRequirement(name = "JWTBearerAuth")
