@@ -1,40 +1,37 @@
-package org.tu.sofia.java.questionnaire.entities;
+package org.tu.sofia.java.questionnaire.entities.responses;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import jakarta.persistence.*;
+import org.tu.sofia.java.questionnaire.entities.questions.OpenQuestionEntity;
+import org.tu.sofia.java.questionnaire.entities.questions.OptionQuestionEntity;
 
 @Entity
-@Table(name = "options")
+@Table(name = "open_question_responses")
 @Getter
 @Setter
 @NoArgsConstructor
 @JsonFilter("optionFilter")
-public class OptionEntity {
+public class OpenResponseEntity {
     @Id
     @Hidden
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "option_generator")
     @SequenceGenerator(name = "option_generator", sequenceName = "option_seq", allocationSize = 1)
     private Long id;
 
-    @Column
-    private String option;
-
-    @Column
-    @Hidden
-    private Integer votes = 0;
-
     @ManyToOne
     @JoinColumn(name = "question_id", referencedColumnName = "id")
-    @JsonIgnore
-    private QuestionEntity question;
+    private OpenQuestionEntity question;
 
-    public void addVote() {
-        votes ++;
+    @Column
+    private String responseText;
+
+    public OpenResponseEntity(OpenQuestionEntity question, String responseText) {
+        this.question = question;
+        this.responseText = responseText;
     }
 }
