@@ -1,5 +1,6 @@
 package org.tu.sofia.java.questionnaire.entities;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_generator")
@@ -35,12 +37,6 @@ public class UserEntity {
     }
 
     public UserEntity(String username, String password) {
-        this.username = username;
-        this.password = password;
-    }
-
-    public UserEntity(Long id, String username, String password) {
-        this.id = id;
         this.username = username;
         this.password = password;
     }
