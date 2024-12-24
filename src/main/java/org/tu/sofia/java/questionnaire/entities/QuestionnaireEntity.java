@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import jakarta.persistence.*;
+import org.tu.sofia.java.questionnaire.entities.questions.OptionQuestionEntity;
+import org.tu.sofia.java.questionnaire.entities.questions.QuestionEntity;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -48,7 +50,7 @@ public class QuestionnaireEntity {
     @JsonIgnore
     private Set<UserEntity> administrators = new HashSet<>();
 
-    @OneToMany(mappedBy = "questionnaire", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "questionnaire", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<QuestionEntity> questions;
 
     @Column
@@ -83,12 +85,12 @@ public class QuestionnaireEntity {
         this.title = title;
     }
 
-    public QuestionEntity findQuestionById(Long id) throws EntityNotFoundException {
-        Optional<QuestionEntity> optionalQuestion = questions.stream().filter(question -> question.getId().equals(id)).findFirst();
-        if (optionalQuestion.isEmpty()) {
-            throw new EntityNotFoundException("Question with this ID not found!");
-        }
-
-        return optionalQuestion.get();
-    }
+//    public OptionQuestionEntity findQuestionById(Long id) throws EntityNotFoundException {
+//        Optional<OptionQuestionEntity> optionalQuestion = questions.stream().filter(question -> question.getId().equals(id)).findFirst();
+//        if (optionalQuestion.isEmpty()) {
+//            throw new EntityNotFoundException("Question with this ID not found!");
+//        }
+//
+//        return optionalQuestion.get();
+//    }
 }
