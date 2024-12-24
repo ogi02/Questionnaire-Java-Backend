@@ -5,38 +5,25 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.tu.sofia.java.questionnaire.config.JwtTokenUtil;
+import lombok.AllArgsConstructor;
 import org.tu.sofia.java.questionnaire.schemas.DefaultErrorResponseSchema;
 import org.tu.sofia.java.questionnaire.schemas.JwtRequestSchema;
 import org.tu.sofia.java.questionnaire.schemas.JwtResponseSchema;
 import org.tu.sofia.java.questionnaire.services.AuthenticationService;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping(value = "/api/auth", consumes = "application/json", produces = "application/json")
 @Tag(name = "Authentication")
 public class AuthenticationController {
 
-    private final AuthenticationManager authenticationManager;
-    private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticationService authenticationService;
-
-    public AuthenticationController(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil, AuthenticationService authenticationService) {
-        this.authenticationManager = authenticationManager;
-        this.jwtTokenUtil = jwtTokenUtil;
-        this.authenticationService = authenticationService;
-    }
 
     @PostMapping(value = "/login")
     @ApiResponses(value = {
@@ -53,22 +40,16 @@ public class AuthenticationController {
     })
     public ResponseEntity<?> login(@RequestBody JwtRequestSchema request) {
         try {
-            // authenticate with given credentials
-            authenticate(request.getUsername(), request.getPassword());
+            // Attempt login
+            final String token = authenticationService.attemptLogin(request.getUsername(), request.getPassword());
 
-            // get user details
-            final UserDetails userDetails = authenticationService.loadUserByUsername(request.getUsername());
-
-            // create token
-            final String token = jwtTokenUtil.generateToken(userDetails);
-
-            // return response with status 200
+            // Return 200 response with token
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new JwtResponseSchema(token));
+                    .body(new JwtResponseSchema(token, request.getUsername()));
 
-        } catch (Exception e) {
-            // return response with status 403
+        } catch (RuntimeException e) {
+            // Return 403 response, most likely invalid credentials
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
                     .body(new DefaultErrorResponseSchema(
@@ -94,44 +75,25 @@ public class AuthenticationController {
             ),
     })
     public ResponseEntity<?> register(@RequestBody JwtRequestSchema request) {
-        UserDetails userDetails;
-
         try {
-            // save user
-            userDetails = authenticationService.saveUser(request.getUsername(), request.getPassword());
+            // Attempt register
+            final String token = authenticationService.attemptRegister(request.getUsername(), request.getPassword());
 
-            // generate token for new user
-            final String token = jwtTokenUtil.generateToken(userDetails);
-
-            // return response with status 201
+            // Return 201 response with token
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(new JwtResponseSchema(token));
+                    .body(new JwtResponseSchema(token, request.getUsername()));
 
-        } catch (DataIntegrityViolationException e) {
-            // duplicate username
-            // return response with status 403
+        } catch (RuntimeException e) {
+            // Return error response, most likely duplicate username
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
                     .body(new DefaultErrorResponseSchema(
                             DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                             HttpStatus.FORBIDDEN.value(),
-                            e.getMostSpecificCause().getMessage(),
+                            e.getMessage(),
                             "/api/auth/register"
                     ));
-        }
-    }
-
-    private void authenticate(String username, String password) throws Exception {
-        try {
-            // authenticate with username and password
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        } catch (DisabledException e) {
-            // user is disabled
-            throw new Exception("The following user is disabled!", e);
-        } catch (BadCredentialsException e) {
-            // invalid user credentials
-            throw new Exception("Invalid username or password!", e);
         }
     }
 }
