@@ -334,6 +334,45 @@ public class QuestionnaireController {
             ));
         }
     }
+
+    @GetMapping(value = "/results/{resultsURL}")
+    @SecurityRequirement(name = "JWTBearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    description = "Results for this questionnaire found.",
+                    responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = QuestionnaireWithResultsDTO.class))
+            ),
+            @ApiResponse(
+                    description = "Unauthorized.",
+                    responseCode = "401",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "Questionnaire results not found or user has no access to them.",
+                    responseCode = "404",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+    })
+    public ResponseEntity<?> getQuestionnaireResults(Principal principal, @PathVariable String resultsURL) {
+        try {
+            // Get the questionnaire results from DB
+            QuestionnaireWithResultsDTO questionnaire = questionnaireService.findQuestionnaireByResultsURL(principal.getName(), resultsURL);
+
+            // Return 200 response
+            return ResponseEntity.status(HttpStatus.OK).body(questionnaire);
+
+        } catch (EntityNotFoundException e) {
+            // Return 404 response
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
+                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+                    HttpStatus.FORBIDDEN.value(),
+                    e.getMessage(),
+                    "/api/questionnaire/results/%s".formatted(resultsURL)
+            ));
+        }
+    }
+
 //
 //    @PostMapping(value = "/vote/{url}")
 //    @ApiResponses(value = {
@@ -393,72 +432,4 @@ public class QuestionnaireController {
 //        }
 //    }
 //
-//    @GetMapping(value = "/results/{url}")
-//    @SecurityRequirement(name = "JWTBearerAuth")
-//    @ApiResponses(value = {
-//            @ApiResponse(
-//                    description = "Results for this questionnaire found.",
-//                    responseCode = "200",
-//                    content = @Content(schema = @Schema(implementation = QuestionnaireEntity.class))
-//            ),
-//            @ApiResponse(
-//                    description = "Unauthorized.",
-//                    responseCode = "401",
-//                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
-//            ),
-//            @ApiResponse(
-//                    description = "No access to this questionnaire.",
-//                    responseCode = "403",
-//                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
-//            ),
-//            @ApiResponse(
-//                    description = "Questionnaire not found.",
-//                    responseCode = "404",
-//                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
-//            ),
-//            @ApiResponse(
-//                    description = "JSON encoding error.",
-//                    responseCode = "500",
-//                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
-//            )
-//    })
-//    public ResponseEntity<?> getQuestionnaireResults(Principal principal, @PathVariable("url") String resultsUrl) {
-//        try {
-//            // get user model for current user
-//            UserEntity currentUser = authenticationService.loadUserModelByUsername(principal.getName());
-//
-//            // get questionnaire from db
-//            QuestionnaireEntity questionnaire = questionnaireService.findByResultsUrlAndAdministratorId(resultsUrl, currentUser.getId());
-//
-//            // create filter for the options
-//            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-//            filterProvider.addFilter("optionFilter", SimpleBeanPropertyFilter.serializeAll());
-//            filterProvider.addFilter("questionnaireFilter", SimpleBeanPropertyFilter.serializeAllExcept("votingUrl", "resultsUrl"));
-//
-//            // init object mapper
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-//            objectMapper.setFilterProvider(filterProvider);
-//
-//            // return ok response
-//            return ResponseEntity.status(HttpStatus.OK).body(objectMapper.writeValueAsString(questionnaire));
-//
-//        } catch (EntityNotFoundException e) {
-//            // return error response
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
-//                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
-//                    HttpStatus.FORBIDDEN.value(),
-//                    e.getMessage(),
-//                    "/api/questionnaire/results/%s".formatted(resultsUrl)
-//            ));
-//        } catch (JsonProcessingException e) {
-//            // return error response
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new DefaultErrorResponseSchema(
-//                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
-//                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
-//                    e.getMessage(),
-//                    "/api/questionnaire/results/%s".formatted(resultsUrl)
-//            ));
-//        }
-//    }
 }

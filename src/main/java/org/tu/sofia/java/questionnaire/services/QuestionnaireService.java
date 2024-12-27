@@ -162,52 +162,19 @@ public class QuestionnaireService {
         return QuestionnaireMapper.toDto(questionnaire);
     }
 
-    // ------------------------------------------------------
+    public QuestionnaireWithResultsDTO findQuestionnaireByResultsURL(String username, String resultsURL) {
+        // Get user by username
+        UserEntity currentUser = getUserByUsername(username);
 
-    public QuestionnaireEntity findByQuestionnaireId(Long questionnaireId) throws EntityNotFoundException {
-        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findById(questionnaireId);
+        // Get the questionnaire entity by its results URL
+        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByResultsUrlAndAdministratorId(resultsURL, currentUser.getId());
         if (optionalQuestionnaire.isEmpty()) {
-            throw new EntityNotFoundException("Questionnaire ID not found!");
+            throw new EntityNotFoundException("Questionnaire not found or user has no access to it.");
         }
+        QuestionnaireEntity questionnaire = optionalQuestionnaire.get();
 
-        return optionalQuestionnaire.get();
-    }
-
-    public QuestionnaireEntity findByQuestionnaireIdAndAdministratorId(Long questionnaireId, Long administratorId) throws EntityNotFoundException {
-        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByQuestionnaireIdAndAdministratorId(questionnaireId, administratorId);
-        if (optionalQuestionnaire.isEmpty()) {
-            throw new EntityNotFoundException("Questionnaire ID or this administrator ID is not found!");
-        }
-
-        return optionalQuestionnaire.get();
-    }
-
-    public QuestionnaireEntity findByVotingUrl(String votingUrl) throws EntityNotFoundException {
-        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByVotingUrl(votingUrl);
-        if (optionalQuestionnaire.isEmpty()) {
-            throw new EntityNotFoundException("Questionnaire voting url not found!");
-        }
-
-        return optionalQuestionnaire.get();
-    }
-
-    public QuestionnaireEntity findByResultsUrlAndAdministratorId(String resultsUrl, Long administratorId) throws EntityNotFoundException {
-        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByResultsUrlAndAdministratorId(resultsUrl, administratorId);
-        if (optionalQuestionnaire.isEmpty()) {
-            throw new EntityNotFoundException("Questionnaire results url not found!");
-        }
-
-        return optionalQuestionnaire.get();
-    }
-
-    public Set<QuestionnaireEntity> findPublic() {
-        Optional<Set<QuestionnaireEntity>> optionalQuestionnaireSet = questionnaireRepository.findPublic();
-        return optionalQuestionnaireSet.orElse(null);
-    }
-
-    public Set<QuestionnaireEntity> findByOwner(UserEntity owner) {
-        Optional<Set<QuestionnaireEntity>> optionalQuestionnaireSet = questionnaireRepository.findByOwnerId(owner.getId());
-        return optionalQuestionnaireSet.orElse(null);
+        // Map questionnaire entity to DTO with results and return it
+        return QuestionnaireMapper.toDtoWithResults(questionnaire);
     }
 
     private UserEntity getUserByUsername(String username) {

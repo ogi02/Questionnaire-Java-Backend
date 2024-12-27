@@ -27,9 +27,6 @@ public interface QuestionnaireRepository extends JpaRepository<QuestionnaireEnti
     @Query("UPDATE QuestionnaireEntity q SET q.isOpen = :isOpen WHERE q.id = :questionnaireId")
     void updateQuestionnaireState(Long questionnaireId, Boolean isOpen);
 
-    @Query("SELECT q FROM QuestionnaireEntity q JOIN q.administrators u WHERE q.id = :questionnaireId AND u.id = :administratorId")
-    Optional<QuestionnaireEntity> findByQuestionnaireIdAndAdministratorId(Long questionnaireId, Long administratorId);
-
     @Query("SELECT q FROM QuestionnaireEntity q JOIN q.administrators u WHERE q.resultsUrl = :resultsUrl AND u.id = :administratorId")
     Optional<QuestionnaireEntity> findByResultsUrlAndAdministratorId(String resultsUrl, Long administratorId);
 }
