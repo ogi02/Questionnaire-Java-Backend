@@ -2,9 +2,11 @@ package org.tu.sofia.java.questionnaire.services;
 
 import jakarta.transaction.Transactional;
 import org.tu.sofia.java.questionnaire.dto.QuestionnaireDTO;
+import org.tu.sofia.java.questionnaire.dto.QuestionnaireResponseDTO;
 import org.tu.sofia.java.questionnaire.dto.QuestionnaireWithResultsDTO;
 import org.tu.sofia.java.questionnaire.entities.QuestionnaireEntity;
 import org.tu.sofia.java.questionnaire.entities.UserEntity;
+import org.tu.sofia.java.questionnaire.entities.questions.QuestionEntity;
 import org.tu.sofia.java.questionnaire.mappers.QuestionnaireMapper;
 import org.tu.sofia.java.questionnaire.repositories.AuthenticationRepository;
 import org.tu.sofia.java.questionnaire.repositories.QuestionnaireRepository;
@@ -12,11 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.tu.sofia.java.questionnaire.schemas.VoteSchema;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -150,13 +150,18 @@ public class QuestionnaireService {
         questionnaireRepository.save(questionnaire);
     }
 
-    public QuestionnaireDTO findQuestionnaireByVotingURL(String votingURL) throws EntityNotFoundException {
+    public QuestionnaireDTO findQuestionnaireByVotingURL(String votingURL) throws EntityNotFoundException, IllegalAccessException {
         // Get the questionnaire
         Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByVotingUrl(votingURL);
         if (optionalQuestionnaire.isEmpty()) {
             throw new EntityNotFoundException("Questionnaire with this voting URL was not found.");
         }
         QuestionnaireEntity questionnaire = optionalQuestionnaire.get();
+
+        // Check if questionnaire is closed
+        if (!questionnaire.getIsOpen()) {
+            throw new IllegalAccessException("Questionnaire is closed.");
+        }
 
         // Map the questionnaire entity to questionnaire DTO without results and return it
         return QuestionnaireMapper.toDto(questionnaire);
@@ -175,6 +180,36 @@ public class QuestionnaireService {
 
         // Map questionnaire entity to DTO with results and return it
         return QuestionnaireMapper.toDtoWithResults(questionnaire);
+    }
+
+    public void answerQuestionnaire(String votingURL, QuestionnaireResponseDTO questionnaireResponse) throws EntityNotFoundException, IllegalAccessException {
+        // Get the questionnaire by its results URL
+        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByVotingUrl(votingURL);
+        if (optionalQuestionnaire.isEmpty()) {
+            throw new EntityNotFoundException("Questionnaire with this results URL not found.");
+        }
+        QuestionnaireEntity questionnaire = optionalQuestionnaire.get();
+
+        // Check if the questionnaire is closed
+        if (!questionnaire.getIsOpen()) {
+            throw new IllegalAccessException("Questionnaire is closed!");
+        }
+
+        // Iterate through the answered questions
+        for (Map.Entry<Long, Object> response : questionnaireResponse.getAnswers().entrySet()) {
+            // Filter the questions by the ID of the response
+            Optional<QuestionEntity> optionalQuestion = questionnaire.getQuestions().stream().filter(question -> Objects.equals(question.getId(), response.getKey())).findFirst();
+            if (optionalQuestion.isEmpty()) {
+                throw new EntityNotFoundException("Question with this ID - %d was not found.".formatted(response.getKey()));
+            }
+            QuestionEntity question = optionalQuestion.get();
+
+            // Answer the question
+            question.answerQuestion(response.getValue());
+        }
+
+        // Save the questionnaire
+        questionnaireRepository.save(questionnaire);
     }
 
     private UserEntity getUserByUsername(String username) {

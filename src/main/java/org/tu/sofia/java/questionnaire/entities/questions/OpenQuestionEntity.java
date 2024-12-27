@@ -19,9 +19,11 @@ public class OpenQuestionEntity extends QuestionEntity {
     private Set<OpenResponseEntity> answers;
 
     @Override
-    public <T> void answerQuestion(T response) {
+    public <T> void answerQuestion(T response) throws IllegalArgumentException {
         if (response instanceof String responseText) {
             answers.add(new OpenResponseEntity(this, responseText));
+        } else {
+            throw new IllegalArgumentException("Invalid response type for open question!");
         }
     }
 }

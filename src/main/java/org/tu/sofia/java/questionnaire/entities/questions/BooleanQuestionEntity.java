@@ -22,13 +22,15 @@ public class BooleanQuestionEntity extends QuestionEntity {
     private Integer falseVotes = 0;
 
     @Override
-    public <T> void answerQuestion(T response) {
+    public <T> void answerQuestion(T response) throws IllegalArgumentException {
         if (response instanceof Boolean b) {
             if (b) {
                 trueVotes++;
             } else {
                 falseVotes++;
             }
+        } else {
+            throw new IllegalArgumentException("Invalid response type for boolean question!");
         }
     }
 }

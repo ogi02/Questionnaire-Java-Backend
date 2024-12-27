@@ -14,8 +14,6 @@ import java.util.Set;
 public interface QuestionnaireRepository extends JpaRepository<QuestionnaireEntity, Long> {
     Optional<QuestionnaireEntity> findByVotingUrl(String votingUrl);
 
-    Optional<Set<QuestionnaireEntity>> findByOwnerId(Long ownerId);
-
     @Query("SELECT q FROM QuestionnaireEntity q WHERE q.isPublic = TRUE AND q.isOpen = TRUE")
     Optional<Set<QuestionnaireEntity>> findPublic();
 

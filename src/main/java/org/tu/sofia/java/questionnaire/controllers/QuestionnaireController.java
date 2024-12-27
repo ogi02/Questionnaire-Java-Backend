@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.tu.sofia.java.questionnaire.dto.QuestionnaireDTO;
+import org.tu.sofia.java.questionnaire.dto.QuestionnaireResponseDTO;
 import org.tu.sofia.java.questionnaire.dto.QuestionnaireWithResultsDTO;
 import org.tu.sofia.java.questionnaire.entities.QuestionnaireEntity;
 import org.tu.sofia.java.questionnaire.schemas.DefaultErrorResponseSchema;
@@ -288,7 +289,7 @@ public class QuestionnaireController {
         }
     }
 
-    @GetMapping(value = "/vote/{votingURL}")
+    @GetMapping(value = "/vote/{votingURL}", produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(
                     description = "Questionnaire found.",
@@ -311,18 +312,8 @@ public class QuestionnaireController {
             // Get the questionnaire from the DB
             QuestionnaireDTO questionnaire = questionnaireService.findQuestionnaireByVotingURL(votingURL);
 
-            if (questionnaire.getIsOpen()) {
-                // Return 200 response
-                return ResponseEntity.status(HttpStatus.OK).body(questionnaire);
-            } else {
-                // Return 403 response
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DefaultErrorResponseSchema(
-                        DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
-                        HttpStatus.FORBIDDEN.value(),
-                        "Questionnaire is closed.",
-                        "/api/questionnaire/user"
-                ));
-            }
+            // Return 200 response
+            return ResponseEntity.status(HttpStatus.OK).body(questionnaire);
 
         } catch (EntityNotFoundException e) {
             // Return 404 response
@@ -330,12 +321,20 @@ public class QuestionnaireController {
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.NOT_FOUND.value(),
                     e.getMessage(),
-                    "/api/questionnaire/user"
+                    "/api/questionnaire/vote/%s".formatted(votingURL)
+            ));
+        } catch (IllegalAccessException e) {
+            // Return 403 response
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DefaultErrorResponseSchema(
+                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+                    HttpStatus.FORBIDDEN.value(),
+                    e.getMessage(),
+                    "/api/questionnaire/vote/%s".formatted(votingURL)
             ));
         }
     }
 
-    @GetMapping(value = "/results/{resultsURL}")
+    @GetMapping(value = "/results/{resultsURL}", produces = "application/json")
     @SecurityRequirement(name = "JWTBearerAuth")
     @ApiResponses(value = {
             @ApiResponse(
@@ -373,63 +372,64 @@ public class QuestionnaireController {
         }
     }
 
-//
-//    @PostMapping(value = "/vote/{url}")
-//    @ApiResponses(value = {
-//            @ApiResponse(
-//                    description = "Voted.",
-//                    responseCode = "201"
-//            ),
-//            @ApiResponse(
-//                    description = "Questionnaire is closed.",
-//                    responseCode = "403",
-//                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
-//            ),
-//            @ApiResponse(
-//                    description = "Questionnaire, question or option not found.",
-//                    responseCode = "404",
-//                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
-//            )
-//    })
-//    public ResponseEntity<?> vote(@PathVariable("url") String votingUrl, @RequestBody VoteSchema request) {
-//        try {
-//            // get questionnaire from db
-//            QuestionnaireEntity questionnaire = questionnaireService.findByVotingUrl(votingUrl);
-//
-//            // check if questionnaire is closed
-//            if (!questionnaire.getIsOpen()) {
-//                // return no content response
-//                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DefaultErrorResponseSchema(
-//                        DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
-//                        HttpStatus.FORBIDDEN.value(),
-//                        "Questionnaire is closed!",
-//                        "/api/questionnaire/vote/%s".formatted(votingUrl)
-//                ));
-//            }
-//
-//            // iterate through votes and add vote to every question
-//            for (VoteSchema.Vote vote : request.getVotes()) {
-//                questionnaire
-//                        .findQuestionById(vote.getQuestionId())
-//                        .findOptionById(vote.getOptionId())
-//                        .addVote();
-//            }
-//
-//            // save questionnaire
-//            questionnaireService.save(questionnaire);
-//
-//            // return created response
-//            return ResponseEntity.status(HttpStatus.CREATED).build();
-//
-//        } catch (EntityNotFoundException e) {
-//            // return error response
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
-//                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
-//                    HttpStatus.NOT_FOUND.value(),
-//                    e.getMessage(),
-//                    "/api/questionnaire/vote/%s".formatted(votingUrl)
-//            ));
-//        }
-//    }
-//
+    @PostMapping(value = "/vote/{votingURL}", consumes = "application/json", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    description = "Successfully voted.",
+                    responseCode = "201"
+            ),
+            @ApiResponse(
+                    description = "Unexpected response type for any of the questions.",
+                    responseCode = "400",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "Questionnaire is closed.",
+                    responseCode = "403",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "Questionnaire ID, question ID or option ID was not found",
+                    responseCode = "404",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            )
+    })
+    public ResponseEntity<?> answerQuestionnaire(@PathVariable String votingURL, @RequestBody QuestionnaireResponseDTO questionnaireResponseDTO) {
+        try {
+            // Print
+            System.out.println(questionnaireResponseDTO);
+
+            // Save a response on the questionnaire
+            questionnaireService.answerQuestionnaire(votingURL, questionnaireResponseDTO);
+
+            // Return 201 response
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+
+        } catch (EntityNotFoundException e) {
+            // Return 404 response
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
+                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+                    HttpStatus.NOT_FOUND.value(),
+                    e.getMessage(),
+                    "/api/questionnaire/vote/%s".formatted(votingURL)
+            ));
+        } catch (IllegalAccessException e) {
+            // Return 403 response
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DefaultErrorResponseSchema(
+                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+                    HttpStatus.FORBIDDEN.value(),
+                    e.getMessage(),
+                    "/api/questionnaire/vote/%s".formatted(votingURL)
+            ));
+        } catch (IllegalArgumentException e) {
+            // Return 400 response
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DefaultErrorResponseSchema(
+                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+                    HttpStatus.BAD_REQUEST.value(),
+                    e.getMessage(),
+                    "/api/questionnaire/vote/%s".formatted(votingURL)
+            ));
+        }
+    }
+
 }

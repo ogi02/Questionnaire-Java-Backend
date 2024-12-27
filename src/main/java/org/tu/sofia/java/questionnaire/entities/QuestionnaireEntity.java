@@ -84,13 +84,4 @@ public class QuestionnaireEntity {
     public QuestionnaireEntity(String title) {
         this.title = title;
     }
-
-//    public OptionQuestionEntity findQuestionById(Long id) throws EntityNotFoundException {
-//        Optional<OptionQuestionEntity> optionalQuestion = questions.stream().filter(question -> question.getId().equals(id)).findFirst();
-//        if (optionalQuestion.isEmpty()) {
-//            throw new EntityNotFoundException("Question with this ID not found!");
-//        }
-//
-//        return optionalQuestion.get();
-//    }
 }

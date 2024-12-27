@@ -26,5 +26,5 @@ public abstract class QuestionEntity {
     @JoinColumn(name = "questionnaire_id", referencedColumnName = "id")
     private QuestionnaireEntity questionnaire;
 
-    public abstract <T> void answerQuestion(T response);
+    public abstract <T> void answerQuestion(T response) throws IllegalArgumentException;
 }
