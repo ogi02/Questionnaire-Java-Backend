@@ -1,6 +1,5 @@
 package org.tu.sofia.java.questionnaire.entities.questions;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,11 +13,9 @@ import jakarta.persistence.*;
 @NoArgsConstructor
 public class BooleanQuestionEntity extends QuestionEntity {
     @Column
-    @Hidden
     private Integer trueVotes = 0;
 
     @Column
-    @Hidden
     private Integer falseVotes = 0;
 
     @Override
