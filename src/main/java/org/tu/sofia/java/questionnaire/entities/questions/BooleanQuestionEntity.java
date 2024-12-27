@@ -18,6 +18,10 @@ public class BooleanQuestionEntity extends QuestionEntity {
     @Column
     private Integer falseVotes = 0;
 
+    public BooleanQuestionEntity(String questionText) {
+        super(questionText);
+    }
+
     @Override
     public <T> void answerQuestion(T response) throws IllegalArgumentException {
         if (response instanceof Boolean b) {

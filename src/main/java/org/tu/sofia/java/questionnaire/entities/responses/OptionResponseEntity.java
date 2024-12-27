@@ -28,6 +28,10 @@ public class OptionResponseEntity {
     @Column
     private Integer votes = 0;
 
+    public OptionResponseEntity(String option) {
+        this.option = option;
+    }
+
     public void addResponse() {
         this.votes += 1;
     }

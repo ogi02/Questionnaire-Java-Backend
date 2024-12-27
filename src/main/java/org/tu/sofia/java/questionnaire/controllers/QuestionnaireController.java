@@ -375,7 +375,7 @@ public class QuestionnaireController {
             // Return 404 response
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseSchema(
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
-                    HttpStatus.FORBIDDEN.value(),
+                    HttpStatus.NOT_FOUND.value(),
                     e.getMessage(),
                     "/api/questionnaire/results/%s".formatted(resultsURL),
                     HttpMethod.GET.name()

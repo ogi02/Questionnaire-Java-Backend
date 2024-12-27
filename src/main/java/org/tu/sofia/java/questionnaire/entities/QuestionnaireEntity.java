@@ -1,5 +1,6 @@
 package org.tu.sofia.java.questionnaire.entities;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -43,31 +44,25 @@ public class QuestionnaireEntity {
     @OneToMany(mappedBy = "questionnaire", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<QuestionEntity> questions;
 
-    @Column
+    @Column(name = "is_open")
     private Boolean isOpen;
 
-    @Column
+    @Column(name = "is_public")
     private Boolean isPublic;
 
-    @Column
+    @Column(name = "answer_url")
     private String answerURL = UUID.randomUUID().toString().replace("-", "");
 
-    @Column
+    @Column(name = "results_url")
     private String resultsURL = UUID.randomUUID().toString().replace("-", "");
 
-    public QuestionnaireEntity(String title, Boolean isOpen, Boolean isPublic) {
+    public QuestionnaireEntity(String title, String description, UserEntity owner, Set<UserEntity> administrators, Set<QuestionEntity> questions, Boolean isOpen, Boolean isPublic) {
         this.title = title;
+        this.description = description;
+        this.owner = owner;
+        this.administrators = administrators;
+        this.questions = questions;
         this.isOpen = isOpen;
         this.isPublic = isPublic;
-    }
-
-    public QuestionnaireEntity(String title, String answerURL, Boolean isOpen) {
-        this.title = title;
-        this.answerURL = answerURL;
-        this.isOpen = isOpen;
-    }
-
-    public QuestionnaireEntity(String title) {
-        this.title = title;
     }
 }

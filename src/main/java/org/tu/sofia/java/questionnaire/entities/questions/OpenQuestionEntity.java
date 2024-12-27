@@ -18,6 +18,10 @@ public class OpenQuestionEntity extends QuestionEntity {
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OpenResponseEntity> answers;
 
+    public OpenQuestionEntity(String questionText) {
+        super(questionText);
+    }
+
     @Override
     public <T> void answerQuestion(T response) throws IllegalArgumentException {
         if (response instanceof String responseText) {

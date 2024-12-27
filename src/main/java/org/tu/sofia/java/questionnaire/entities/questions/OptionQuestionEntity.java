@@ -20,6 +20,11 @@ public class OptionQuestionEntity extends QuestionEntity {
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OptionResponseEntity> options;
 
+    public OptionQuestionEntity(String questionText, Set<OptionResponseEntity> options) {
+        super(questionText);
+        this.options = options;
+    }
+
     @Override
     public <T> void answerQuestion(T response) throws IllegalArgumentException {
         if (response instanceof Integer optionResponseEntityId) {
