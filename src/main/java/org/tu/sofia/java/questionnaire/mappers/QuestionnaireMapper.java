@@ -1,8 +1,8 @@
 package org.tu.sofia.java.questionnaire.mappers;
 
-import org.tu.sofia.java.questionnaire.dto.QuestionnaireDTO;
-import org.tu.sofia.java.questionnaire.dto.QuestionnaireWithResultsDTO;
-import org.tu.sofia.java.questionnaire.dto.questions.*;
+import org.tu.sofia.java.questionnaire.dtos.QuestionnaireDTO;
+import org.tu.sofia.java.questionnaire.dtos.QuestionnaireWithResultsDTO;
+import org.tu.sofia.java.questionnaire.dtos.questions.*;
 import org.tu.sofia.java.questionnaire.entities.QuestionnaireEntity;
 import org.tu.sofia.java.questionnaire.entities.questions.BooleanQuestionEntity;
 import org.tu.sofia.java.questionnaire.entities.questions.OpenQuestionEntity;

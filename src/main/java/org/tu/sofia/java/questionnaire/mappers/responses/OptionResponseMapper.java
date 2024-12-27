@@ -1,7 +1,7 @@
 package org.tu.sofia.java.questionnaire.mappers.responses;
 
-import org.tu.sofia.java.questionnaire.dto.responses.OptionResponseDTO;
-import org.tu.sofia.java.questionnaire.dto.responses.OptionResponseWithoutVotesDTO;
+import org.tu.sofia.java.questionnaire.dtos.responses.OptionResponseDTO;
+import org.tu.sofia.java.questionnaire.dtos.responses.OptionResponseWithoutVotesDTO;
 import org.tu.sofia.java.questionnaire.entities.responses.OptionResponseEntity;
 
 public class OptionResponseMapper {

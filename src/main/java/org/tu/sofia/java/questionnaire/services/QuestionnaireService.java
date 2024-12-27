@@ -1,9 +1,9 @@
 package org.tu.sofia.java.questionnaire.services;
 
 import jakarta.transaction.Transactional;
-import org.tu.sofia.java.questionnaire.dto.QuestionnaireDTO;
-import org.tu.sofia.java.questionnaire.dto.QuestionnaireResponseDTO;
-import org.tu.sofia.java.questionnaire.dto.QuestionnaireWithResultsDTO;
+import org.tu.sofia.java.questionnaire.dtos.QuestionnaireDTO;
+import org.tu.sofia.java.questionnaire.dtos.QuestionnaireResponseDTO;
+import org.tu.sofia.java.questionnaire.dtos.QuestionnaireWithResultsDTO;
 import org.tu.sofia.java.questionnaire.entities.QuestionnaireEntity;
 import org.tu.sofia.java.questionnaire.entities.UserEntity;
 import org.tu.sofia.java.questionnaire.entities.questions.QuestionEntity;

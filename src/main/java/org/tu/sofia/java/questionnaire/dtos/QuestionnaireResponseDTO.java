@@ -1,4 +1,4 @@
-package org.tu.sofia.java.questionnaire.dto;
+package org.tu.sofia.java.questionnaire.dtos;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,11 +1,11 @@
-package org.tu.sofia.java.questionnaire.dto;
+package org.tu.sofia.java.questionnaire.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.tu.sofia.java.questionnaire.dto.questions.BooleanQuestionWithResultsDTO;
-import org.tu.sofia.java.questionnaire.dto.questions.OpenQuestionWithResultsDTO;
-import org.tu.sofia.java.questionnaire.dto.questions.OptionQuestionWithResultsDTO;
+import org.tu.sofia.java.questionnaire.dtos.questions.BooleanQuestionWithResultsDTO;
+import org.tu.sofia.java.questionnaire.dtos.questions.OpenQuestionWithResultsDTO;
+import org.tu.sofia.java.questionnaire.dtos.questions.OptionQuestionWithResultsDTO;
 
 import java.util.Set;
 

@@ -1,6 +1,6 @@
 package org.tu.sofia.java.questionnaire.mappers;
 
-import org.tu.sofia.java.questionnaire.dto.UserDTO;
+import org.tu.sofia.java.questionnaire.dtos.UserDTO;
 import org.tu.sofia.java.questionnaire.entities.UserEntity;
 
 public class UserMapper {

@@ -1,4 +1,4 @@
-package org.tu.sofia.java.questionnaire.dto.responses;
+package org.tu.sofia.java.questionnaire.dtos.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OpenResponseDTO {
-    private String responseText;
+public class OptionResponseWithoutVotesDTO {
+    private String option;
 }

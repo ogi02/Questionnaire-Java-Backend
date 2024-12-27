@@ -1,8 +1,8 @@
 package org.tu.sofia.java.questionnaire.mappers.questions;
 
-import org.tu.sofia.java.questionnaire.dto.questions.OpenQuestionDTO;
-import org.tu.sofia.java.questionnaire.dto.questions.OpenQuestionWithResultsDTO;
-import org.tu.sofia.java.questionnaire.dto.responses.OpenResponseDTO;
+import org.tu.sofia.java.questionnaire.dtos.questions.OpenQuestionDTO;
+import org.tu.sofia.java.questionnaire.dtos.questions.OpenQuestionWithResultsDTO;
+import org.tu.sofia.java.questionnaire.dtos.responses.OpenResponseDTO;
 import org.tu.sofia.java.questionnaire.entities.questions.OpenQuestionEntity;
 import org.tu.sofia.java.questionnaire.mappers.responses.OpenResponseMapper;
 

@@ -1,9 +1,9 @@
 package org.tu.sofia.java.questionnaire.mappers.questions;
 
-import org.tu.sofia.java.questionnaire.dto.questions.OptionQuestionDTO;
-import org.tu.sofia.java.questionnaire.dto.questions.OptionQuestionWithResultsDTO;
-import org.tu.sofia.java.questionnaire.dto.responses.OptionResponseDTO;
-import org.tu.sofia.java.questionnaire.dto.responses.OptionResponseWithoutVotesDTO;
+import org.tu.sofia.java.questionnaire.dtos.questions.OptionQuestionDTO;
+import org.tu.sofia.java.questionnaire.dtos.questions.OptionQuestionWithResultsDTO;
+import org.tu.sofia.java.questionnaire.dtos.responses.OptionResponseDTO;
+import org.tu.sofia.java.questionnaire.dtos.responses.OptionResponseWithoutVotesDTO;
 import org.tu.sofia.java.questionnaire.entities.questions.OptionQuestionEntity;
 import org.tu.sofia.java.questionnaire.entities.responses.OptionResponseEntity;
 import org.tu.sofia.java.questionnaire.mappers.responses.OptionResponseMapper;

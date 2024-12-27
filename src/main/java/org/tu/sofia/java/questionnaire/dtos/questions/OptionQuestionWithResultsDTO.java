@@ -1,9 +1,9 @@
-package org.tu.sofia.java.questionnaire.dto.questions;
+package org.tu.sofia.java.questionnaire.dtos.questions;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.tu.sofia.java.questionnaire.dto.responses.OptionResponseDTO;
+import org.tu.sofia.java.questionnaire.dtos.responses.OptionResponseDTO;
 
 import java.util.HashSet;
 import java.util.Set;
