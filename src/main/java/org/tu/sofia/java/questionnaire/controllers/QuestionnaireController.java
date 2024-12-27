@@ -8,11 +8,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.http.HttpMethod;
 import org.tu.sofia.java.questionnaire.dto.QuestionnaireDTO;
 import org.tu.sofia.java.questionnaire.dto.QuestionnaireResponseDTO;
 import org.tu.sofia.java.questionnaire.dto.QuestionnaireWithResultsDTO;
-import org.tu.sofia.java.questionnaire.entities.QuestionnaireEntity;
-import org.tu.sofia.java.questionnaire.schemas.DefaultErrorResponseSchema;
+import org.tu.sofia.java.questionnaire.schemas.ErrorResponseSchema;
 import org.tu.sofia.java.questionnaire.services.QuestionnaireService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,12 +47,12 @@ public class QuestionnaireController {
             @ApiResponse(
                     description = "Bad request.",
                     responseCode = "400",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
             @ApiResponse(
                     description = "Unauthorized.",
                     responseCode = "401",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
     })
     public ResponseEntity<?> createQuestionnaire(Principal principal, @RequestBody QuestionnaireDTO questionnaireDTO) {
@@ -64,11 +64,12 @@ public class QuestionnaireController {
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
             // Return 400 response
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DefaultErrorResponseSchema(
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponseSchema(
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.BAD_REQUEST.value(),
                     e.getMessage(),
-                    "/api/questionnaire"
+                    "/api/questionnaire",
+                    HttpMethod.POST.name()
             ));
         }
 
@@ -85,17 +86,17 @@ public class QuestionnaireController {
             @ApiResponse(
                     description = "Unauthorized.",
                     responseCode = "401",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
             @ApiResponse(
                     description = "User is not an owner or administrator of this questionnaire.",
                     responseCode = "403",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
             @ApiResponse(
                     description = "Questionnaire not found.",
                     responseCode = "404",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
     })
     public ResponseEntity<?> deleteQuestionnaire(Principal principal, @PathVariable("id") Long questionnaireId) {
@@ -107,19 +108,21 @@ public class QuestionnaireController {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (EntityNotFoundException e) {
             // Return 404 response
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseSchema(
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.NOT_FOUND.value(),
                     e.getMessage(),
-                    "/api/questionnaire"
+                    "/api/questionnaire",
+                    HttpMethod.DELETE.name()
             ));
         } catch (IllegalAccessException e) {
             // Return 403 response
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DefaultErrorResponseSchema(
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponseSchema(
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.FORBIDDEN.value(),
                     e.getMessage(),
-                    "/api/questionnaire"
+                    "/api/questionnaire",
+                    HttpMethod.DELETE.name()
             ));
         }
 
@@ -165,7 +168,7 @@ public class QuestionnaireController {
             @ApiResponse(
                     description = "Unauthorized.",
                     responseCode = "401",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
     })
     public ResponseEntity<?> getUserQuestionnaires(Principal principal) {
@@ -191,17 +194,17 @@ public class QuestionnaireController {
             @ApiResponse(
                     description = "Unauthorized.",
                     responseCode = "401",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
             @ApiResponse(
                     description = "User is not an administrator of this questionnaire.",
                     responseCode = "403",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
             @ApiResponse(
                     description = "Questionnaire not found.",
                     responseCode = "404",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
     })
     public ResponseEntity<?> updateQuestionnaireState(Principal principal, @PathVariable("id") Long questionnaireId, @PathVariable Boolean isOpen) {
@@ -214,27 +217,30 @@ public class QuestionnaireController {
 
         } catch (EntityNotFoundException e) {
             // Return 404 response
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseSchema(
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.NOT_FOUND.value(),
                     e.getMessage(),
-                    "/api/questionnaire/%d/state/%s".formatted(questionnaireId, isOpen.toString())
+                    "/api/questionnaire/%d/state/%s".formatted(questionnaireId, isOpen.toString()),
+                    HttpMethod.PUT.name()
             ));
         } catch (IllegalAccessException e) {
             // Return 403 response
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DefaultErrorResponseSchema(
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponseSchema(
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.FORBIDDEN.value(),
                     e.getMessage(),
-                    "/api/questionnaire/%d/state/%s".formatted(questionnaireId, isOpen.toString())
+                    "/api/questionnaire/%d/state/%s".formatted(questionnaireId, isOpen.toString()),
+                    HttpMethod.PUT.name()
             ));
         } catch (InvalidDataAccessApiUsageException e) {
             // Return 500 response
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new DefaultErrorResponseSchema(
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponseSchema(
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMostSpecificCause().toString(),
-                    "/api/questionnaire/%d/state/%s".formatted(questionnaireId, isOpen.toString())
+                    "/api/questionnaire/%d/state/%s".formatted(questionnaireId, isOpen.toString()),
+                    HttpMethod.PUT.name()
             ));
         }
     }
@@ -249,17 +255,17 @@ public class QuestionnaireController {
             @ApiResponse(
                     description = "Unauthorized.",
                     responseCode = "401",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
             @ApiResponse(
                     description = "Current user is not an administrator of the questionnaire.",
                     responseCode = "403",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
             @ApiResponse(
                     description = "Questionnaire ID or user ID not found.",
                     responseCode = "404",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             )
     })
     public ResponseEntity<?> addAdministratorToQuestionnaire(Principal principal, @PathVariable Long questionnaireId, @PathVariable Long userId) {
@@ -272,19 +278,21 @@ public class QuestionnaireController {
 
         } catch (EntityNotFoundException e) {
             // Return 404 response
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseSchema(
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.NOT_FOUND.value(),
                     e.getMessage(),
-                    "/api/questionnaire/%d/admin/%s".formatted(questionnaireId, userId)
+                    "/api/questionnaire/%d/admin/%s".formatted(questionnaireId, userId),
+                    HttpMethod.POST.name()
             ));
         } catch (IllegalAccessException e) {
             // Return 403 response
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DefaultErrorResponseSchema(
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponseSchema(
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.FORBIDDEN.value(),
                     e.getMessage(),
-                    "/api/questionnaire/%d/admin/%s".formatted(questionnaireId, userId)
+                    "/api/questionnaire/%d/admin/%s".formatted(questionnaireId, userId),
+                    HttpMethod.POST.name()
             ));
         }
     }
@@ -299,12 +307,12 @@ public class QuestionnaireController {
             @ApiResponse(
                     description = "Questionnaire is closed.",
                     responseCode = "403",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
             @ApiResponse(
                     description = "Questionnaire not found.",
                     responseCode = "404",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
     })
     public ResponseEntity<?> getQuestionnaireByVotingURL(@PathVariable String votingURL) {
@@ -317,19 +325,21 @@ public class QuestionnaireController {
 
         } catch (EntityNotFoundException e) {
             // Return 404 response
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseSchema(
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.NOT_FOUND.value(),
                     e.getMessage(),
-                    "/api/questionnaire/vote/%s".formatted(votingURL)
+                    "/api/questionnaire/vote/%s".formatted(votingURL),
+                    HttpMethod.GET.name()
             ));
         } catch (IllegalAccessException e) {
             // Return 403 response
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DefaultErrorResponseSchema(
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponseSchema(
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.FORBIDDEN.value(),
                     e.getMessage(),
-                    "/api/questionnaire/vote/%s".formatted(votingURL)
+                    "/api/questionnaire/vote/%s".formatted(votingURL),
+                    HttpMethod.GET.name()
             ));
         }
     }
@@ -345,12 +355,12 @@ public class QuestionnaireController {
             @ApiResponse(
                     description = "Unauthorized.",
                     responseCode = "401",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
             @ApiResponse(
                     description = "Questionnaire results not found or user has no access to them.",
                     responseCode = "404",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
     })
     public ResponseEntity<?> getQuestionnaireResults(Principal principal, @PathVariable String resultsURL) {
@@ -363,11 +373,12 @@ public class QuestionnaireController {
 
         } catch (EntityNotFoundException e) {
             // Return 404 response
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseSchema(
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.FORBIDDEN.value(),
                     e.getMessage(),
-                    "/api/questionnaire/results/%s".formatted(resultsURL)
+                    "/api/questionnaire/results/%s".formatted(resultsURL),
+                    HttpMethod.GET.name()
             ));
         }
     }
@@ -381,17 +392,17 @@ public class QuestionnaireController {
             @ApiResponse(
                     description = "Unexpected response type for any of the questions.",
                     responseCode = "400",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
             @ApiResponse(
                     description = "Questionnaire is closed.",
                     responseCode = "403",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
             @ApiResponse(
                     description = "Questionnaire ID, question ID or option ID was not found",
                     responseCode = "404",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             )
     })
     public ResponseEntity<?> answerQuestionnaire(@PathVariable String votingURL, @RequestBody QuestionnaireResponseDTO questionnaireResponseDTO) {
@@ -407,27 +418,30 @@ public class QuestionnaireController {
 
         } catch (EntityNotFoundException e) {
             // Return 404 response
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseSchema(
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.NOT_FOUND.value(),
                     e.getMessage(),
-                    "/api/questionnaire/vote/%s".formatted(votingURL)
+                    "/api/questionnaire/vote/%s".formatted(votingURL),
+                    HttpMethod.POST.name()
             ));
         } catch (IllegalAccessException e) {
             // Return 403 response
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DefaultErrorResponseSchema(
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponseSchema(
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.FORBIDDEN.value(),
                     e.getMessage(),
-                    "/api/questionnaire/vote/%s".formatted(votingURL)
+                    "/api/questionnaire/vote/%s".formatted(votingURL),
+                    HttpMethod.POST.name()
             ));
         } catch (IllegalArgumentException e) {
             // Return 400 response
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DefaultErrorResponseSchema(
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponseSchema(
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.BAD_REQUEST.value(),
                     e.getMessage(),
-                    "/api/questionnaire/vote/%s".formatted(votingURL)
+                    "/api/questionnaire/vote/%s".formatted(votingURL),
+                    HttpMethod.POST.name()
             ));
         }
     }

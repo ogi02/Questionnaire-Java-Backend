@@ -6,7 +6,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.tu.sofia.java.questionnaire.schemas.DefaultErrorResponseSchema;
+import org.springframework.http.HttpMethod;
+import org.tu.sofia.java.questionnaire.schemas.ErrorResponseSchema;
 import org.tu.sofia.java.questionnaire.schemas.JwtRequestSchema;
 import org.tu.sofia.java.questionnaire.schemas.JwtResponseSchema;
 import org.tu.sofia.java.questionnaire.services.AuthenticationService;
@@ -35,7 +36,7 @@ public class AuthenticationController {
             @ApiResponse(
                     description = "Invalid username or password.",
                     responseCode = "403",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
     })
     public ResponseEntity<?> login(@RequestBody JwtRequestSchema request) {
@@ -52,11 +53,12 @@ public class AuthenticationController {
             // Return 403 response, most likely invalid credentials
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
-                    .body(new DefaultErrorResponseSchema(
+                    .body(new ErrorResponseSchema(
                             DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                             HttpStatus.FORBIDDEN.value(),
                             e.getMessage(),
-                            "/api/auth/login"
+                            "/api/auth/login",
+                            HttpMethod.POST.name()
                     ));
         }
     }
@@ -71,7 +73,7 @@ public class AuthenticationController {
             @ApiResponse(
                     description = "Username already taken",
                     responseCode = "403",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+                    content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
     })
     public ResponseEntity<?> register(@RequestBody JwtRequestSchema request) {
@@ -88,11 +90,12 @@ public class AuthenticationController {
             // Return error response, most likely duplicate username
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
-                    .body(new DefaultErrorResponseSchema(
+                    .body(new ErrorResponseSchema(
                             DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                             HttpStatus.FORBIDDEN.value(),
                             e.getMessage(),
-                            "/api/auth/register"
+                            "/api/auth/register",
+                            HttpMethod.POST.name()
                     ));
         }
     }
