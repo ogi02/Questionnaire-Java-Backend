@@ -297,7 +297,7 @@ public class QuestionnaireController {
         }
     }
 
-    @GetMapping(value = "/vote/{votingURL}", produces = "application/json")
+    @GetMapping(value = "/answer/{answerURL}", produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(
                     description = "Questionnaire found.",
@@ -315,10 +315,10 @@ public class QuestionnaireController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
     })
-    public ResponseEntity<?> getQuestionnaireByVotingURL(@PathVariable String votingURL) {
+    public ResponseEntity<?> getQuestionnaireByAnswerURL(@PathVariable String answerURL) {
         try {
             // Get the questionnaire from the DB
-            QuestionnaireDTO questionnaire = questionnaireService.findQuestionnaireByVotingURL(votingURL);
+            QuestionnaireDTO questionnaire = questionnaireService.findQuestionnaireByAnswerURL(answerURL);
 
             // Return 200 response
             return ResponseEntity.status(HttpStatus.OK).body(questionnaire);
@@ -329,7 +329,7 @@ public class QuestionnaireController {
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.NOT_FOUND.value(),
                     e.getMessage(),
-                    "/api/questionnaire/vote/%s".formatted(votingURL),
+                    "/api/questionnaire/answer/%s".formatted(answerURL),
                     HttpMethod.GET.name()
             ));
         } catch (IllegalAccessException e) {
@@ -338,7 +338,7 @@ public class QuestionnaireController {
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.FORBIDDEN.value(),
                     e.getMessage(),
-                    "/api/questionnaire/vote/%s".formatted(votingURL),
+                    "/api/questionnaire/answer/%s".formatted(answerURL),
                     HttpMethod.GET.name()
             ));
         }
@@ -383,10 +383,10 @@ public class QuestionnaireController {
         }
     }
 
-    @PostMapping(value = "/vote/{votingURL}", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/answer/{answerURL}", consumes = "application/json", produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(
-                    description = "Successfully voted.",
+                    description = "Successfully answered.",
                     responseCode = "201"
             ),
             @ApiResponse(
@@ -405,13 +405,13 @@ public class QuestionnaireController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             )
     })
-    public ResponseEntity<?> answerQuestionnaire(@PathVariable String votingURL, @RequestBody QuestionnaireResponseDTO questionnaireResponseDTO) {
+    public ResponseEntity<?> answerQuestionnaire(@PathVariable String answerURL, @RequestBody QuestionnaireResponseDTO questionnaireResponseDTO) {
         try {
             // Print
             System.out.println(questionnaireResponseDTO);
 
             // Save a response on the questionnaire
-            questionnaireService.answerQuestionnaire(votingURL, questionnaireResponseDTO);
+            questionnaireService.answerQuestionnaire(answerURL, questionnaireResponseDTO);
 
             // Return 201 response
             return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -422,7 +422,7 @@ public class QuestionnaireController {
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.NOT_FOUND.value(),
                     e.getMessage(),
-                    "/api/questionnaire/vote/%s".formatted(votingURL),
+                    "/api/questionnaire/answer/%s".formatted(answerURL),
                     HttpMethod.POST.name()
             ));
         } catch (IllegalAccessException e) {
@@ -431,7 +431,7 @@ public class QuestionnaireController {
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.FORBIDDEN.value(),
                     e.getMessage(),
-                    "/api/questionnaire/vote/%s".formatted(votingURL),
+                    "/api/questionnaire/answer/%s".formatted(answerURL),
                     HttpMethod.POST.name()
             ));
         } catch (IllegalArgumentException e) {
@@ -440,7 +440,7 @@ public class QuestionnaireController {
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.BAD_REQUEST.value(),
                     e.getMessage(),
-                    "/api/questionnaire/vote/%s".formatted(votingURL),
+                    "/api/questionnaire/answer/%s".formatted(answerURL),
                     HttpMethod.POST.name()
             ));
         }

@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
-import org.tu.sofia.java.questionnaire.schemas.VoteSchema;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -150,9 +149,9 @@ public class QuestionnaireService {
         questionnaireRepository.save(questionnaire);
     }
 
-    public QuestionnaireDTO findQuestionnaireByVotingURL(String votingURL) throws EntityNotFoundException, IllegalAccessException {
+    public QuestionnaireDTO findQuestionnaireByAnswerURL(String answerURL) throws EntityNotFoundException, IllegalAccessException {
         // Get the questionnaire
-        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByVotingUrl(votingURL);
+        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByAnswerURL(answerURL);
         if (optionalQuestionnaire.isEmpty()) {
             throw new EntityNotFoundException("Questionnaire with this voting URL was not found.");
         }
@@ -182,11 +181,11 @@ public class QuestionnaireService {
         return QuestionnaireMapper.toDtoWithResults(questionnaire);
     }
 
-    public void answerQuestionnaire(String votingURL, QuestionnaireResponseDTO questionnaireResponse) throws EntityNotFoundException, IllegalAccessException {
-        // Get the questionnaire by its results URL
-        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByVotingUrl(votingURL);
+    public void answerQuestionnaire(String answerURL, QuestionnaireResponseDTO questionnaireResponse) throws EntityNotFoundException, IllegalAccessException {
+        // Get the questionnaire by its answer URL
+        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByAnswerURL(answerURL);
         if (optionalQuestionnaire.isEmpty()) {
-            throw new EntityNotFoundException("Questionnaire with this results URL not found.");
+            throw new EntityNotFoundException("Questionnaire with this answer URL not found.");
         }
         QuestionnaireEntity questionnaire = optionalQuestionnaire.get();
 

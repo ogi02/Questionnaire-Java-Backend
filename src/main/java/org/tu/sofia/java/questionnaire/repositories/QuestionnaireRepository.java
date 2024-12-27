@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Repository
 public interface QuestionnaireRepository extends JpaRepository<QuestionnaireEntity, Long> {
-    Optional<QuestionnaireEntity> findByVotingUrl(String votingUrl);
+    Optional<QuestionnaireEntity> findByAnswerURL(String answerURL);
 
     @Query("SELECT q FROM QuestionnaireEntity q WHERE q.isPublic = TRUE AND q.isOpen = TRUE")
     Optional<Set<QuestionnaireEntity>> findPublic();
@@ -25,6 +25,6 @@ public interface QuestionnaireRepository extends JpaRepository<QuestionnaireEnti
     @Query("UPDATE QuestionnaireEntity q SET q.isOpen = :isOpen WHERE q.id = :questionnaireId")
     void updateQuestionnaireState(Long questionnaireId, Boolean isOpen);
 
-    @Query("SELECT q FROM QuestionnaireEntity q JOIN q.administrators u WHERE q.resultsUrl = :resultsUrl AND u.id = :administratorId")
-    Optional<QuestionnaireEntity> findByResultsUrlAndAdministratorId(String resultsUrl, Long administratorId);
+    @Query("SELECT q FROM QuestionnaireEntity q JOIN q.administrators u WHERE q.resultsURL = :resultsUrl AND u.id = :administratorId")
+    Optional<QuestionnaireEntity> findByResultsUrlAndAdministratorId(String resultsURL, Long administratorId);
 }

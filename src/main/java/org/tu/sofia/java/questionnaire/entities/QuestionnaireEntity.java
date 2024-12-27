@@ -7,11 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import jakarta.persistence.*;
-import org.tu.sofia.java.questionnaire.entities.questions.OptionQuestionEntity;
 import org.tu.sofia.java.questionnaire.entities.questions.QuestionEntity;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -63,11 +61,11 @@ public class QuestionnaireEntity {
 
     @Column
     @Hidden
-    private String votingUrl = UUID.randomUUID().toString().replace("-", "");
+    private String answerURL = UUID.randomUUID().toString().replace("-", "");
 
     @Column
     @Hidden
-    private String resultsUrl = UUID.randomUUID().toString().replace("-", "");
+    private String resultsURL = UUID.randomUUID().toString().replace("-", "");
 
     public QuestionnaireEntity(String title, Boolean isOpen, Boolean isPublic) {
         this.title = title;
@@ -75,9 +73,9 @@ public class QuestionnaireEntity {
         this.isPublic = isPublic;
     }
 
-    public QuestionnaireEntity(String title, String votingUrl, Boolean isOpen) {
+    public QuestionnaireEntity(String title, String answerURL, Boolean isOpen) {
         this.title = title;
-        this.votingUrl = votingUrl;
+        this.answerURL = answerURL;
         this.isOpen = isOpen;
     }
 
