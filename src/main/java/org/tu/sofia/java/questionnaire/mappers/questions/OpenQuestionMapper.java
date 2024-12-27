@@ -1,7 +1,7 @@
 package org.tu.sofia.java.questionnaire.mappers.questions;
 
-import org.tu.sofia.java.questionnaire.dto.questions.OpenQuestionCreationDTO;
 import org.tu.sofia.java.questionnaire.dto.questions.OpenQuestionDTO;
+import org.tu.sofia.java.questionnaire.dto.questions.OpenQuestionWithResultsDTO;
 import org.tu.sofia.java.questionnaire.dto.responses.OpenResponseDTO;
 import org.tu.sofia.java.questionnaire.entities.questions.OpenQuestionEntity;
 import org.tu.sofia.java.questionnaire.mappers.responses.OpenResponseMapper;
@@ -18,21 +18,21 @@ public class OpenQuestionMapper {
         return new OpenQuestionDTO(openQuestionEntity.getQuestionText());
     }
     // From entity to DTO with results
-    public static OpenQuestionDTO toDtoWithResults(OpenQuestionEntity openQuestionEntity) {
+    public static OpenQuestionWithResultsDTO toDtoWithResults(OpenQuestionEntity openQuestionEntity) {
         if (openQuestionEntity == null) {
             return null;
         }
         // Map all answers to DTOs
         Set<OpenResponseDTO> openResponseDTOSet = openQuestionEntity.getAnswers().stream().map(OpenResponseMapper::toDto).collect(Collectors.toSet());
-        return new OpenQuestionDTO(openQuestionEntity.getQuestionText(), openResponseDTOSet);
+        return new OpenQuestionWithResultsDTO(openQuestionEntity.getQuestionText(), openResponseDTOSet);
     }
     // From DTO to entity
-    public static OpenQuestionEntity toEntity(OpenQuestionCreationDTO openQuestionCreationDTO) {
-        if (openQuestionCreationDTO == null) {
+    public static OpenQuestionEntity toEntity(OpenQuestionDTO openQuestionDTO) {
+        if (openQuestionDTO == null) {
             return null;
         }
         OpenQuestionEntity openQuestionEntity = new OpenQuestionEntity();
-        openQuestionEntity.setQuestionText(openQuestionCreationDTO.getQuestionText());
+        openQuestionEntity.setQuestionText(openQuestionDTO.getQuestionText());
         return openQuestionEntity;
     }
 }

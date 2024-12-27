@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OptionResponseCreationDTO {
+public class OptionResponseWithoutVotesDTO {
     private String option;
 }

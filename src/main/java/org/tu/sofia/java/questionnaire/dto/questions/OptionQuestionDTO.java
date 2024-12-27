@@ -3,24 +3,18 @@ package org.tu.sofia.java.questionnaire.dto.questions;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.tu.sofia.java.questionnaire.dto.responses.OptionResponseDTO;
+import org.tu.sofia.java.questionnaire.dto.responses.OptionResponseWithoutVotesDTO;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class OptionQuestionDTO extends QuestionDTO {
-    private Set<OptionResponseDTO> optionResponseDTOSet;
+    private Set<OptionResponseWithoutVotesDTO> optionResponseWithoutVotesDTOSet;
 
-    public OptionQuestionDTO(String questionText) {
+    public OptionQuestionDTO(String questionText, Set<OptionResponseWithoutVotesDTO> optionResponseWithoutVotesDTOSet) {
         super(questionText);
-        this.optionResponseDTOSet = new HashSet<>();
-    }
-
-    public OptionQuestionDTO(String questionText, Set<OptionResponseDTO> optionResponseDTOSet) {
-        super(questionText);
-        this.optionResponseDTOSet = optionResponseDTOSet;
+        this.optionResponseWithoutVotesDTOSet = optionResponseWithoutVotesDTOSet;
     }
 }

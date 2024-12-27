@@ -1,10 +1,8 @@
 package org.tu.sofia.java.questionnaire.services;
 
 import jakarta.transaction.Transactional;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.tu.sofia.java.questionnaire.dto.QuestionnaireCreationDTO;
 import org.tu.sofia.java.questionnaire.dto.QuestionnaireDTO;
+import org.tu.sofia.java.questionnaire.dto.QuestionnaireWithResultsDTO;
 import org.tu.sofia.java.questionnaire.entities.QuestionnaireEntity;
 import org.tu.sofia.java.questionnaire.entities.UserEntity;
 import org.tu.sofia.java.questionnaire.mappers.QuestionnaireMapper;
@@ -33,12 +31,12 @@ public class QuestionnaireService {
         this.authenticationRepository = authenticationRepository;
     }
 
-    public void createQuestionnaire(String username, QuestionnaireCreationDTO questionnaireCreationDTO) {
+    public void createQuestionnaire(String username, QuestionnaireDTO questionnaireDTO) {
         // Get user by username
         UserEntity currentUser = getUserByUsername(username);
 
         // Map DTO to entity
-        QuestionnaireEntity questionnaire = QuestionnaireMapper.toEntity(questionnaireCreationDTO);
+        QuestionnaireEntity questionnaire = QuestionnaireMapper.toEntity(questionnaireDTO);
 
         // Set the current user as owner and administrator of the questionnaire
         questionnaire.setOwner(currentUser);
@@ -88,7 +86,7 @@ public class QuestionnaireService {
         return questionnaireEntitySet.stream().map(QuestionnaireMapper::toDto).collect(Collectors.toSet());
     }
 
-    public Set<QuestionnaireDTO> findUserAdministratedQuestionnaires(String username) {
+    public Set<QuestionnaireWithResultsDTO> findUserAdministratedQuestionnaires(String username) {
         // Get user by username
         UserEntity currentUser = getUserByUsername(username);
 
@@ -152,6 +150,17 @@ public class QuestionnaireService {
         questionnaireRepository.save(questionnaire);
     }
 
+    public QuestionnaireDTO findQuestionnaireByVotingURL(String votingURL) throws EntityNotFoundException {
+        // Get the questionnaire
+        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByVotingUrl(votingURL);
+        if (optionalQuestionnaire.isEmpty()) {
+            throw new EntityNotFoundException("Questionnaire with this voting URL was not found.");
+        }
+        QuestionnaireEntity questionnaire = optionalQuestionnaire.get();
+
+        // Map the questionnaire entity to questionnaire DTO without results and return it
+        return QuestionnaireMapper.toDto(questionnaire);
+    }
 
     // ------------------------------------------------------
 

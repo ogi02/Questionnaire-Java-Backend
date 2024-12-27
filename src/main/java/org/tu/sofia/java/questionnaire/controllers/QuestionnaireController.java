@@ -8,8 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.tu.sofia.java.questionnaire.dto.QuestionnaireCreationDTO;
 import org.tu.sofia.java.questionnaire.dto.QuestionnaireDTO;
+import org.tu.sofia.java.questionnaire.dto.QuestionnaireWithResultsDTO;
 import org.tu.sofia.java.questionnaire.entities.QuestionnaireEntity;
 import org.tu.sofia.java.questionnaire.schemas.DefaultErrorResponseSchema;
 import org.tu.sofia.java.questionnaire.services.QuestionnaireService;
@@ -54,10 +54,10 @@ public class QuestionnaireController {
                     content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
             ),
     })
-    public ResponseEntity<?> createQuestionnaire(Principal principal, @RequestBody QuestionnaireCreationDTO questionnaireCreationDTO) {
+    public ResponseEntity<?> createQuestionnaire(Principal principal, @RequestBody QuestionnaireDTO questionnaireDTO) {
         try {
             // Create the questionnaire
-            questionnaireService.createQuestionnaire(principal.getName(), questionnaireCreationDTO);
+            questionnaireService.createQuestionnaire(principal.getName(), questionnaireDTO);
 
             // Return 201 response
             return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -129,7 +129,7 @@ public class QuestionnaireController {
             @ApiResponse(
                     description = "Questionnaires found.",
                     responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = QuestionnaireEntity.class))
+                    content = @Content(schema = @Schema(implementation = QuestionnaireDTO.class))
             ),
             @ApiResponse(
                     description = "No Questionnaires found.",
@@ -155,7 +155,7 @@ public class QuestionnaireController {
             @ApiResponse(
                     description = "Questionnaires found.",
                     responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = QuestionnaireEntity.class))
+                    content = @Content(schema = @Schema(implementation = QuestionnaireDTO.class))
             ),
             @ApiResponse(
                     description = "No Questionnaires found.",
@@ -169,15 +169,15 @@ public class QuestionnaireController {
     })
     public ResponseEntity<?> getUserQuestionnaires(Principal principal) {
         // Get administrated questionnaires by the user
-        Set<QuestionnaireDTO> questionnaireDTOSet = questionnaireService.findUserAdministratedQuestionnaires(principal.getName());
+        Set<QuestionnaireWithResultsDTO> questionnaireWithResultsDTOSet = questionnaireService.findUserAdministratedQuestionnaires(principal.getName());
 
-        if (questionnaireDTOSet.isEmpty()) {
+        if (questionnaireWithResultsDTOSet.isEmpty()) {
             // Return 204 status
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
 
         // Return 200 status with body
-        return ResponseEntity.status(HttpStatus.OK).body(questionnaireDTOSet);
+        return ResponseEntity.status(HttpStatus.OK).body(questionnaireWithResultsDTOSet);
     }
 
     @PutMapping(value = "/{id}/state/{isOpen}", produces = "application/json")
@@ -292,56 +292,43 @@ public class QuestionnaireController {
     @ApiResponses(value = {
             @ApiResponse(
                     description = "Questionnaire found.",
-                    responseCode = "200"
+                    responseCode = "200",
+                    content = @Content(schema = @Schema(implementation = QuestionnaireDTO.class))
+            ),
+            @ApiResponse(
+                    description = "Questionnaire is closed.",
+                    responseCode = "403",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
             ),
             @ApiResponse(
                     description = "Questionnaire not found.",
                     responseCode = "404",
                     content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
             ),
-            @ApiResponse(
-                    description = "JSON encoding error.",
-                    responseCode = "500",
-                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
-            )
     })
     public ResponseEntity<?> getQuestionnaireByVotingURL(@PathVariable String votingURL) {
         try {
-            // get questionnaire from db
-            QuestionnaireEntity questionnaire = questionnaireService.findByVotingUrl(votingUrl);
-
-            // create filter for the options
-            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-            filterProvider.addFilter("optionFilter", SimpleBeanPropertyFilter.serializeAllExcept("votes"));
-            filterProvider.addFilter("questionnaireFilter", SimpleBeanPropertyFilter.serializeAllExcept("votingUrl", "resultsUrl", "isPublic", "isOpen"));
-
-            // init object mapper
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-            objectMapper.setFilterProvider(filterProvider);
+            // Get the questionnaire from the DB
+            QuestionnaireDTO questionnaire = questionnaireService.findQuestionnaireByVotingURL(votingURL);
 
             if (questionnaire.getIsOpen()) {
-                // return ok response
-                return ResponseEntity.status(HttpStatus.OK).body(objectMapper.writeValueAsString(questionnaire));
+                // Return 200 response
+                return ResponseEntity.status(HttpStatus.OK).body(questionnaire);
             } else {
-                // return no content response
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+                // Return 403 response
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DefaultErrorResponseSchema(
+                        DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+                        HttpStatus.FORBIDDEN.value(),
+                        "Questionnaire is closed.",
+                        "/api/questionnaire/user"
+                ));
             }
 
         } catch (EntityNotFoundException e) {
-            System.out.println(e.getMessage());
-            // return error response
+            // Return 404 response
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
                     DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
                     HttpStatus.NOT_FOUND.value(),
-                    e.getMessage(),
-                    "/api/questionnaire/user"
-            ));
-        } catch (JsonProcessingException e) {
-            // return error response
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new DefaultErrorResponseSchema(
-                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
-                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     e.getMessage(),
                     "/api/questionnaire/user"
             ));

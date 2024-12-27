@@ -1,7 +1,7 @@
 package org.tu.sofia.java.questionnaire.mappers.questions;
 
-import org.tu.sofia.java.questionnaire.dto.questions.BooleanQuestionCreationDTO;
 import org.tu.sofia.java.questionnaire.dto.questions.BooleanQuestionDTO;
+import org.tu.sofia.java.questionnaire.dto.questions.BooleanQuestionWithResultsDTO;
 import org.tu.sofia.java.questionnaire.entities.questions.BooleanQuestionEntity;
 
 public class BooleanQuestionMapper {
@@ -13,19 +13,19 @@ public class BooleanQuestionMapper {
         return new BooleanQuestionDTO(booleanQuestionEntity.getQuestionText());
     }
     // From entity to DTO with results
-    public static BooleanQuestionDTO toDtoWithResults(BooleanQuestionEntity booleanQuestionEntity) {
+    public static BooleanQuestionWithResultsDTO toDtoWithResults(BooleanQuestionEntity booleanQuestionEntity) {
         if (booleanQuestionEntity == null) {
             return null;
         }
-        return new BooleanQuestionDTO(booleanQuestionEntity.getQuestionText(), booleanQuestionEntity.getTrueVotes(), booleanQuestionEntity.getFalseVotes());
+        return new BooleanQuestionWithResultsDTO(booleanQuestionEntity.getQuestionText(), booleanQuestionEntity.getTrueVotes(), booleanQuestionEntity.getFalseVotes());
     }
     // From DTO to entity
-    public static BooleanQuestionEntity toEntity(BooleanQuestionCreationDTO booleanQuestionCreationDTO) {
-        if (booleanQuestionCreationDTO == null) {
+    public static BooleanQuestionEntity toEntity(BooleanQuestionDTO booleanQuestionDTO) {
+        if (booleanQuestionDTO == null) {
             return null;
         }
         BooleanQuestionEntity booleanQuestionEntity = new BooleanQuestionEntity();
-        booleanQuestionEntity.setQuestionText(booleanQuestionCreationDTO.getQuestionText());
+        booleanQuestionEntity.setQuestionText(booleanQuestionDTO.getQuestionText());
         return booleanQuestionEntity;
     }
 }
