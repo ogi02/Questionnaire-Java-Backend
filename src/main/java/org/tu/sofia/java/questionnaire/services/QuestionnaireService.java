@@ -121,6 +121,37 @@ public class QuestionnaireService {
         questionnaireRepository.updateQuestionnaireState(questionnaireId, isOpen);
     }
 
+    public void addAdministratorToQuestionnaire(String username, Long questionnaireId, Long administratorId) throws EntityNotFoundException, IllegalAccessException {
+        // Get user by username
+        UserEntity currentUser = getUserByUsername(username);
+
+        // Get questionnaire from DB
+        Optional<QuestionnaireEntity> optionalQuestionnaireEntity = questionnaireRepository.findById(questionnaireId);
+        if (optionalQuestionnaireEntity.isEmpty()) {
+            throw new EntityNotFoundException("Questionnaire with this ID was not found.");
+        }
+        QuestionnaireEntity questionnaire = optionalQuestionnaireEntity.get();
+
+        // Validate that the current user is administrator of the questionnaire
+        Optional<QuestionnaireEntity> optionalAdministratedQuestionnaire = currentUser.getAdministratedQuestionnaires().stream().filter(administratedQuestionnaire -> Objects.equals(administratedQuestionnaire.getId(), questionnaire.getId())).findFirst();
+        if (optionalAdministratedQuestionnaire.isEmpty()) {
+            throw new IllegalAccessException("User is not an administrator of this entity");
+        }
+
+        // Get candidate administrator from DB
+        Optional<UserEntity> candidateAdministrator = authenticationRepository.findById(administratorId);
+        if (candidateAdministrator.isEmpty()) {
+            throw new EntityNotFoundException("User with this ID was not found.");
+        }
+        UserEntity administrator = candidateAdministrator.get();
+
+        // Update the questionnaire with a new administrator
+        Set<UserEntity> administrators = questionnaire.getAdministrators();
+        administrators.add(administrator);
+        questionnaire.setAdministrators(administrators);
+        questionnaireRepository.save(questionnaire);
+    }
+
 
     // ------------------------------------------------------
 
@@ -168,22 +199,6 @@ public class QuestionnaireService {
     public Set<QuestionnaireEntity> findByOwner(UserEntity owner) {
         Optional<Set<QuestionnaireEntity>> optionalQuestionnaireSet = questionnaireRepository.findByOwnerId(owner.getId());
         return optionalQuestionnaireSet.orElse(null);
-    }
-
-    @Transactional
-    public void addAdministratorToQuestionnaire(Long questionnaireId, Long userId) {
-        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findById(questionnaireId);
-        Optional<UserEntity> optionalUser = authenticationRepository.findById(userId);
-
-        if (optionalQuestionnaire.isPresent() && optionalUser.isPresent()) {
-            QuestionnaireEntity questionnaire = optionalQuestionnaire.get();
-            UserEntity user = optionalUser.get();
-
-            questionnaire.getAdministrators().add(user);
-            user.getAdministratedQuestionnaires().add(questionnaire);
-
-            authenticationRepository.save(user);
-        }
     }
 
     private UserEntity getUserByUsername(String username) {

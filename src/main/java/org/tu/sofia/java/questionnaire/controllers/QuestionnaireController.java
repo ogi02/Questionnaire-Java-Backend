@@ -237,115 +237,116 @@ public class QuestionnaireController {
             ));
         }
     }
-//
-//    @PostMapping("/{id}/admin/{userId}")
-//    @SecurityRequirement(name = "JWTBearerAuth")
-//    @ApiResponses(value ={
-//            @ApiResponse(
-//                    description = "Questionnaire admin.",
-//                    responseCode = "200"
-//            ),
-//            @ApiResponse(
-//                    description = "Unauthorized.",
-//                    responseCode = "401",
-//                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
-//            ),
-//            @ApiResponse(
-//                    description = "Questionnaire or user not found.",
-//                    responseCode = "404",
-//                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
-//            )
-//    })
-//    public ResponseEntity<?> addAdministratorToQuestionnaire(Principal principal, @PathVariable("id") Long id, @PathVariable Long userId) {
-//        try {
-//            // get user model for current user
-//            UserEntity currentUser = authenticationService.loadUserModelByUsername(principal.getName());
-//
-//            // get questionnaire from db
-//            QuestionnaireEntity questionnaire = questionnaireService.findByQuestionnaireIdAndAdministratorId(id, currentUser.getId());
-//
-//            // verify that candidate admin exists
-//            UserEntity candidateAdmin = authenticationService.getById(userId);
-//
-//            // add admin to questionnaire
-//            questionnaireService.addAdministratorToQuestionnaire(questionnaire.getId(), candidateAdmin.getId());
-//
-//            // save questionnaire
-//            questionnaireService.save(questionnaire);
-//
-//            // return ok response
-//            return ResponseEntity.status(HttpStatus.OK).build();
-//
-//        } catch (EntityNotFoundException e) {
-//            // return error response
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
-//                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
-//                    HttpStatus.NOT_FOUND.value(),
-//                    e.getMessage(),
-//                    "/api/questionnaire/%d/admin/%s".formatted(id, userId)
-//            ));
-//        }
-//    }
-//
-//    @GetMapping(value = "/vote/{url}")
-//    @ApiResponses(value = {
-//            @ApiResponse(
-//                    description = "Questionnaire found.",
-//                    responseCode = "200"
-//            ),
-//            @ApiResponse(
-//                    description = "Questionnaire not found.",
-//                    responseCode = "404",
-//                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
-//            ),
-//            @ApiResponse(
-//                    description = "JSON encoding error.",
-//                    responseCode = "500",
-//                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
-//            )
-//    })
-//    public ResponseEntity<?> getQuestionnaire(@PathVariable("url") String votingUrl) {
-//        try {
-//            // get questionnaire from db
-//            QuestionnaireEntity questionnaire = questionnaireService.findByVotingUrl(votingUrl);
-//
-//            // create filter for the options
-//            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-//            filterProvider.addFilter("optionFilter", SimpleBeanPropertyFilter.serializeAllExcept("votes"));
-//            filterProvider.addFilter("questionnaireFilter", SimpleBeanPropertyFilter.serializeAllExcept("votingUrl", "resultsUrl", "isPublic", "isOpen"));
-//
-//            // init object mapper
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-//            objectMapper.setFilterProvider(filterProvider);
-//
-//            if (questionnaire.getIsOpen()) {
-//                // return ok response
-//                return ResponseEntity.status(HttpStatus.OK).body(objectMapper.writeValueAsString(questionnaire));
-//            } else {
-//                // return no content response
-//                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-//            }
-//
-//        } catch (EntityNotFoundException e) {
-//            System.out.println(e.getMessage());
-//            // return error response
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
-//                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
-//                    HttpStatus.NOT_FOUND.value(),
-//                    e.getMessage(),
-//                    "/api/questionnaire/user"
-//            ));
-//        } catch (JsonProcessingException e) {
-//            // return error response
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new DefaultErrorResponseSchema(
-//                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
-//                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
-//                    e.getMessage(),
-//                    "/api/questionnaire/user"
-//            ));
-//        }
-//    }
+
+    @PostMapping(value = "/{questionnaireId}/admin/{userId}", produces = "application/json")
+    @SecurityRequirement(name = "JWTBearerAuth")
+    @ApiResponses(value ={
+            @ApiResponse(
+                    description = "Questionnaire admin added successfully.",
+                    responseCode = "204"
+            ),
+            @ApiResponse(
+                    description = "Unauthorized.",
+                    responseCode = "401",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "Current user is not an administrator of the questionnaire.",
+                    responseCode = "403",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "Questionnaire ID or user ID not found.",
+                    responseCode = "404",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            )
+    })
+    public ResponseEntity<?> addAdministratorToQuestionnaire(Principal principal, @PathVariable Long questionnaireId, @PathVariable Long userId) {
+        try {
+            // Add administrator to questionnaire
+            questionnaireService.addAdministratorToQuestionnaire(principal.getName(), questionnaireId, userId);
+
+            // Return 204 response
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+        } catch (EntityNotFoundException e) {
+            // Return 404 response
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
+                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+                    HttpStatus.NOT_FOUND.value(),
+                    e.getMessage(),
+                    "/api/questionnaire/%d/admin/%s".formatted(questionnaireId, userId)
+            ));
+        } catch (IllegalAccessException e) {
+            // Return 403 response
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DefaultErrorResponseSchema(
+                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+                    HttpStatus.FORBIDDEN.value(),
+                    e.getMessage(),
+                    "/api/questionnaire/%d/admin/%s".formatted(questionnaireId, userId)
+            ));
+        }
+    }
+
+    @GetMapping(value = "/vote/{votingURL}")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    description = "Questionnaire found.",
+                    responseCode = "200"
+            ),
+            @ApiResponse(
+                    description = "Questionnaire not found.",
+                    responseCode = "404",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            ),
+            @ApiResponse(
+                    description = "JSON encoding error.",
+                    responseCode = "500",
+                    content = @Content(schema = @Schema(implementation = DefaultErrorResponseSchema.class))
+            )
+    })
+    public ResponseEntity<?> getQuestionnaireByVotingURL(@PathVariable String votingURL) {
+        try {
+            // get questionnaire from db
+            QuestionnaireEntity questionnaire = questionnaireService.findByVotingUrl(votingUrl);
+
+            // create filter for the options
+            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
+            filterProvider.addFilter("optionFilter", SimpleBeanPropertyFilter.serializeAllExcept("votes"));
+            filterProvider.addFilter("questionnaireFilter", SimpleBeanPropertyFilter.serializeAllExcept("votingUrl", "resultsUrl", "isPublic", "isOpen"));
+
+            // init object mapper
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+            objectMapper.setFilterProvider(filterProvider);
+
+            if (questionnaire.getIsOpen()) {
+                // return ok response
+                return ResponseEntity.status(HttpStatus.OK).body(objectMapper.writeValueAsString(questionnaire));
+            } else {
+                // return no content response
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            }
+
+        } catch (EntityNotFoundException e) {
+            System.out.println(e.getMessage());
+            // return error response
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DefaultErrorResponseSchema(
+                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+                    HttpStatus.NOT_FOUND.value(),
+                    e.getMessage(),
+                    "/api/questionnaire/user"
+            ));
+        } catch (JsonProcessingException e) {
+            // return error response
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new DefaultErrorResponseSchema(
+                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    e.getMessage(),
+                    "/api/questionnaire/user"
+            ));
+        }
+    }
 //
 //    @PostMapping(value = "/vote/{url}")
 //    @ApiResponses(value = {
