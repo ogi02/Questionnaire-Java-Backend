@@ -25,7 +25,7 @@ jobs:
 
     steps:
       # Checkout the repository
-      - name: Checkout the repository
+      - name: Checkout the Repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -39,8 +39,12 @@ jobs:
           java-version: "21"
           cache: maven
 
+      # Clean and verify
+      - name: Clean & Verify
+        run: mvn clean verify
+
       # Build and Test
-      - name: Build
+      - name: Build & Test
         run: mvn -B package -Pcoverage
 
       # Report test results
@@ -51,7 +55,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           report_paths: '**/target/surefire-reports/TEST-*.xml'
 
-      - name: Generate JaCoCo badge
+      - name: Generate JaCoCo Badge
         id: jacoco
         uses: cicirello/jacoco-badge-generator@v2
         with:
@@ -59,7 +63,7 @@ jobs:
           generate-branches-badge: true
           generate-summary: true
 
-      - name: Log coverage percentages to workflow output
+      - name: Log Coverage to Workflow Output
         run: |
           echo "coverage = ${{ steps.jacoco.outputs.coverage }}"
           echo "branches = ${{ steps.jacoco.outputs.branches }}"
@@ -69,7 +73,6 @@ jobs:
         with:
           name: jacoco-report
           path: target/site/jacoco/
-
 
       - name: Comment on PR with coverage percentages
         if: ${{ github.event_name == 'pull_request' }}
