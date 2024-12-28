@@ -39,13 +39,9 @@ jobs:
           java-version: "21"
           cache: maven
 
-      # Build
+      # Build and Test
       - name: Build
-        run: mvn --batch-mode -DskipTests package
-
-      # Test
-      - name: Test
-        run: mvn --batch-mode -Dmaven.test.failure.ignore=true -Pcoverage test
+        run: mvn -B package -Pcoverage
 
       # Report test results
       - name: Publish Test Report
