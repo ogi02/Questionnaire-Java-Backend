@@ -31,14 +31,27 @@ jobs:
           distribution: "oracle"
           java-version: "21"
 
-      # Cache Maven packages
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+      # Build
+      - name: Build
+        run: mvn --batch-mode -DskipTests package
 
-      # Run Unit Tests
-      - name: Run tests with Maven
-        run: mvn -B test --file pom.xml
+      # Test
+      - name: Test
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true test
+
+      # Report test results
+      - name: Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Maven Tests
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: true
+
+      # Report code coverage
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: ogi02/Questionnaire-Java-Backend
