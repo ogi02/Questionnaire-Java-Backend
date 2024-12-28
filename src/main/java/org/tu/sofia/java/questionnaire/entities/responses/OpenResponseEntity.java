@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import jakarta.persistence.*;
+import jakarta.persistence.*; // NOPMD
 import org.tu.sofia.java.questionnaire.entities.questions.OpenQuestionEntity;
 
 @Entity
@@ -25,7 +25,7 @@ public class OpenResponseEntity {
     @Column
     private String responseText;
 
-    public OpenResponseEntity(OpenQuestionEntity question, String responseText) {
+    public OpenResponseEntity(final OpenQuestionEntity question, final String responseText) {
         this.question = question;
         this.responseText = responseText;
     }

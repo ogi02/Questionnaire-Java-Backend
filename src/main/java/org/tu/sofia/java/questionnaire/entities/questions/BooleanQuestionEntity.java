@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import jakarta.persistence.*;
+import jakarta.persistence.*; // NOPMD
 
 @Entity
 @Table(name = "boolean_questions")
@@ -18,14 +18,14 @@ public class BooleanQuestionEntity extends QuestionEntity {
     @Column
     private Integer falseVotes = 0;
 
-    public BooleanQuestionEntity(String questionText) {
+    public BooleanQuestionEntity(final String questionText) {
         super(questionText);
     }
 
     @Override
-    public <T> void answerQuestion(T response) throws IllegalArgumentException {
-        if (response instanceof Boolean b) {
-            if (b) {
+    public <T> void answerQuestion(final T response) throws IllegalArgumentException {
+        if (response instanceof Boolean answer) {
+            if (answer) {
                 trueVotes++;
             } else {
                 falseVotes++;

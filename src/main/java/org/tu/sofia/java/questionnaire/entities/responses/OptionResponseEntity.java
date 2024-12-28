@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import jakarta.persistence.*;
+import jakarta.persistence.*; // NOPMD
 import org.tu.sofia.java.questionnaire.entities.questions.OptionQuestionEntity;
 
 @Entity
@@ -28,7 +28,7 @@ public class OptionResponseEntity {
     @Column
     private Integer votes = 0;
 
-    public OptionResponseEntity(String option) {
+    public OptionResponseEntity(final String option) {
         this.option = option;
     }
 
