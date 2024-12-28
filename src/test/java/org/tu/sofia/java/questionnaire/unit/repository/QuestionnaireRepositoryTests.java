@@ -86,15 +86,18 @@ public class QuestionnaireRepositoryTests {
         OptionResponseEntity option1ForOptionQuestion1 = new OptionResponseEntity("Option 1 for Option Question 1");
         OptionResponseEntity option2ForOptionQuestion1 = new OptionResponseEntity("Option 2 for Option Question 1");
         OptionResponseEntity option3ForOptionQuestion1 = new OptionResponseEntity("Option 3 for Option Question 1");
-        OptionQuestionEntity optionQuestion1 = new OptionQuestionEntity("Test Option Question 1", Set.of(option1ForOptionQuestion1, option2ForOptionQuestion1, option3ForOptionQuestion1));
+        OptionQuestionEntity optionQuestion1 = new OptionQuestionEntity("Test Option Question 1",
+                Set.of(option1ForOptionQuestion1, option2ForOptionQuestion1, option3ForOptionQuestion1));
         OptionResponseEntity option1ForOptionQuestion2 = new OptionResponseEntity("Option 1 for Option Question 2");
         OptionResponseEntity option2ForOptionQuestion2 = new OptionResponseEntity("Option 2 for Option Question 2");
         OptionResponseEntity option3ForOptionQuestion2 = new OptionResponseEntity("Option 3 for Option Question 2");
-        OptionQuestionEntity optionQuestion2 = new OptionQuestionEntity("Test Option Question 2", Set.of(option1ForOptionQuestion2, option2ForOptionQuestion2, option3ForOptionQuestion2));
+        OptionQuestionEntity optionQuestion2 = new OptionQuestionEntity("Test Option Question 2",
+                Set.of(option1ForOptionQuestion2, option2ForOptionQuestion2, option3ForOptionQuestion2));
         OptionResponseEntity option1ForOptionQuestion3 = new OptionResponseEntity("Option 1 for Option Question 3");
         OptionResponseEntity option2ForOptionQuestion3 = new OptionResponseEntity("Option 2 for Option Question 3");
         OptionResponseEntity option3ForOptionQuestion3 = new OptionResponseEntity("Option 3 for Option Question 3");
-        OptionQuestionEntity optionQuestion3 = new OptionQuestionEntity("Test Option Question 3", Set.of(option1ForOptionQuestion3, option2ForOptionQuestion3, option3ForOptionQuestion3));
+        OptionQuestionEntity optionQuestion3 = new OptionQuestionEntity("Test Option Question 3",
+                Set.of(option1ForOptionQuestion3, option2ForOptionQuestion3, option3ForOptionQuestion3));
         Set<OptionQuestionEntity> optionQuestions = Set.of(optionQuestion1, optionQuestion2, optionQuestion3);
 
         // Define the questions of the questionnaire
@@ -126,7 +129,8 @@ public class QuestionnaireRepositoryTests {
         // Assert owner
         assertEquals(testSessionUser.getId(), savedQuestionnaire.getOwner().getId());
         assertEquals(1, savedQuestionnaire.getAdministrators().size());
-        assertEquals(testSessionUser.getId(), Objects.requireNonNull(savedQuestionnaire.getAdministrators().stream().findFirst().orElse(null)).getId());
+        assertEquals(testSessionUser.getId(), Objects.requireNonNull(
+                savedQuestionnaire.getAdministrators().stream().findFirst().orElse(null)).getId());
 
         // Assert questions
         assertEquals(9, savedQuestionnaire.getQuestions().size());

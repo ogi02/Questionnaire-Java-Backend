@@ -107,7 +107,8 @@ public class AuthenticationService implements UserDetailsService {
             authenticationRepository.save(userEntity);
 
             // Create user details object
-            final UserDetails userDetails = new User(userEntity.getUsername(), userEntity.getPassword(), new ArrayList<>());
+            final UserDetails userDetails =
+                    new User(userEntity.getUsername(), userEntity.getPassword(), new ArrayList<>());
 
             // Generate and return token for new user
             return jwtTokenUtil.generateToken(userDetails);
@@ -118,23 +119,5 @@ public class AuthenticationService implements UserDetailsService {
             // Any other exception
             throw new RuntimeException("An unexpected error occurred during registration.", e);
         }
-    }
-
-    public UserEntity loadUserModelByUsername(String username) throws UsernameNotFoundException {
-        Optional<UserEntity> optionalUser = authenticationRepository.findByUsername(username);
-        if (optionalUser.isEmpty()) {
-            throw new UsernameNotFoundException(username);
-        }
-
-        return optionalUser.get();
-    }
-
-    public UserEntity getById(Long id) throws EntityNotFoundException {
-        Optional<UserEntity> optionalUser = authenticationRepository.findById(id);
-        if (optionalUser.isEmpty()) {
-            throw new EntityNotFoundException(String.valueOf(id));
-        }
-
-        return optionalUser.get();
     }
 }

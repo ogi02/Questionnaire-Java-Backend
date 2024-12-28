@@ -56,7 +56,8 @@ public class QuestionnaireEntity {
     @Column(name = "results_url")
     private String resultsURL = UUID.randomUUID().toString().replace("-", "");
 
-    public QuestionnaireEntity(String title, String description, UserEntity owner, Set<UserEntity> administrators, Set<QuestionEntity> questions, Boolean isOpen, Boolean isPublic) {
+    public QuestionnaireEntity(String title, String description, UserEntity owner, Set<UserEntity> administrators,
+                               Set<QuestionEntity> questions, Boolean isOpen, Boolean isPublic) {
         this.title = title;
         this.description = description;
         this.owner = owner;

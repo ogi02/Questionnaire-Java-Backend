@@ -25,7 +25,9 @@ public class QuestionnaireService {
     private final AuthenticationRepository authenticationRepository;
 
     @Autowired
-    public QuestionnaireService(QuestionnaireRepository questionnaireRepository, AuthenticationRepository authenticationRepository) {
+    public QuestionnaireService(
+            QuestionnaireRepository questionnaireRepository, AuthenticationRepository authenticationRepository
+    ) {
         this.questionnaireRepository = questionnaireRepository;
         this.authenticationRepository = authenticationRepository;
     }
@@ -46,7 +48,8 @@ public class QuestionnaireService {
     }
 
     @Transactional
-    public void deleteQuestionnaire(String username, Long questionnaireId) throws EntityNotFoundException, IllegalAccessException {
+    public void deleteQuestionnaire(String username, Long questionnaireId)
+            throws EntityNotFoundException, IllegalAccessException {
         // Get user by username
         UserEntity currentUser = getUserByUsername(username);
 
@@ -58,7 +61,11 @@ public class QuestionnaireService {
         QuestionnaireEntity questionnaire = optionalQuestionnaire.get();
 
         // Verify that the user has the necessary rights
-        Optional<QuestionnaireEntity> optionalAdministratedQuestionnaire = currentUser.getAdministratedQuestionnaires().stream().filter(administratedQuestionnaire -> Objects.equals(administratedQuestionnaire.getId(), questionnaire.getId())).findFirst();
+        Optional<QuestionnaireEntity> optionalAdministratedQuestionnaire = currentUser.getAdministratedQuestionnaires()
+                .stream()
+                .filter(administratedQuestionnaire ->
+                        Objects.equals(administratedQuestionnaire.getId(), questionnaire.getId()))
+                .findFirst();
         if (optionalAdministratedQuestionnaire.isEmpty()) {
             throw new IllegalAccessException("User is not an administrator of this entity");
         }
@@ -90,14 +97,18 @@ public class QuestionnaireService {
         UserEntity currentUser = getUserByUsername(username);
 
         // Get all user administrated questionnaires from DB
-        Optional<Set<QuestionnaireEntity>> optionalQuestionnaireSet = questionnaireRepository.findAdministratedQuestionnairesByUserId(currentUser.getId());
+        Optional<Set<QuestionnaireEntity>> optionalQuestionnaireSet =
+                questionnaireRepository.findAdministratedQuestionnairesByUserId(currentUser.getId());
 
         // Map the set questionnaire entities to DTOs and return it
         // Return empty set if there are no questionnaires
-        return optionalQuestionnaireSet.map(questionnaireEntities -> questionnaireEntities.stream().map(QuestionnaireMapper::toDtoWithResults).collect(Collectors.toSet())).orElseGet(HashSet::new);
+        return optionalQuestionnaireSet.map(questionnaireEntities -> questionnaireEntities
+                .stream()
+                .map(QuestionnaireMapper::toDtoWithResults).collect(Collectors.toSet())).orElseGet(HashSet::new);
     }
 
-    public void updateQuestionnaireState(String username, Long questionnaireId, Boolean isOpen) throws EntityNotFoundException, IllegalAccessException {
+    public void updateQuestionnaireState(String username, Long questionnaireId, Boolean isOpen)
+            throws EntityNotFoundException, IllegalAccessException {
         // Get user by username
         UserEntity currentUser = getUserByUsername(username);
 
@@ -109,7 +120,11 @@ public class QuestionnaireService {
         QuestionnaireEntity questionnaire = optionalQuestionnaireEntity.get();
 
         // Validate that the current user is administrator of the questionnaire
-        Optional<QuestionnaireEntity> optionalAdministratedQuestionnaire = currentUser.getAdministratedQuestionnaires().stream().filter(administratedQuestionnaire -> Objects.equals(administratedQuestionnaire.getId(), questionnaire.getId())).findFirst();
+        Optional<QuestionnaireEntity> optionalAdministratedQuestionnaire = currentUser.getAdministratedQuestionnaires()
+                .stream()
+                .filter(administratedQuestionnaire ->
+                        Objects.equals(administratedQuestionnaire.getId(), questionnaire.getId()))
+                .findFirst();
         if (optionalAdministratedQuestionnaire.isEmpty()) {
             throw new IllegalAccessException("User is not an administrator of this entity");
         }
@@ -118,7 +133,8 @@ public class QuestionnaireService {
         questionnaireRepository.updateQuestionnaireState(questionnaireId, isOpen);
     }
 
-    public void addAdministratorToQuestionnaire(String username, Long questionnaireId, Long administratorId) throws EntityNotFoundException, IllegalAccessException {
+    public void addAdministratorToQuestionnaire(String username, Long questionnaireId, Long administratorId)
+            throws EntityNotFoundException, IllegalAccessException {
         // Get user by username
         UserEntity currentUser = getUserByUsername(username);
 
@@ -130,7 +146,11 @@ public class QuestionnaireService {
         QuestionnaireEntity questionnaire = optionalQuestionnaireEntity.get();
 
         // Validate that the current user is administrator of the questionnaire
-        Optional<QuestionnaireEntity> optionalAdministratedQuestionnaire = currentUser.getAdministratedQuestionnaires().stream().filter(administratedQuestionnaire -> Objects.equals(administratedQuestionnaire.getId(), questionnaire.getId())).findFirst();
+        Optional<QuestionnaireEntity> optionalAdministratedQuestionnaire = currentUser.getAdministratedQuestionnaires()
+                .stream()
+                .filter(administratedQuestionnaire ->
+                        Objects.equals(administratedQuestionnaire.getId(), questionnaire.getId()))
+                .findFirst();
         if (optionalAdministratedQuestionnaire.isEmpty()) {
             throw new IllegalAccessException("User is not an administrator of this entity");
         }
@@ -149,7 +169,8 @@ public class QuestionnaireService {
         questionnaireRepository.save(questionnaire);
     }
 
-    public QuestionnaireDTO findQuestionnaireByAnswerURL(String answerURL) throws EntityNotFoundException, IllegalAccessException {
+    public QuestionnaireDTO findQuestionnaireByAnswerURL(String answerURL)
+            throws EntityNotFoundException, IllegalAccessException {
         // Get the questionnaire
         Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByAnswerURL(answerURL);
         if (optionalQuestionnaire.isEmpty()) {
@@ -171,7 +192,8 @@ public class QuestionnaireService {
         UserEntity currentUser = getUserByUsername(username);
 
         // Get the questionnaire entity by its results URL
-        Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByResultsUrlAndAdministratorId(resultsURL, currentUser.getId());
+        Optional<QuestionnaireEntity> optionalQuestionnaire =
+                questionnaireRepository.findByResultsUrlAndAdministratorId(resultsURL, currentUser.getId());
         if (optionalQuestionnaire.isEmpty()) {
             throw new EntityNotFoundException("Questionnaire not found or user has no access to it.");
         }
@@ -181,7 +203,8 @@ public class QuestionnaireService {
         return QuestionnaireMapper.toDtoWithResults(questionnaire);
     }
 
-    public void answerQuestionnaire(String answerURL, QuestionnaireResponseDTO questionnaireResponse) throws EntityNotFoundException, IllegalAccessException {
+    public void answerQuestionnaire(String answerURL, QuestionnaireResponseDTO questionnaireResponse)
+            throws EntityNotFoundException, IllegalAccessException {
         // Get the questionnaire by its answer URL
         Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByAnswerURL(answerURL);
         if (optionalQuestionnaire.isEmpty()) {
@@ -197,9 +220,12 @@ public class QuestionnaireService {
         // Iterate through the answered questions
         for (Map.Entry<Long, Object> response : questionnaireResponse.getAnswers().entrySet()) {
             // Filter the questions by the ID of the response
-            Optional<QuestionEntity> optionalQuestion = questionnaire.getQuestions().stream().filter(question -> Objects.equals(question.getId(), response.getKey())).findFirst();
+            Optional<QuestionEntity> optionalQuestion = questionnaire.getQuestions()
+                    .stream().filter(question -> Objects.equals(question.getId(), response.getKey())).findFirst();
             if (optionalQuestion.isEmpty()) {
-                throw new EntityNotFoundException("Question with this ID - %d was not found.".formatted(response.getKey()));
+                throw new EntityNotFoundException(
+                        "Question with this ID - %d was not found.".formatted(response.getKey())
+                );
             }
             QuestionEntity question = optionalQuestion.get();
 

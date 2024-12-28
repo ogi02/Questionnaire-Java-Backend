@@ -18,7 +18,8 @@ public class OptionQuestionMapper {
             return null;
         }
         // Map all responses to DTOs without votes
-        Set<OptionResponseWithoutVotesDTO> optionResponseWithoutVotesDTOS = optionQuestionEntity.getOptions().stream().map(OptionResponseMapper::toDtoWithoutVotes).collect(Collectors.toSet());
+        Set<OptionResponseWithoutVotesDTO> optionResponseWithoutVotesDTOS = optionQuestionEntity.getOptions()
+                .stream().map(OptionResponseMapper::toDtoWithoutVotes).collect(Collectors.toSet());
         return new OptionQuestionDTO(optionQuestionEntity.getQuestionText(), optionResponseWithoutVotesDTOS);
     }
     // From entity to DTO with results
@@ -27,7 +28,8 @@ public class OptionQuestionMapper {
             return null;
         }
         // Map all responses to DTOs
-        Set<OptionResponseDTO> optionResponseDTOSet = optionQuestionEntity.getOptions().stream().map(OptionResponseMapper::toDto).collect(Collectors.toSet());
+        Set<OptionResponseDTO> optionResponseDTOSet = optionQuestionEntity.getOptions()
+                .stream().map(OptionResponseMapper::toDto).collect(Collectors.toSet());
         return new OptionQuestionWithResultsDTO(optionQuestionEntity.getQuestionText(), optionResponseDTOSet);
     }
     // From DTO to entity
@@ -37,7 +39,8 @@ public class OptionQuestionMapper {
         }
         OptionQuestionEntity optionQuestionEntity = new OptionQuestionEntity();
         // Map all responses to entities
-        Set<OptionResponseEntity> optionResponseEntitySet = optionQuestionDTO.getOptionResponseWithoutVotesDTOSet().stream().map(OptionResponseMapper::toEntity).collect(Collectors.toSet());
+        Set<OptionResponseEntity> optionResponseEntitySet = optionQuestionDTO.getOptionResponseWithoutVotesDTOSet()
+                .stream().map(OptionResponseMapper::toEntity).collect(Collectors.toSet());
         // Link options to the question
         optionResponseEntitySet.forEach(optionResponseEntity -> optionResponseEntity.setQuestion(optionQuestionEntity));
         // Create OptionQuestionEntity entity

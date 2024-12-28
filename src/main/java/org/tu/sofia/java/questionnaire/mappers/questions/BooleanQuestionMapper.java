@@ -17,7 +17,11 @@ public class BooleanQuestionMapper {
         if (booleanQuestionEntity == null) {
             return null;
         }
-        return new BooleanQuestionWithResultsDTO(booleanQuestionEntity.getQuestionText(), booleanQuestionEntity.getTrueVotes(), booleanQuestionEntity.getFalseVotes());
+        return new BooleanQuestionWithResultsDTO(
+                booleanQuestionEntity.getQuestionText(),
+                booleanQuestionEntity.getTrueVotes(),
+                booleanQuestionEntity.getFalseVotes()
+        );
     }
     // From DTO to entity
     public static BooleanQuestionEntity toEntity(BooleanQuestionDTO booleanQuestionDTO) {

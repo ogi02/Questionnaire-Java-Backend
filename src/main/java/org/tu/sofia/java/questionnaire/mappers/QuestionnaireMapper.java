@@ -25,21 +25,30 @@ public class QuestionnaireMapper {
 
         // Map every boolean question from QuestionEntity to BooleanQuestionEntity
         Set<BooleanQuestionEntity> booleanQuestionEntitySet = new HashSet<>();
-        questionnaireEntity.getQuestions().stream().filter(questionEntity -> questionEntity instanceof BooleanQuestionEntity).forEach(questionEntity -> booleanQuestionEntitySet.add((BooleanQuestionEntity) questionEntity));
+        questionnaireEntity.getQuestions()
+                .stream().filter(questionEntity -> questionEntity instanceof BooleanQuestionEntity)
+                .forEach(questionEntity -> booleanQuestionEntitySet.add((BooleanQuestionEntity) questionEntity));
         // Map every BooleanQuestionEntity to BooleanQuestionDTO
-        Set<BooleanQuestionDTO> booleanQuestionDTOSet = booleanQuestionEntitySet.stream().map(BooleanQuestionMapper::toDto).collect(Collectors.toSet());
+        Set<BooleanQuestionDTO> booleanQuestionDTOSet = booleanQuestionEntitySet
+                .stream().map(BooleanQuestionMapper::toDto).collect(Collectors.toSet());
 
         // Map every open question from QuestionEntity to OpenQuestionEntity
         Set<OpenQuestionEntity> openQuestionEntitySet = new HashSet<>();
-        questionnaireEntity.getQuestions().stream().filter(questionEntity -> questionEntity instanceof OpenQuestionEntity).forEach(questionEntity -> openQuestionEntitySet.add((OpenQuestionEntity) questionEntity));
+        questionnaireEntity.getQuestions()
+                .stream().filter(questionEntity -> questionEntity instanceof OpenQuestionEntity)
+                .forEach(questionEntity -> openQuestionEntitySet.add((OpenQuestionEntity) questionEntity));
         // Map every OpenQuestionEntity to OpenQuestionDTO
-        Set<OpenQuestionDTO> openQuestionDTOSet = openQuestionEntitySet.stream().map(OpenQuestionMapper::toDto).collect(Collectors.toSet());
+        Set<OpenQuestionDTO> openQuestionDTOSet = openQuestionEntitySet
+                .stream().map(OpenQuestionMapper::toDto).collect(Collectors.toSet());
 
         // Map every option question from QuestionEntity to OptionQuestionEntity
         Set<OptionQuestionEntity> optionQuestionEntitySet = new HashSet<>();
-        questionnaireEntity.getQuestions().stream().filter(questionEntity -> questionEntity instanceof OptionQuestionEntity).forEach(questionEntity -> optionQuestionEntitySet.add((OptionQuestionEntity) questionEntity));
+        questionnaireEntity.getQuestions()
+                .stream().filter(questionEntity -> questionEntity instanceof OptionQuestionEntity)
+                .forEach(questionEntity -> optionQuestionEntitySet.add((OptionQuestionEntity) questionEntity));
         // Map every OptionQuestionEntity to OptionQuestionDTO
-        Set<OptionQuestionDTO> optionQuestionDTOSet = optionQuestionEntitySet.stream().map(OptionQuestionMapper::toDto).collect(Collectors.toSet());
+        Set<OptionQuestionDTO> optionQuestionDTOSet = optionQuestionEntitySet
+                .stream().map(OptionQuestionMapper::toDto).collect(Collectors.toSet());
 
         return new QuestionnaireDTO(
                 questionnaireEntity.getTitle(),
@@ -60,21 +69,30 @@ public class QuestionnaireMapper {
 
         // Map every boolean question from QuestionEntity to BooleanQuestionEntity
         Set<BooleanQuestionEntity> booleanQuestionEntitySet = new HashSet<>();
-        questionnaireEntity.getQuestions().stream().filter(questionEntity -> questionEntity instanceof BooleanQuestionEntity).forEach(questionEntity -> booleanQuestionEntitySet.add((BooleanQuestionEntity) questionEntity));
+        questionnaireEntity.getQuestions()
+                .stream().filter(questionEntity -> questionEntity instanceof BooleanQuestionEntity)
+                .forEach(questionEntity -> booleanQuestionEntitySet.add((BooleanQuestionEntity) questionEntity));
         // Map every BooleanQuestionEntity to BooleanQuestionDTO
-        Set<BooleanQuestionWithResultsDTO> booleanQuestionWithResultsDTOSet = booleanQuestionEntitySet.stream().map(BooleanQuestionMapper::toDtoWithResults).collect(Collectors.toSet());
+        Set<BooleanQuestionWithResultsDTO> booleanQuestionWithResultsDTOSet = booleanQuestionEntitySet
+                .stream().map(BooleanQuestionMapper::toDtoWithResults).collect(Collectors.toSet());
 
         // Map every open question from QuestionEntity to OpenQuestionEntity
         Set<OpenQuestionEntity> openQuestionEntitySet = new HashSet<>();
-        questionnaireEntity.getQuestions().stream().filter(questionEntity -> questionEntity instanceof OpenQuestionEntity).forEach(questionEntity -> openQuestionEntitySet.add((OpenQuestionEntity) questionEntity));
+        questionnaireEntity.getQuestions()
+                .stream().filter(questionEntity -> questionEntity instanceof OpenQuestionEntity)
+                .forEach(questionEntity -> openQuestionEntitySet.add((OpenQuestionEntity) questionEntity));
         // Map every OpenQuestionEntity to OpenQuestionDTO
-        Set<OpenQuestionWithResultsDTO> openQuestionWithResultsDTOSet = openQuestionEntitySet.stream().map(OpenQuestionMapper::toDtoWithResults).collect(Collectors.toSet());
+        Set<OpenQuestionWithResultsDTO> openQuestionWithResultsDTOSet = openQuestionEntitySet
+                .stream().map(OpenQuestionMapper::toDtoWithResults).collect(Collectors.toSet());
 
         // Map every option question from QuestionEntity to OptionQuestionEntity
         Set<OptionQuestionEntity> optionQuestionEntitySet = new HashSet<>();
-        questionnaireEntity.getQuestions().stream().filter(questionEntity -> questionEntity instanceof OptionQuestionEntity).forEach(questionEntity -> optionQuestionEntitySet.add((OptionQuestionEntity) questionEntity));
+        questionnaireEntity.getQuestions()
+                .stream().filter(questionEntity -> questionEntity instanceof OptionQuestionEntity)
+                .forEach(questionEntity -> optionQuestionEntitySet.add((OptionQuestionEntity) questionEntity));
         // Map every OptionQuestionEntity to OptionQuestionDTO
-        Set<OptionQuestionWithResultsDTO> optionQuestionWithResultsDTOSet = optionQuestionEntitySet.stream().map(OptionQuestionMapper::toDtoWithResults).collect(Collectors.toSet());
+        Set<OptionQuestionWithResultsDTO> optionQuestionWithResultsDTOSet = optionQuestionEntitySet
+                .stream().map(OptionQuestionMapper::toDtoWithResults).collect(Collectors.toSet());
 
         return new QuestionnaireWithResultsDTO(
                 questionnaireEntity.getTitle(),
@@ -101,17 +119,23 @@ public class QuestionnaireMapper {
         // Cast to child classes of the QuestionEntity
         Set<QuestionEntity> questions = new HashSet<>();
         // Map every BooleanQuestionDTO to BooleanQuestionEntity
-        Set<BooleanQuestionEntity> booleanQuestionEntitySet = questionnaireDTO.getBooleanQuestionDTOSet().stream().map(BooleanQuestionMapper::toEntity).collect(Collectors.toSet());
+        Set<BooleanQuestionEntity> booleanQuestionEntitySet = questionnaireDTO.getBooleanQuestionDTOSet()
+                .stream().map(BooleanQuestionMapper::toEntity).collect(Collectors.toSet());
         // Link every boolean question to the questionnaire
-        booleanQuestionEntitySet.forEach(booleanQuestionEntity -> booleanQuestionEntity.setQuestionnaire(questionnaireEntity));
+        booleanQuestionEntitySet
+                .forEach(booleanQuestionEntity -> booleanQuestionEntity.setQuestionnaire(questionnaireEntity));
         // Map every OpenQuestionDTO to OpenQuestionEntity
-        Set<OpenQuestionEntity> openQuestionEntitySet = questionnaireDTO.getOpenQuestionDTOSet().stream().map(OpenQuestionMapper::toEntity).collect(Collectors.toSet());
+        Set<OpenQuestionEntity> openQuestionEntitySet = questionnaireDTO.getOpenQuestionDTOSet()
+                .stream().map(OpenQuestionMapper::toEntity).collect(Collectors.toSet());
         // Link every open question to the questionnaire
-        openQuestionEntitySet.forEach(openQuestionEntity -> openQuestionEntity.setQuestionnaire(questionnaireEntity));
+        openQuestionEntitySet
+                .forEach(openQuestionEntity -> openQuestionEntity.setQuestionnaire(questionnaireEntity));
         // Map every OptionQuestionDTO to OptionQuestionEntity
-        Set<OptionQuestionEntity> optionQuestionEntitySet = questionnaireDTO.getOptionQuestionDTOSet().stream().map(OptionQuestionMapper::toEntity).collect(Collectors.toSet());
+        Set<OptionQuestionEntity> optionQuestionEntitySet = questionnaireDTO.getOptionQuestionDTOSet()
+                .stream().map(OptionQuestionMapper::toEntity).collect(Collectors.toSet());
         // Link every option question to the questionnaire
-        optionQuestionEntitySet.forEach(optionQuestionEntity -> optionQuestionEntity.setQuestionnaire(questionnaireEntity));
+        optionQuestionEntitySet
+                .forEach(optionQuestionEntity -> optionQuestionEntity.setQuestionnaire(questionnaireEntity));
 
         // Add all questions
         questions.addAll(booleanQuestionEntitySet);

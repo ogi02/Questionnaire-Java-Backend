@@ -173,7 +173,8 @@ public class QuestionnaireController {
     })
     public ResponseEntity<?> getUserQuestionnaires(Principal principal) {
         // Get administrated questionnaires by the user
-        Set<QuestionnaireWithResultsDTO> questionnaireWithResultsDTOSet = questionnaireService.findUserAdministratedQuestionnaires(principal.getName());
+        Set<QuestionnaireWithResultsDTO> questionnaireWithResultsDTOSet =
+                questionnaireService.findUserAdministratedQuestionnaires(principal.getName());
 
         if (questionnaireWithResultsDTOSet.isEmpty()) {
             // Return 204 status
@@ -207,7 +208,9 @@ public class QuestionnaireController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
     })
-    public ResponseEntity<?> updateQuestionnaireState(Principal principal, @PathVariable("id") Long questionnaireId, @PathVariable Boolean isOpen) {
+    public ResponseEntity<?> updateQuestionnaireState(
+            Principal principal, @PathVariable("id") Long questionnaireId, @PathVariable Boolean isOpen
+    ) {
         try {
             // Update questionnaire state
             questionnaireService.updateQuestionnaireState(principal.getName(), questionnaireId, isOpen);
@@ -268,7 +271,9 @@ public class QuestionnaireController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             )
     })
-    public ResponseEntity<?> addAdministratorToQuestionnaire(Principal principal, @PathVariable Long questionnaireId, @PathVariable Long userId) {
+    public ResponseEntity<?> addAdministratorToQuestionnaire(
+            Principal principal, @PathVariable Long questionnaireId, @PathVariable Long userId
+    ) {
         try {
             // Add administrator to questionnaire
             questionnaireService.addAdministratorToQuestionnaire(principal.getName(), questionnaireId, userId);
@@ -366,7 +371,8 @@ public class QuestionnaireController {
     public ResponseEntity<?> getQuestionnaireResults(Principal principal, @PathVariable String resultsURL) {
         try {
             // Get the questionnaire results from DB
-            QuestionnaireWithResultsDTO questionnaire = questionnaireService.findQuestionnaireByResultsURL(principal.getName(), resultsURL);
+            QuestionnaireWithResultsDTO questionnaire =
+                    questionnaireService.findQuestionnaireByResultsURL(principal.getName(), resultsURL);
 
             // Return 200 response
             return ResponseEntity.status(HttpStatus.OK).body(questionnaire);
@@ -405,7 +411,9 @@ public class QuestionnaireController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             )
     })
-    public ResponseEntity<?> answerQuestionnaire(@PathVariable String answerURL, @RequestBody QuestionnaireResponseDTO questionnaireResponseDTO) {
+    public ResponseEntity<?> answerQuestionnaire(
+            @PathVariable String answerURL, @RequestBody QuestionnaireResponseDTO questionnaireResponseDTO
+    ) {
         try {
             // Print
             System.out.println(questionnaireResponseDTO);

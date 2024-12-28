@@ -2,8 +2,8 @@
 name: MegaLinter
 
 # Trigger mega-linter at every push.
-on:  # yamllint disable-line rule:truthy
-  push:
+on: # yamllint disable-line rule:truthy
+  pull_request:
     branches:
       - main
 

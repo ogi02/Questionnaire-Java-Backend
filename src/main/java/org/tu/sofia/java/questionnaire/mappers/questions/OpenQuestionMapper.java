@@ -23,7 +23,8 @@ public class OpenQuestionMapper {
             return null;
         }
         // Map all answers to DTOs
-        Set<OpenResponseDTO> openResponseDTOSet = openQuestionEntity.getAnswers().stream().map(OpenResponseMapper::toDto).collect(Collectors.toSet());
+        Set<OpenResponseDTO> openResponseDTOSet = openQuestionEntity.getAnswers()
+                .stream().map(OpenResponseMapper::toDto).collect(Collectors.toSet());
         return new OpenQuestionWithResultsDTO(openQuestionEntity.getQuestionText(), openResponseDTOSet);
     }
     // From DTO to entity

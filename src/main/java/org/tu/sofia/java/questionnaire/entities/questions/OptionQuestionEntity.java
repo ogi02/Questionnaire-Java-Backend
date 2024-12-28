@@ -29,7 +29,11 @@ public class OptionQuestionEntity extends QuestionEntity {
     public <T> void answerQuestion(T response) throws IllegalArgumentException {
         if (response instanceof Integer optionResponseEntityId) {
             // Get option by the passed ID
-            Optional<OptionResponseEntity> optionalOptionResponseEntity = options.stream().filter(optionResponseEntity -> Objects.equals(optionResponseEntity.getId(), optionResponseEntityId.longValue())).findFirst();
+            Optional<OptionResponseEntity> optionalOptionResponseEntity = options
+                    .stream()
+                    .filter(optionResponseEntity ->
+                            Objects.equals(optionResponseEntity.getId(), optionResponseEntityId.longValue()))
+                    .findFirst();
             if (optionalOptionResponseEntity.isEmpty()) {
                 throw new EntityNotFoundException("Option with this ID for this question was not found.");
             }
