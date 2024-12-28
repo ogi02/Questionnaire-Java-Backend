@@ -18,6 +18,7 @@ jobs:
     runs-on: self-hosted
 
     permissions:
+      checks: write
       contents: write
       issues: write
       pull-requests: write
@@ -49,9 +50,10 @@ jobs:
       # Report test results
       - name: Publish Test Report
         if: success() || failure()
-        uses: scacap/action-surefire-report@v1
+        uses: mikepenz/action-junit-report@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          report_paths: '**/target/surefire-reports/TEST-*.xml'
 
       # Report code coverage
       - name: Upload coverage reports to Codecov
