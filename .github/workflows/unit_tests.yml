@@ -32,8 +32,9 @@ jobs:
           java-version: "21"
           cache: maven
 
+      # Cach the maven packages
       - name: Cache the Maven packages to speed up build
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -41,11 +42,11 @@ jobs:
 
         # Build
       - name: Build
-        run: /usr/bin/mvn --batch-mode -DskipTests package
+        run: /bin/mvn --batch-mode -DskipTests package
 
       # Test
       - name: Test
-        run: /usr/bin/mvn --batch-mode -Dmaven.test.failure.ignore=true test
+        run: /bin/mvn --batch-mode -Dmaven.test.failure.ignore=true test
 
       # Report test results
       - name: Report
