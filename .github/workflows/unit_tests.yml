@@ -41,7 +41,7 @@ jobs:
 
       # Build and Test
       - name: Build & Test
-        run: mvn -B package -Pcoverage
+        run: mvn -B package
 
       # Report test results
       - name: Publish Test Report
@@ -51,17 +51,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           report_paths: "**/target/surefire-reports/TEST-*.xml"
 
-#      - name: Generate JaCoCo Badge
-#        id: jacoco
-#        uses: cicirello/jacoco-badge-generator@v2
-#        with:
-#          badges-directory: badges
-#          generate-branches-badge: true
-#          generate-summary: true
-
       - name: Log Coverage to Workflow Output
         run: |
-          echo "coverage = ${{ steps.jacoco.outputs.coverage }}"
+          echo ${{ github.workspace }}
 
       - name: Upload JaCoCo coverage report as a workflow artifact
         uses: actions/upload-artifact@v4
@@ -80,15 +72,3 @@ jobs:
           title: '# :lobster: Coverage Report'
           pass-emoji: ':green_circle:'
           fail-emoji: ':red_circle:'
-
-#      - name: Comment on PR with coverage percentages
-#        if: ${{ github.event_name == 'pull_request' }}
-#        run: |
-#          REPORT=$(<badges/coverage-summary.json)
-#          COVERAGE=$(jq -r '.coverage' <<< "$REPORT")%
-#          NEWLINE=$'\n'
-#          BODY="## JaCoCo Test Coverage Summary Statistics${NEWLINE}* __Coverage:__ ${COVERAGE}"
-#          gh pr comment ${{github.event.pull_request.number}} -b "${BODY}"
-#        continue-on-error: true
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
