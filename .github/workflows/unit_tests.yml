@@ -51,13 +51,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           report_paths: "**/target/surefire-reports/TEST-*.xml"
 
-      - name: Generate JaCoCo Badge
-        id: jacoco
-        uses: cicirello/jacoco-badge-generator@v2
-        with:
-          badges-directory: badges
-          generate-branches-badge: true
-          generate-summary: true
+#      - name: Generate JaCoCo Badge
+#        id: jacoco
+#        uses: cicirello/jacoco-badge-generator@v2
+#        with:
+#          badges-directory: badges
+#          generate-branches-badge: true
+#          generate-summary: true
 
       - name: Log Coverage to Workflow Output
         run: |
