@@ -17,7 +17,7 @@ public class QuestionnaireWithResultsDTO {
     private String description;
     private Boolean isOpen;
     private Boolean isPublic;
-    private Set<BooleanQuestionWithResultsDTO> booleanQuestionWithResultsDTOSet;
-    private Set<OpenQuestionWithResultsDTO> openQuestionWithResultsDTOSet;
-    private Set<OptionQuestionWithResultsDTO> optionQuestionWithResultsDTOSet;
+    private Set<BooleanQuestionWithResultsDTO> booleanQuestionsResults;
+    private Set<OpenQuestionWithResultsDTO> openQuestionsResults;
+    private Set<OptionQuestionWithResultsDTO> optionQuestionsResults;
 }

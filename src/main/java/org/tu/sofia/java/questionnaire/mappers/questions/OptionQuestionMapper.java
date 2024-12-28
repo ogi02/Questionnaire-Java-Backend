@@ -39,7 +39,7 @@ public class OptionQuestionMapper {
         }
         OptionQuestionEntity optionQuestionEntity = new OptionQuestionEntity();
         // Map all responses to entities
-        Set<OptionResponseEntity> optionResponseEntitySet = optionQuestionDTO.getOptionResponseWithoutVotesDTOSet()
+        Set<OptionResponseEntity> optionResponseEntitySet = optionQuestionDTO.getOptionResponseDTOSet()
                 .stream().map(OptionResponseMapper::toEntity).collect(Collectors.toSet());
         // Link options to the question
         optionResponseEntitySet.forEach(optionResponseEntity -> optionResponseEntity.setQuestion(optionQuestionEntity));
