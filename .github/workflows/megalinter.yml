@@ -25,11 +25,6 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Any Name Bash Test Step
-        shell: bash
-        run: |
-          echo $PATH
-
       # Checkout the repository
       - name: Checkout Code
         uses: actions/checkout@v4

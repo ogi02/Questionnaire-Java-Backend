@@ -17,6 +17,11 @@ jobs:
   run_tests:
     runs-on: self-hosted
     steps:
+      - name: Any Name Bash Test Step
+        shell: bash
+        run: |
+          echo $PATH
+
       # Checkout the repository
       - name: Checkout the repository
         uses: actions/checkout@v4
