@@ -30,14 +30,16 @@ jobs:
         with:
           distribution: "oracle"
           java-version: "21"
+          cache: maven
 
-      # Set up Maven
-      - name: Set up Maven
-        uses: stCarolas/setup-maven@v5
+      - name: Cache the Maven packages to speed up build
+        uses: actions/cache@v1
         with:
-          maven-version: 3.8.2
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
-      # Build
+        # Build
       - name: Build
         run: /usr/bin/mvn --batch-mode -DskipTests package
 
@@ -50,7 +52,7 @@ jobs:
         uses: dorny/test-reporter@v1
         if: always()
         with:
-          name: Maven Tests
+          name: Maven Tests Results
           path: target/surefire-reports/*.xml
           reporter: java-junit
           fail-on-error: true
