@@ -5,7 +5,8 @@ name: MegaLinter
 on: # yamllint disable-line rule:truthy
   pull_request:
     branches:
-      - main
+      # - main
+      - invalid
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -24,6 +25,11 @@ jobs:
       pull-requests: write
 
     steps:
+      - name: Any Name Bash Test Step
+        shell: bash
+        run: |
+          echo $PATH
+
       # Checkout the repository
       - name: Checkout Code
         uses: actions/checkout@v4
