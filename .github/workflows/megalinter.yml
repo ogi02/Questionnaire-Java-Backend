@@ -33,7 +33,7 @@ jobs:
 
       # MegaLinter
       - name: MegaLinter
-        uses: oxsecurity/megalinter@bc706c8a1a95adf99bc0851e7cf4509c6474e7a4351e8c4773d6e50c7a2132ea
+        uses: oxsecurity/megalinter@v8
         id: ml
 
         env:
