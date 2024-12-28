@@ -16,6 +16,12 @@ permissions: {}
 jobs:
   run_tests:
     runs-on: self-hosted
+
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
     steps:
       # Checkout the repository
       - name: Checkout the repository
