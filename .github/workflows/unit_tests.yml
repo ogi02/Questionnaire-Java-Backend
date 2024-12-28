@@ -57,7 +57,8 @@ jobs:
 
       # Upload code coverage
       - name: Upload jacoco exec results
-        uses: actions/upload-artifact@v2
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
         with:
           name: unit-tests-jacoco
           path: exportJacoco/jacoco-fast.exec
