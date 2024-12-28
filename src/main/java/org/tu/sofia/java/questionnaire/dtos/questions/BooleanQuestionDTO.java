@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class BooleanQuestionDTO extends QuestionDTO {
-    public BooleanQuestionDTO(String questionText) {
+    public BooleanQuestionDTO(final String questionText) {
         super(questionText);
     }
 }

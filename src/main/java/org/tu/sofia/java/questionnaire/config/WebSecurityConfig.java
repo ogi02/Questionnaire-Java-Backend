@@ -1,5 +1,6 @@
 package org.tu.sofia.java.questionnaire.config;
 
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,23 +15,24 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 @Configuration
 @EnableWebSecurity
+@NoArgsConstructor
 public class WebSecurityConfig {
 
-    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private JwtRequestFilter jwtRequestFilter;
+    private JwtAuthenticationEntryPoint authEntryPoint;
+    private JwtRequestFilter requestFilter;
 
     @Autowired
-    public void setJwtAuthenticationEntryPoint(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
-        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+    public void setJwtAuthenticationEntryPoint(final JwtAuthenticationEntryPoint authEntryPoint) {
+        this.authEntryPoint = authEntryPoint;
     }
 
     @Autowired
-    public void setJwtRequestFilter(JwtRequestFilter jwtRequestFilter) {
-        this.jwtRequestFilter = jwtRequestFilter;
+    public void setJwtRequestFilter(final JwtRequestFilter requestFilter) {
+        this.requestFilter = requestFilter;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
@@ -44,14 +46,14 @@ public class WebSecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .authenticationEntryPoint(authEntryPoint)
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
 
         // Add the JWT filter
-        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(requestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

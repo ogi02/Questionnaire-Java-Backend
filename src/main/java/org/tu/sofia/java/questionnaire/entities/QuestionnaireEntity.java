@@ -1,11 +1,11 @@
 package org.tu.sofia.java.questionnaire.entities;
 
-import lombok.AllArgsConstructor;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import jakarta.persistence.*;
+import jakarta.persistence.*; // NOPMD
 import org.tu.sofia.java.questionnaire.entities.questions.QuestionEntity;
 
 import java.util.HashSet;
@@ -56,7 +56,10 @@ public class QuestionnaireEntity {
     @Column(name = "results_url")
     private String resultsURL = UUID.randomUUID().toString().replace("-", "");
 
-    public QuestionnaireEntity(String title, String description, UserEntity owner, Set<UserEntity> administrators, Set<QuestionEntity> questions, Boolean isOpen, Boolean isPublic) {
+    public QuestionnaireEntity(
+            final String title, final String description, final UserEntity owner, final Set<UserEntity> administrators,
+            final Set<QuestionEntity> questions, final Boolean isOpen, final Boolean isPublic
+    ) {
         this.title = title;
         this.description = description;
         this.owner = owner;

@@ -14,12 +14,12 @@ import java.util.Set;
 public class OpenQuestionWithResultsDTO extends QuestionDTO {
     private Set<OpenResponseDTO> openResponseDTOSet;
 
-    public OpenQuestionWithResultsDTO(String questionText) {
+    public OpenQuestionWithResultsDTO(final String questionText) {
         super(questionText);
         this.openResponseDTOSet = new HashSet<>();
     }
 
-    public OpenQuestionWithResultsDTO(String questionText, Set<OpenResponseDTO> openResponseDTOSet) {
+    public OpenQuestionWithResultsDTO(final String questionText, final Set<OpenResponseDTO> openResponseDTOSet) {
         super(questionText);
         this.openResponseDTOSet = openResponseDTOSet;
     }

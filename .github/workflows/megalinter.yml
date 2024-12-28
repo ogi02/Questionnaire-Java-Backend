@@ -2,8 +2,8 @@
 name: MegaLinter
 
 # Trigger mega-linter at every push.
-on:  # yamllint disable-line rule:truthy
-  push:
+on: # yamllint disable-line rule:truthy
+  pull_request:
     branches:
       - main
 
@@ -18,8 +18,6 @@ jobs:
     name: MegaLinter
     runs-on: self-hosted
 
-    # Give the default GITHUB_TOKEN write permission to commit and push, comment
-    # issues & post new PR; remove the ones you do not need
     permissions:
       contents: write
       issues: write
@@ -30,7 +28,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
       # MegaLinter
@@ -39,16 +37,7 @@ jobs:
         id: ml
 
         env:
-          # To validate the entire codebase, set to:
-          # VALIDATE_ALL_CODEBASE: true
-
-          # To validate only diff with main, set to:
-          VALIDATE_ALL_CODEBASE: >-
-            ${{
-              github.event_name == 'push' &&
-              contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref)
-            }}
-
+          VALIDATE_ALL_CODEBASE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Upload MegaLinter artifacts

@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import jakarta.persistence.*;
+import jakarta.persistence.*; // NOPMD
 import org.tu.sofia.java.questionnaire.entities.QuestionnaireEntity;
 
 @Getter
@@ -26,7 +26,7 @@ public abstract class QuestionEntity {
     @JoinColumn(name = "questionnaire_id", referencedColumnName = "id")
     private QuestionnaireEntity questionnaire;
 
-    public QuestionEntity(String questionText) {
+    public QuestionEntity(final String questionText) {
         this.questionText = questionText;
     }
 

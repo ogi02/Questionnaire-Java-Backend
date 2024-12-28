@@ -1,6 +1,7 @@
 package org.tu.sofia.java.questionnaire.unit.repository;
 
 import jakarta.transaction.Transactional;
+import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -13,12 +14,13 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@NoArgsConstructor
 public class AuthenticationRepositoryTests {
 
     private AuthenticationRepository authenticationRepository;
 
     @Autowired
-    public void setAuthenticationRepository(AuthenticationRepository authenticationRepository) {
+    public void setAuthenticationRepository(final AuthenticationRepository authenticationRepository) {
         this.authenticationRepository = authenticationRepository;
     }
 
@@ -27,14 +29,14 @@ public class AuthenticationRepositoryTests {
     @Rollback
     public void testSaveUser() {
         // Define test data
-        String username = "testUsername";
-        String password = "testPassword";
+        final String username = "testUsername";
+        final String password = "testPassword";
 
         // Create a user with the test data
-        UserEntity user = new UserEntity(username, password);
+        final UserEntity user = new UserEntity(username, password);
 
         // Save the user
-        UserEntity savedUser = authenticationRepository.save(user);
+        final UserEntity savedUser = authenticationRepository.save(user);
 
         // Assert
         assertNotNull(savedUser);
@@ -48,21 +50,21 @@ public class AuthenticationRepositoryTests {
     @Rollback
     public void testFindByUsernameUserFound() {
         // Define test data
-        String username = "testUsername";
-        String password = "testPassword";
+        final String username = "testUsername";
+        final String password = "testPassword";
 
         // Create a user with the test data
-        UserEntity user = new UserEntity(username, password);
+        final UserEntity user = new UserEntity(username, password);
 
         // Save the user
         authenticationRepository.save(user);
 
         // Find the user by username
-        Optional<UserEntity> optionalUser = authenticationRepository.findByUsername(username);
+        final Optional<UserEntity> optionalUser = authenticationRepository.findByUsername(username);
 
         // Assert
         assertTrue(optionalUser.isPresent());
-        UserEntity foundUser = optionalUser.get();
+        final UserEntity foundUser = optionalUser.get();
         assertNotNull(foundUser.getId());
         assertEquals(foundUser.getUsername(), username);
         assertEquals(foundUser.getPassword(), password);
@@ -73,7 +75,7 @@ public class AuthenticationRepositoryTests {
     @Rollback
     public void testFindByUsernameUserNotFound() {
         // Find a non-existent user
-        Optional<UserEntity> optionalUser = authenticationRepository.findByUsername("nonExistentUsername");
+        final Optional<UserEntity> optionalUser = authenticationRepository.findByUsername("nonExistentUsername");
 
         // Assert
         assertTrue(optionalUser.isEmpty());

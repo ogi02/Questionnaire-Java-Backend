@@ -11,13 +11,13 @@ public class BooleanQuestionWithResultsDTO extends QuestionDTO {
     private Integer trueVotes;
     private Integer falseVotes;
 
-    public BooleanQuestionWithResultsDTO(String questionText) {
+    public BooleanQuestionWithResultsDTO(final String questionText) {
         super(questionText);
         this.trueVotes = 0;
         this.falseVotes = 0;
     }
 
-    public BooleanQuestionWithResultsDTO(String questionText, Integer trueVotes, Integer falseVotes) {
+    public BooleanQuestionWithResultsDTO(final String questionText, final Integer trueVotes, final Integer falseVotes) {
         super(questionText);
         this.trueVotes = trueVotes;
         this.falseVotes = falseVotes;

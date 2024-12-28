@@ -7,13 +7,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpMethod;
+import org.springframework.web.bind.annotation.*; // NOPMD
 import org.tu.sofia.java.questionnaire.schemas.ErrorResponseSchema;
 import org.tu.sofia.java.questionnaire.schemas.JwtRequestSchema;
 import org.tu.sofia.java.questionnaire.schemas.JwtResponseSchema;
 import org.tu.sofia.java.questionnaire.services.AuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -26,8 +26,8 @@ public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
 
-    @PostMapping(value = "/login")
-    @ApiResponses(value = {
+    @PostMapping("/login")
+    @ApiResponses({
             @ApiResponse(
                     description = "Successful login.",
                     responseCode = "200",
@@ -39,7 +39,7 @@ public class AuthenticationController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
     })
-    public ResponseEntity<?> login(@RequestBody JwtRequestSchema request) {
+    public ResponseEntity<?> login(@RequestBody final JwtRequestSchema request) {
         try {
             // Attempt login
             final String token = authenticationService.attemptLogin(request.getUsername(), request.getPassword());
@@ -63,8 +63,8 @@ public class AuthenticationController {
         }
     }
 
-    @PostMapping(value = "/register")
-    @ApiResponses(value = {
+    @PostMapping("/register")
+    @ApiResponses({
             @ApiResponse(
                     description = "Successful register.",
                     responseCode = "201",
@@ -76,7 +76,7 @@ public class AuthenticationController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
     })
-    public ResponseEntity<?> register(@RequestBody JwtRequestSchema request) {
+    public ResponseEntity<?> register(@RequestBody final JwtRequestSchema request) {
         try {
             // Attempt register
             final String token = authenticationService.attemptRegister(request.getUsername(), request.getPassword());

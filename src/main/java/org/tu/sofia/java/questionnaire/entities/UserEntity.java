@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import jakarta.persistence.*;
+import jakarta.persistence.*; // NOPMD
 import java.util.Set;
 
 @Entity
@@ -30,13 +30,13 @@ public class UserEntity {
     private Set<QuestionnaireEntity> questionnaires;
 
     @ManyToMany(mappedBy = "administrators")
-    private Set<QuestionnaireEntity> administratedQuestionnaires;
+    private Set<QuestionnaireEntity> adminQuestionnaires;
 
-    public UserEntity(Long id) {
+    public UserEntity(final Long id) {
         this.id = id;
     }
 
-    public UserEntity(String username, String password) {
+    public UserEntity(final String username, final String password) {
         this.username = username;
         this.password = password;
     }

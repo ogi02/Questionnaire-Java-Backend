@@ -11,10 +11,10 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 public class OptionQuestionDTO extends QuestionDTO {
-    private Set<OptionResponseWithoutVotesDTO> optionResponseWithoutVotesDTOSet;
+    private Set<OptionResponseWithoutVotesDTO> optionResponseDTOSet;
 
-    public OptionQuestionDTO(String questionText, Set<OptionResponseWithoutVotesDTO> optionResponseWithoutVotesDTOSet) {
+    public OptionQuestionDTO(final String questionText, final Set<OptionResponseWithoutVotesDTO> optionResponseDTOSet) {
         super(questionText);
-        this.optionResponseWithoutVotesDTOSet = optionResponseWithoutVotesDTOSet;
+        this.optionResponseDTOSet = optionResponseDTOSet;
     }
 }
