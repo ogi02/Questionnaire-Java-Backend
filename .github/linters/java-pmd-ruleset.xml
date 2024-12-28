@@ -18,6 +18,7 @@
         <exclude name="LawOfDemeter" />
         <exclude name="AvoidUncheckedExceptionsInSignatures" />
         <exclude name="AvoidCatchingGenericException" />
+        <exclude name="AvoidThrowingRawExceptionTypes" />
     </rule>
     <rule ref="category/java/codestyle.xml">
         <exclude name="OnlyOneReturn" />

@@ -1,7 +1,6 @@
 package org.tu.sofia.java.questionnaire.services;
 
-import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -23,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
+@NoArgsConstructor
 public class AuthenticationService implements UserDetailsService {
 
     private AuthenticationManager authenticationManager;
@@ -32,38 +32,38 @@ public class AuthenticationService implements UserDetailsService {
 
     @Autowired
     @Lazy
-    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+    public void setAuthenticationManager(final AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
 
     @Autowired
-    public void setAuthenticationRepository(AuthenticationRepository authenticationRepository) {
+    public void setAuthenticationRepository(final AuthenticationRepository authenticationRepository) {
         this.authenticationRepository = authenticationRepository;
     }
 
     @Autowired
-    public void setJwtTokenUtil(JwtTokenUtil jwtTokenUtil) {
+    public void setJwtTokenUtil(final JwtTokenUtil jwtTokenUtil) {
         this.jwtTokenUtil = jwtTokenUtil;
     }
 
     @Autowired
-    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+    public void setPasswordEncoder(final PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         // Find user by their username
-        Optional<UserEntity> optionalUser = authenticationRepository.findByUsername(username);
+        final Optional<UserEntity> optionalUser = authenticationRepository.findByUsername(username);
         if (optionalUser.isEmpty()) {
             throw new UsernameNotFoundException(username);
         }
-        UserEntity user = optionalUser.get();
+        final UserEntity user = optionalUser.get();
         // Create and return a "UserDetails" object
         return new User(user.getUsername(), user.getPassword(), new ArrayList<>());
     }
 
-    public String attemptLogin(String username, String password) throws RuntimeException {
+    public String attemptLogin(final String username, final String password) throws RuntimeException {
         // Validate input
         if (username == null || username.isBlank() || password == null || password.isBlank()) {
             throw new IllegalArgumentException("Username and password must not be empty.");
@@ -93,7 +93,7 @@ public class AuthenticationService implements UserDetailsService {
         }
     }
 
-    public String attemptRegister(String username, String password) throws RuntimeException {
+    public String attemptRegister(final String username, final String password) throws RuntimeException {
         // Validate input
         if (username == null || username.isBlank() || password == null || password.isBlank()) {
             throw new IllegalArgumentException("Username and password must not be empty.");
@@ -101,7 +101,7 @@ public class AuthenticationService implements UserDetailsService {
 
         try {
             // Create the user entity
-            UserEntity userEntity = new UserEntity(username, passwordEncoder.encode(password));
+            final UserEntity userEntity = new UserEntity(username, passwordEncoder.encode(password));
 
             // Save user
             authenticationRepository.save(userEntity);
