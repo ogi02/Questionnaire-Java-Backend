@@ -1,6 +1,7 @@
 package org.tu.sofia.java.questionnaire.unit.repository;
 
 import jakarta.transaction.Transactional;
+import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataJpaTest
+@NoArgsConstructor
 public class QuestionnaireRepositoryTests {
     private AuthenticationRepository authenticationRepository;
     private QuestionnaireRepository questionnaireRepository;
@@ -31,39 +33,39 @@ public class QuestionnaireRepositoryTests {
     private UserEntity testSessionUser;
 
     @Autowired
-    public void setAuthenticationRepository(AuthenticationRepository authenticationRepository) {
+    public void setAuthenticationRepository(final AuthenticationRepository authenticationRepository) {
         this.authenticationRepository = authenticationRepository;
     }
 
     @Autowired
-    public void setQuestionnaireRepository(QuestionnaireRepository questionnaireRepository) {
+    public void setQuestionnaireRepository(final QuestionnaireRepository questionnaireRepository) {
         this.questionnaireRepository = questionnaireRepository;
     }
 
     @BeforeEach
     public void createUser() {
         // Set up details for test user
-        String username = "testUsername";
-        String password = "testPassword";
+        final String username = "testUsername";
+        final String password = "testPassword";
         // Create a user with the test data
-        UserEntity user = new UserEntity(username, password);
+        final UserEntity user = new UserEntity(username, password);
         // Save the user and assign it to the testSessionUser object
         testSessionUser = authenticationRepository.save(user);
     }
 
     private QuestionnaireEntity setupQuestionnaire() {
         // Define basic questionnaire details
-        String title = "Test Questionnaire title";
-        String description = "Test Questionnaire description";
-        Boolean isOpen = true;
-        Boolean isPublic = true;
+        final String title = "Test Questionnaire title";
+        final String description = "Test Questionnaire description";
+        final Boolean isOpen = true;
+        final Boolean isPublic = true;
 
         // Define the owner of the questionnaire
-        UserEntity owner = testSessionUser;
-        Set<UserEntity> administrators = Set.of(testSessionUser);
+        final UserEntity owner = testSessionUser;
+        final Set<UserEntity> administrators = Set.of(testSessionUser);
 
         // Define the questions of the questionnaire
-        Set<QuestionEntity> questions = setupQuestions();
+        final Set<QuestionEntity> questions = setupQuestions();
 
         // Create and return a questionnaire
         return new QuestionnaireEntity(title, description, owner, administrators, questions, isOpen, isPublic);
@@ -71,34 +73,34 @@ public class QuestionnaireRepositoryTests {
 
     private Set<QuestionEntity> setupQuestions() {
         // Define the boolean questions of the questionnaire
-        BooleanQuestionEntity booleanQuestion1 = new BooleanQuestionEntity("Test Boolean Question 1");
-        BooleanQuestionEntity booleanQuestion2 = new BooleanQuestionEntity("Test Boolean Question 2");
-        BooleanQuestionEntity booleanQuestion3 = new BooleanQuestionEntity("Test Boolean Question 3");
-        Set<BooleanQuestionEntity> booleanQuestions = Set.of(booleanQuestion1, booleanQuestion2, booleanQuestion3);
+        final BooleanQuestionEntity booleanQuestion1 = new BooleanQuestionEntity("Test Boolean Question 1");
+        final BooleanQuestionEntity booleanQuestion2 = new BooleanQuestionEntity("Test Boolean Question 2");
+        final BooleanQuestionEntity booleanQuestion3 = new BooleanQuestionEntity("Test Boolean Question 3");
+        final Set<BooleanQuestionEntity> booleanQuestions = Set.of(booleanQuestion1, booleanQuestion2, booleanQuestion3);
 
         // Define the open questions of the questionnaire
-        OpenQuestionEntity openQuestion1 = new OpenQuestionEntity("Test Open Question 1");
-        OpenQuestionEntity openQuestion2 = new OpenQuestionEntity("Test Open Question 2");
-        OpenQuestionEntity openQuestion3 = new OpenQuestionEntity("Test Open Question 3");
-        Set<OpenQuestionEntity> openQuestions = Set.of(openQuestion1, openQuestion2, openQuestion3);
+        final OpenQuestionEntity openQuestion1 = new OpenQuestionEntity("Test Open Question 1");
+        final OpenQuestionEntity openQuestion2 = new OpenQuestionEntity("Test Open Question 2");
+        final OpenQuestionEntity openQuestion3 = new OpenQuestionEntity("Test Open Question 3");
+        final Set<OpenQuestionEntity> openQuestions = Set.of(openQuestion1, openQuestion2, openQuestion3);
 
         // Define the option questions of the questionnaire
-        OptionResponseEntity option1ForOptionQuestion1 = new OptionResponseEntity("Option 1 for Option Question 1");
-        OptionResponseEntity option2ForOptionQuestion1 = new OptionResponseEntity("Option 2 for Option Question 1");
-        OptionResponseEntity option3ForOptionQuestion1 = new OptionResponseEntity("Option 3 for Option Question 1");
-        OptionQuestionEntity optionQuestion1 = new OptionQuestionEntity("Test Option Question 1",
+        final OptionResponseEntity option1ForOptionQuestion1 = new OptionResponseEntity("Option 1 for Option Question 1");
+        final OptionResponseEntity option2ForOptionQuestion1 = new OptionResponseEntity("Option 2 for Option Question 1");
+        final OptionResponseEntity option3ForOptionQuestion1 = new OptionResponseEntity("Option 3 for Option Question 1");
+        final OptionQuestionEntity optionQuestion1 = new OptionQuestionEntity("Test Option Question 1",
                 Set.of(option1ForOptionQuestion1, option2ForOptionQuestion1, option3ForOptionQuestion1));
-        OptionResponseEntity option1ForOptionQuestion2 = new OptionResponseEntity("Option 1 for Option Question 2");
-        OptionResponseEntity option2ForOptionQuestion2 = new OptionResponseEntity("Option 2 for Option Question 2");
-        OptionResponseEntity option3ForOptionQuestion2 = new OptionResponseEntity("Option 3 for Option Question 2");
-        OptionQuestionEntity optionQuestion2 = new OptionQuestionEntity("Test Option Question 2",
+        final OptionResponseEntity option1ForOptionQuestion2 = new OptionResponseEntity("Option 1 for Option Question 2");
+        final OptionResponseEntity option2ForOptionQuestion2 = new OptionResponseEntity("Option 2 for Option Question 2");
+        final OptionResponseEntity option3ForOptionQuestion2 = new OptionResponseEntity("Option 3 for Option Question 2");
+        final OptionQuestionEntity optionQuestion2 = new OptionQuestionEntity("Test Option Question 2",
                 Set.of(option1ForOptionQuestion2, option2ForOptionQuestion2, option3ForOptionQuestion2));
-        OptionResponseEntity option1ForOptionQuestion3 = new OptionResponseEntity("Option 1 for Option Question 3");
-        OptionResponseEntity option2ForOptionQuestion3 = new OptionResponseEntity("Option 2 for Option Question 3");
-        OptionResponseEntity option3ForOptionQuestion3 = new OptionResponseEntity("Option 3 for Option Question 3");
-        OptionQuestionEntity optionQuestion3 = new OptionQuestionEntity("Test Option Question 3",
+        final OptionResponseEntity option1ForOptionQuestion3 = new OptionResponseEntity("Option 1 for Option Question 3");
+        final OptionResponseEntity option2ForOptionQuestion3 = new OptionResponseEntity("Option 2 for Option Question 3");
+        final OptionResponseEntity option3ForOptionQuestion3 = new OptionResponseEntity("Option 3 for Option Question 3");
+        final OptionQuestionEntity optionQuestion3 = new OptionQuestionEntity("Test Option Question 3",
                 Set.of(option1ForOptionQuestion3, option2ForOptionQuestion3, option3ForOptionQuestion3));
-        Set<OptionQuestionEntity> optionQuestions = Set.of(optionQuestion1, optionQuestion2, optionQuestion3);
+        final Set<OptionQuestionEntity> optionQuestions = Set.of(optionQuestion1, optionQuestion2, optionQuestion3);
 
         // Define the questions of the questionnaire
         return new HashSet<>() {{
@@ -113,10 +115,10 @@ public class QuestionnaireRepositoryTests {
     @Rollback
     public void testSaveQuestionnaire() {
         // Set up the questionnaire
-        QuestionnaireEntity questionnaire = setupQuestionnaire();
+        final QuestionnaireEntity questionnaire = setupQuestionnaire();
 
         // Save the questionnaire
-        QuestionnaireEntity savedQuestionnaire = questionnaireRepository.save(questionnaire);
+        final QuestionnaireEntity savedQuestionnaire = questionnaireRepository.save(questionnaire);
 
         // Assert details
         assertNotNull(savedQuestionnaire);
