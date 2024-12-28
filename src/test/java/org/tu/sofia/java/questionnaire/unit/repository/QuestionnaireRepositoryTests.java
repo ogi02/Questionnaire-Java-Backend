@@ -76,7 +76,8 @@ public class QuestionnaireRepositoryTests {
         final BooleanQuestionEntity booleanQuestion1 = new BooleanQuestionEntity("Test Boolean Question 1");
         final BooleanQuestionEntity booleanQuestion2 = new BooleanQuestionEntity("Test Boolean Question 2");
         final BooleanQuestionEntity booleanQuestion3 = new BooleanQuestionEntity("Test Boolean Question 3");
-        final Set<BooleanQuestionEntity> booleanQuestions = Set.of(booleanQuestion1, booleanQuestion2, booleanQuestion3);
+        final Set<BooleanQuestionEntity> booleanQuestions =
+                Set.of(booleanQuestion1, booleanQuestion2, booleanQuestion3);
 
         // Define the open questions of the questionnaire
         final OpenQuestionEntity openQuestion1 = new OpenQuestionEntity("Test Open Question 1");
@@ -85,21 +86,21 @@ public class QuestionnaireRepositoryTests {
         final Set<OpenQuestionEntity> openQuestions = Set.of(openQuestion1, openQuestion2, openQuestion3);
 
         // Define the option questions of the questionnaire
-        final OptionResponseEntity option1ForOptionQuestion1 = new OptionResponseEntity("Option 1 for Option Question 1");
-        final OptionResponseEntity option2ForOptionQuestion1 = new OptionResponseEntity("Option 2 for Option Question 1");
-        final OptionResponseEntity option3ForOptionQuestion1 = new OptionResponseEntity("Option 3 for Option Question 1");
+        final OptionResponseEntity option1Question1 = new OptionResponseEntity("Option 1 for Option Question 1");
+        final OptionResponseEntity option2Question1 = new OptionResponseEntity("Option 2 for Option Question 1");
+        final OptionResponseEntity option3Question1 = new OptionResponseEntity("Option 3 for Option Question 1");
         final OptionQuestionEntity optionQuestion1 = new OptionQuestionEntity("Test Option Question 1",
-                Set.of(option1ForOptionQuestion1, option2ForOptionQuestion1, option3ForOptionQuestion1));
-        final OptionResponseEntity option1ForOptionQuestion2 = new OptionResponseEntity("Option 1 for Option Question 2");
-        final OptionResponseEntity option2ForOptionQuestion2 = new OptionResponseEntity("Option 2 for Option Question 2");
-        final OptionResponseEntity option3ForOptionQuestion2 = new OptionResponseEntity("Option 3 for Option Question 2");
+                Set.of(option1Question1, option2Question1, option3Question1));
+        final OptionResponseEntity option1Question2 = new OptionResponseEntity("Option 1 for Option Question 2");
+        final OptionResponseEntity option2Question2 = new OptionResponseEntity("Option 2 for Option Question 2");
+        final OptionResponseEntity option3Question2 = new OptionResponseEntity("Option 3 for Option Question 2");
         final OptionQuestionEntity optionQuestion2 = new OptionQuestionEntity("Test Option Question 2",
-                Set.of(option1ForOptionQuestion2, option2ForOptionQuestion2, option3ForOptionQuestion2));
-        final OptionResponseEntity option1ForOptionQuestion3 = new OptionResponseEntity("Option 1 for Option Question 3");
-        final OptionResponseEntity option2ForOptionQuestion3 = new OptionResponseEntity("Option 2 for Option Question 3");
-        final OptionResponseEntity option3ForOptionQuestion3 = new OptionResponseEntity("Option 3 for Option Question 3");
+                Set.of(option1Question2, option2Question2, option3Question2));
+        final OptionResponseEntity option1Question3 = new OptionResponseEntity("Option 1 for Option Question 3");
+        final OptionResponseEntity option2Question3 = new OptionResponseEntity("Option 2 for Option Question 3");
+        final OptionResponseEntity option3Question3 = new OptionResponseEntity("Option 3 for Option Question 3");
         final OptionQuestionEntity optionQuestion3 = new OptionQuestionEntity("Test Option Question 3",
-                Set.of(option1ForOptionQuestion3, option2ForOptionQuestion3, option3ForOptionQuestion3));
+                Set.of(option1Question3, option2Question3, option3Question3));
         final Set<OptionQuestionEntity> optionQuestions = Set.of(optionQuestion1, optionQuestion2, optionQuestion3);
 
         // Define the questions of the questionnaire

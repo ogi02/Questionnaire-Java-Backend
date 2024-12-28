@@ -19,6 +19,7 @@
         <exclude name="AvoidUncheckedExceptionsInSignatures" />
         <exclude name="AvoidCatchingGenericException" />
         <exclude name="AvoidThrowingRawExceptionTypes" />
+        <exclude name="SignatureDeclareThrowsException" />
     </rule>
     <rule ref="category/java/codestyle.xml">
         <exclude name="OnlyOneReturn" />

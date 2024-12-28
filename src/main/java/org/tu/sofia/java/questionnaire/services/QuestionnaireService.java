@@ -113,7 +113,8 @@ public class QuestionnaireService {
         final UserEntity currentUser = getUserByUsername(username);
 
         // Get questionnaire from DB
-        final Optional<QuestionnaireEntity> optionalQuestionnaireEntity = questionnaireRepository.findById(questionnaireId);
+        final Optional<QuestionnaireEntity> optionalQuestionnaireEntity =
+                questionnaireRepository.findById(questionnaireId);
         if (optionalQuestionnaireEntity.isEmpty()) {
             throw new EntityNotFoundException("Questionnaire with this ID was not found.");
         }
@@ -140,7 +141,8 @@ public class QuestionnaireService {
         final UserEntity currentUser = getUserByUsername(username);
 
         // Get questionnaire from DB
-        final Optional<QuestionnaireEntity> optionalQuestionnaireEntity = questionnaireRepository.findById(questionnaireId);
+        final Optional<QuestionnaireEntity> optionalQuestionnaireEntity =
+                questionnaireRepository.findById(questionnaireId);
         if (optionalQuestionnaireEntity.isEmpty()) {
             throw new EntityNotFoundException("Questionnaire with this ID was not found.");
         }
