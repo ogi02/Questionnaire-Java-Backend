@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpMethod;
+import org.springframework.web.bind.annotation.*; // NOPMD
 import org.tu.sofia.java.questionnaire.dtos.QuestionnaireDTO;
 import org.tu.sofia.java.questionnaire.dtos.QuestionnaireResponseDTO;
 import org.tu.sofia.java.questionnaire.dtos.QuestionnaireWithResultsDTO;
@@ -16,7 +16,6 @@ import org.tu.sofia.java.questionnaire.schemas.ErrorResponseSchema;
 import org.tu.sofia.java.questionnaire.services.QuestionnaireService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -26,20 +25,20 @@ import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 @RestController
-@RequestMapping(value = "/api/questionnaire")
+@RequestMapping("/api/questionnaire")
 @Tag(name = "Questionnaire")
 public class QuestionnaireController {
 
     private final QuestionnaireService questionnaireService;
 
-    public QuestionnaireController(QuestionnaireService questionnaireService) {
+    public QuestionnaireController(final QuestionnaireService questionnaireService) {
         this.questionnaireService = questionnaireService;
     }
 
     @PostMapping(value = "/", consumes = "application/json", produces = "application/json")
     @Operation(description = "Create a questionnaire with questions and options.")
     @SecurityRequirement(name = "JWTBearerAuth")
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(
                     description = "Successfully created a new questionnaire.",
                     responseCode = "201"
@@ -55,7 +54,9 @@ public class QuestionnaireController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
     })
-    public ResponseEntity<?> createQuestionnaire(Principal principal, @RequestBody QuestionnaireDTO questionnaireDTO) {
+    public ResponseEntity<?> createQuestionnaire(
+            final Principal principal, final @RequestBody QuestionnaireDTO questionnaireDTO
+    ) {
         try {
             // Create the questionnaire
             questionnaireService.createQuestionnaire(principal.getName(), questionnaireDTO);
@@ -78,7 +79,7 @@ public class QuestionnaireController {
     @DeleteMapping(value = "/{id}", produces = "application/json")
     @Operation(description = "Delete a questionnaire.")
     @SecurityRequirement(name = "JWTBearerAuth")
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(
                     description = "Successfully deleted the questionnaire.",
                     responseCode = "204"
@@ -99,7 +100,9 @@ public class QuestionnaireController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
     })
-    public ResponseEntity<?> deleteQuestionnaire(Principal principal, @PathVariable("id") Long questionnaireId) {
+    public ResponseEntity<?> deleteQuestionnaire(
+            final Principal principal, @PathVariable("id") final Long questionnaireId
+    ) {
         try {
             // Delete the questionnaire
             questionnaireService.deleteQuestionnaire(principal.getName(), questionnaireId);
@@ -129,7 +132,7 @@ public class QuestionnaireController {
     }
 
     @GetMapping(value = "/public", produces = "application/json")
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(
                     description = "Questionnaires found.",
                     responseCode = "200",
@@ -142,7 +145,7 @@ public class QuestionnaireController {
     })
     public ResponseEntity<?> getPublicQuestionnaires() {
         // Get public questionnaires from the questionnaire service
-        Set<QuestionnaireDTO> publicQuestionnaires = questionnaireService.findPublicQuestionnaires();
+        final Set<QuestionnaireDTO> publicQuestionnaires = questionnaireService.findPublicQuestionnaires();
 
         // Check if the set is empty and return 204 response
         if (publicQuestionnaires.isEmpty()) {
@@ -155,7 +158,7 @@ public class QuestionnaireController {
 
     @GetMapping(value = "/user", produces = "application/json")
     @SecurityRequirement(name = "JWTBearerAuth")
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(
                     description = "Questionnaires found.",
                     responseCode = "200",
@@ -171,23 +174,23 @@ public class QuestionnaireController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
     })
-    public ResponseEntity<?> getUserQuestionnaires(Principal principal) {
+    public ResponseEntity<?> getUserQuestionnaires(final Principal principal) {
         // Get administrated questionnaires by the user
-        Set<QuestionnaireWithResultsDTO> questionnaireWithResultsDTOSet =
+        final Set<QuestionnaireWithResultsDTO> questionnairesWithResults =
                 questionnaireService.findUserAdministratedQuestionnaires(principal.getName());
 
-        if (questionnaireWithResultsDTOSet.isEmpty()) {
+        if (questionnairesWithResults.isEmpty()) {
             // Return 204 status
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
 
         // Return 200 status with body
-        return ResponseEntity.status(HttpStatus.OK).body(questionnaireWithResultsDTOSet);
+        return ResponseEntity.status(HttpStatus.OK).body(questionnairesWithResults);
     }
 
-    @PutMapping(value = "/{id}/state/{isOpen}", produces = "application/json")
+    @PutMapping(value = "/{questionnaireId}/state/{isOpen}", produces = "application/json")
     @SecurityRequirement(name = "JWTBearerAuth")
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(
                     description = "Questionnaire state updated.",
                     responseCode = "204"
@@ -209,7 +212,7 @@ public class QuestionnaireController {
             ),
     })
     public ResponseEntity<?> updateQuestionnaireState(
-            Principal principal, @PathVariable("id") Long questionnaireId, @PathVariable Boolean isOpen
+            final Principal principal, @PathVariable final Long questionnaireId, @PathVariable final Boolean isOpen
     ) {
         try {
             // Update questionnaire state
@@ -236,21 +239,12 @@ public class QuestionnaireController {
                     "/api/questionnaire/%d/state/%s".formatted(questionnaireId, isOpen.toString()),
                     HttpMethod.PUT.name()
             ));
-        } catch (InvalidDataAccessApiUsageException e) {
-            // Return 500 response
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponseSchema(
-                    DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
-                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    e.getMostSpecificCause().toString(),
-                    "/api/questionnaire/%d/state/%s".formatted(questionnaireId, isOpen.toString()),
-                    HttpMethod.PUT.name()
-            ));
         }
     }
 
     @PostMapping(value = "/{questionnaireId}/admin/{userId}", produces = "application/json")
     @SecurityRequirement(name = "JWTBearerAuth")
-    @ApiResponses(value ={
+    @ApiResponses({
             @ApiResponse(
                     description = "Questionnaire admin added successfully.",
                     responseCode = "204"
@@ -272,7 +266,7 @@ public class QuestionnaireController {
             )
     })
     public ResponseEntity<?> addAdministratorToQuestionnaire(
-            Principal principal, @PathVariable Long questionnaireId, @PathVariable Long userId
+            final Principal principal, @PathVariable final Long questionnaireId, @PathVariable final Long userId
     ) {
         try {
             // Add administrator to questionnaire
@@ -303,7 +297,7 @@ public class QuestionnaireController {
     }
 
     @GetMapping(value = "/answer/{answerURL}", produces = "application/json")
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(
                     description = "Questionnaire found.",
                     responseCode = "200",
@@ -320,10 +314,10 @@ public class QuestionnaireController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
     })
-    public ResponseEntity<?> getQuestionnaireByAnswerURL(@PathVariable String answerURL) {
+    public ResponseEntity<?> getQuestionnaireByAnswerURL(@PathVariable final String answerURL) {
         try {
             // Get the questionnaire from the DB
-            QuestionnaireDTO questionnaire = questionnaireService.findQuestionnaireByAnswerURL(answerURL);
+            final QuestionnaireDTO questionnaire = questionnaireService.findQuestionnaireByAnswerURL(answerURL);
 
             // Return 200 response
             return ResponseEntity.status(HttpStatus.OK).body(questionnaire);
@@ -351,7 +345,7 @@ public class QuestionnaireController {
 
     @GetMapping(value = "/results/{resultsURL}", produces = "application/json")
     @SecurityRequirement(name = "JWTBearerAuth")
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(
                     description = "Results for this questionnaire found.",
                     responseCode = "200",
@@ -368,14 +362,14 @@ public class QuestionnaireController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseSchema.class))
             ),
     })
-    public ResponseEntity<?> getQuestionnaireResults(Principal principal, @PathVariable String resultsURL) {
+    public ResponseEntity<?> getQuestionnaireResults(final Principal principal, @PathVariable final String resultsURL) {
         try {
             // Get the questionnaire results from DB
-            QuestionnaireWithResultsDTO questionnaire =
+            final QuestionnaireWithResultsDTO questionnaireWithResults =
                     questionnaireService.findQuestionnaireByResultsURL(principal.getName(), resultsURL);
 
             // Return 200 response
-            return ResponseEntity.status(HttpStatus.OK).body(questionnaire);
+            return ResponseEntity.status(HttpStatus.OK).body(questionnaireWithResults);
 
         } catch (EntityNotFoundException e) {
             // Return 404 response
@@ -390,7 +384,7 @@ public class QuestionnaireController {
     }
 
     @PostMapping(value = "/answer/{answerURL}", consumes = "application/json", produces = "application/json")
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(
                     description = "Successfully answered.",
                     responseCode = "201"
@@ -412,12 +406,9 @@ public class QuestionnaireController {
             )
     })
     public ResponseEntity<?> answerQuestionnaire(
-            @PathVariable String answerURL, @RequestBody QuestionnaireResponseDTO questionnaireResponseDTO
+            @PathVariable final String answerURL, @RequestBody final QuestionnaireResponseDTO questionnaireResponseDTO
     ) {
         try {
-            // Print
-            System.out.println(questionnaireResponseDTO);
-
             // Save a response on the questionnaire
             questionnaireService.answerQuestionnaire(answerURL, questionnaireResponseDTO);
 
@@ -453,5 +444,4 @@ public class QuestionnaireController {
             ));
         }
     }
-
 }
