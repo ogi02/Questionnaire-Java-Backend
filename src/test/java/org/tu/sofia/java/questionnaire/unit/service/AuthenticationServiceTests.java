@@ -11,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.tu.sofia.java.questionnaire.entities.UserEntity;
 import org.tu.sofia.java.questionnaire.repositories.AuthenticationRepository;
 import org.tu.sofia.java.questionnaire.services.AuthenticationService;
 import org.tu.sofia.java.questionnaire.unit.creators.UserCreator;
@@ -19,7 +20,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -46,11 +47,17 @@ public class AuthenticationServiceTests {
     public class AttemptRegister {
         @Test
         public void success() {
+            // Init test user
+            final UserEntity testUser = UserCreator.createEntity();
+
             // Mock the "save" method of the repository
-            when(authenticationRepository.save(any())).thenReturn(UserCreator.createEntity());
+            doReturn(testUser).when(authenticationRepository).save(any());
 
             // Call the "attemptRegister" method of the service
             final String token = authenticationService.attemptRegister(testUsername, testPassword);
+
+            // Verify that the "save" method was called
+            verify(authenticationRepository, times(1)).save(any());
 
             // Assert that a token was returned
             assertNotNull(token);
@@ -69,11 +76,15 @@ public class AuthenticationServiceTests {
         @Test
         public void failUsernameAlreadyTaken() {
             // Mock the "save" method of the authentication repository
-            when(authenticationRepository.save(any())).thenThrow(new DataIntegrityViolationException(""));
+            doThrow(new DataIntegrityViolationException(""))
+                    .when(authenticationRepository).save(any());
 
             // Assert that "RuntimeException" is thrown
             final RuntimeException exception = assertThrows(RuntimeException.class, () ->
                     authenticationService.attemptRegister(testUsername, testPassword));
+
+            // Verify that the "save" method was called
+            verify(authenticationRepository, times(1)).save(any());
 
             // Assert exception message
             assertEquals("Username is already taken.", exception.getMessage());
@@ -86,15 +97,20 @@ public class AuthenticationServiceTests {
 
         @Test
         public void success() {
+            // Init test user
+            final UserEntity testUser = UserCreator.createEntity();
+
             // Mock the "authenticate" method of the authentication manager (return value doesn't matter)
-            when(authenticationManager.authenticate(any())).thenReturn(null);
+            doReturn(null).when(authenticationManager).authenticate(any());
 
             // Mock the "findByUsername" method of the authentication repository
-            when(authenticationRepository.findByUsername(testUsername))
-                    .thenReturn(Optional.of(UserCreator.createEntity()));
+            doReturn(Optional.of(testUser)).when(authenticationRepository).findByUsername(testUsername);
 
             // Call the "attemptLogin" method of the service
             final String token = authenticationService.attemptLogin(testUsername, testPassword);
+
+            // Verify that the "findByUsername" method was called
+            verify(authenticationRepository, times(1)).findByUsername(testUser.getUsername());
 
             // Assert that a token was returned
             assertNotNull(token);

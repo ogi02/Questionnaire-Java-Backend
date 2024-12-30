@@ -70,11 +70,32 @@ public class QuestionnaireService {
                         Objects.equals(adminQuestionnaire.getId(), questionnaire.getId()))
                 .findFirst();
         if (optionalAdminQuestionnaire.isEmpty()) {
-            throw new IllegalAccessException("User is not an administrator of this entity");
+            throw new IllegalAccessException("User is not an administrator of this questionnaire.");
         }
 
         // Remove administrator from the user
         currentUser.getAdminQuestionnaires().remove(optionalAdminQuestionnaire.get());
+
+        // Check if current user is owner
+        if (optionalAdminQuestionnaire.get().getOwner().getId().equals(currentUser.getId())) {
+            // Remove questionnaire from current user
+            currentUser.getQuestionnaires().remove(optionalAdminQuestionnaire.get());
+        } else {
+            // Get owner
+            final Optional<UserEntity> optionalOwner =
+                    authenticationRepository.findByUsername(questionnaire.getOwner().getUsername());
+            if (optionalOwner.isEmpty()) {
+                throw new EntityNotFoundException("User ID of the owner of the questionnaire was not found.");
+            }
+            final UserEntity owner = optionalOwner.get();
+            // Remove questionnaire from owner
+            owner.getQuestionnaires().remove(optionalAdminQuestionnaire.get());
+            owner.getAdminQuestionnaires().remove(optionalAdminQuestionnaire.get());
+            // Save owner entity
+            authenticationRepository.save(owner);
+        }
+
+        // Save current user
         authenticationRepository.save(currentUser);
 
         // Remove questionnaire
