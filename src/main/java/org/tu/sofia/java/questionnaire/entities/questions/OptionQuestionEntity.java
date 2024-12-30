@@ -5,8 +5,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import jakarta.persistence.*; // NOPMD
+import org.tu.sofia.java.questionnaire.entities.QuestionnaireEntity;
 import org.tu.sofia.java.questionnaire.entities.responses.OptionResponseEntity;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -18,11 +20,15 @@ import java.util.Set;
 @NoArgsConstructor
 public class OptionQuestionEntity extends QuestionEntity {
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<OptionResponseEntity> options;
+    private Set<OptionResponseEntity> options = new HashSet<>();
 
     public OptionQuestionEntity(final String questionText, final Set<OptionResponseEntity> options) {
         super(questionText);
         this.options = options;
+    }
+
+    public OptionQuestionEntity(final Long id, final String questionText, final QuestionnaireEntity questionnaire) {
+        super(id, questionText, questionnaire);
     }
 
     @Override

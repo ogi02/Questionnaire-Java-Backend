@@ -3,7 +3,7 @@ package org.tu.sofia.java.questionnaire.mappers.questions;
 import lombok.experimental.UtilityClass;
 import org.tu.sofia.java.questionnaire.dtos.questions.OpenQuestionDTO;
 import org.tu.sofia.java.questionnaire.dtos.questions.OpenQuestionWithResultsDTO;
-import org.tu.sofia.java.questionnaire.dtos.responses.OpenResponseDTO;
+import org.tu.sofia.java.questionnaire.dtos.responses.OpenResponseWithResultsDTO;
 import org.tu.sofia.java.questionnaire.entities.questions.OpenQuestionEntity;
 import org.tu.sofia.java.questionnaire.mappers.responses.OpenResponseMapper;
 
@@ -25,9 +25,9 @@ public class OpenQuestionMapper {
             return null;
         }
         // Map all answers to DTOs
-        final Set<OpenResponseDTO> openResponseDTOSet = openQuestionEntity.getAnswers()
+        final Set<OpenResponseWithResultsDTO> openResponseWithResultsDTOSet = openQuestionEntity.getAnswers()
                 .stream().map(OpenResponseMapper::toDto).collect(Collectors.toSet());
-        return new OpenQuestionWithResultsDTO(openQuestionEntity.getQuestionText(), openResponseDTOSet);
+        return new OpenQuestionWithResultsDTO(openQuestionEntity.getQuestionText(), openResponseWithResultsDTOSet);
     }
     // From DTO to entity
     public static OpenQuestionEntity toEntity(final OpenQuestionDTO openQuestionDTO) {

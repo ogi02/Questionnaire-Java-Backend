@@ -3,7 +3,7 @@ package org.tu.sofia.java.questionnaire.dtos.questions;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.tu.sofia.java.questionnaire.dtos.responses.OpenResponseDTO;
+import org.tu.sofia.java.questionnaire.dtos.responses.OpenResponseWithResultsDTO;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,15 +12,16 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 public class OpenQuestionWithResultsDTO extends QuestionDTO {
-    private Set<OpenResponseDTO> openResponseDTOSet;
+    private Set<OpenResponseWithResultsDTO> openResponseWithResultsDTOSet;
 
     public OpenQuestionWithResultsDTO(final String questionText) {
         super(questionText);
-        this.openResponseDTOSet = new HashSet<>();
+        this.openResponseWithResultsDTOSet = new HashSet<>();
     }
 
-    public OpenQuestionWithResultsDTO(final String questionText, final Set<OpenResponseDTO> openResponseDTOSet) {
+    public OpenQuestionWithResultsDTO(final String questionText,
+                                      final Set<OpenResponseWithResultsDTO> openResponseWithResultsDTOSet) {
         super(questionText);
-        this.openResponseDTOSet = openResponseDTOSet;
+        this.openResponseWithResultsDTOSet = openResponseWithResultsDTOSet;
     }
 }

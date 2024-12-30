@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OpenResponseDTO {
-    private String responseText;
+public class OptionResponseWithResultsDTO {
+    private String option;
+    private Integer votes = 0;
 }

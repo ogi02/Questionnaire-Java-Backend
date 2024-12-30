@@ -32,7 +32,9 @@ public class QuestionnaireService {
         this.authenticationRepository = authenticationRepository;
     }
 
-    public void createQuestionnaire(final String username, final QuestionnaireDTO questionnaireDTO) {
+    public QuestionnaireWithResultsDTO createQuestionnaire(
+            final String username, final QuestionnaireDTO questionnaireDTO
+    ) {
         // Get user by username
         final UserEntity currentUser = getUserByUsername(username);
 
@@ -44,12 +46,13 @@ public class QuestionnaireService {
         questionnaire.getAdministrators().add(currentUser);
 
         // Save the questionnaire
-        questionnaireRepository.save(questionnaire);
+        return QuestionnaireMapper.toDtoWithResults(questionnaireRepository.save(questionnaire));
     }
 
     @Transactional
-    public void deleteQuestionnaire(final String username, final Long questionnaireId)
-            throws EntityNotFoundException, IllegalAccessException {
+    public void deleteQuestionnaire(
+            final String username, final Long questionnaireId
+    ) throws EntityNotFoundException, IllegalAccessException {
         // Get user by username
         final UserEntity currentUser = getUserByUsername(username);
 
@@ -206,8 +209,9 @@ public class QuestionnaireService {
         return QuestionnaireMapper.toDtoWithResults(questionnaire);
     }
 
-    public void answerQuestionnaire(final String answerURL, final QuestionnaireResponseDTO questionnaireResponse)
-            throws EntityNotFoundException, IllegalAccessException {
+    public void answerQuestionnaire(
+            final String answerURL, final QuestionnaireResponseDTO questionnaireResponse
+    ) throws EntityNotFoundException, IllegalAccessException {
         // Get the questionnaire by its answer URL
         final Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByAnswerURL(answerURL);
         if (optionalQuestionnaire.isEmpty()) {

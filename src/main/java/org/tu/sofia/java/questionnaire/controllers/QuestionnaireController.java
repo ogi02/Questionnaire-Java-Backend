@@ -41,7 +41,8 @@ public class QuestionnaireController {
     @ApiResponses({
             @ApiResponse(
                     description = "Successfully created a new questionnaire.",
-                    responseCode = "201"
+                    responseCode = "201",
+                    content = @Content(schema = @Schema(implementation = QuestionnaireWithResultsDTO.class))
             ),
             @ApiResponse(
                     description = "Bad request.",
@@ -59,10 +60,11 @@ public class QuestionnaireController {
     ) {
         try {
             // Create the questionnaire
-            questionnaireService.createQuestionnaire(principal.getName(), questionnaireDTO);
+            final QuestionnaireWithResultsDTO questionnaire =
+                    questionnaireService.createQuestionnaire(principal.getName(), questionnaireDTO);
 
             // Return 201 response
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+            return ResponseEntity.status(HttpStatus.CREATED).body(questionnaire);
         } catch (Exception e) {
             // Return 400 response
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponseSchema(

@@ -4,7 +4,7 @@ import lombok.experimental.UtilityClass;
 import org.tu.sofia.java.questionnaire.dtos.questions.OptionQuestionDTO;
 import org.tu.sofia.java.questionnaire.dtos.questions.OptionQuestionWithResultsDTO;
 import org.tu.sofia.java.questionnaire.dtos.responses.OptionResponseDTO;
-import org.tu.sofia.java.questionnaire.dtos.responses.OptionResponseWithoutVotesDTO;
+import org.tu.sofia.java.questionnaire.dtos.responses.OptionResponseWithResultsDTO;
 import org.tu.sofia.java.questionnaire.entities.questions.OptionQuestionEntity;
 import org.tu.sofia.java.questionnaire.entities.responses.OptionResponseEntity;
 import org.tu.sofia.java.questionnaire.mappers.responses.OptionResponseMapper;
@@ -20,9 +20,9 @@ public class OptionQuestionMapper {
             return null;
         }
         // Map all responses to DTOs without votes
-        final Set<OptionResponseWithoutVotesDTO> optionResponseWithoutVotesDTOS = optionQuestionEntity.getOptions()
+        final Set<OptionResponseDTO> optionResponseDTOS = optionQuestionEntity.getOptions()
                 .stream().map(OptionResponseMapper::toDtoWithoutVotes).collect(Collectors.toSet());
-        return new OptionQuestionDTO(optionQuestionEntity.getQuestionText(), optionResponseWithoutVotesDTOS);
+        return new OptionQuestionDTO(optionQuestionEntity.getQuestionText(), optionResponseDTOS);
     }
     // From entity to DTO with results
     public static OptionQuestionWithResultsDTO toDtoWithResults(final OptionQuestionEntity optionQuestionEntity) {
@@ -30,9 +30,10 @@ public class OptionQuestionMapper {
             return null;
         }
         // Map all responses to DTOs
-        final Set<OptionResponseDTO> optionResponseDTOSet = optionQuestionEntity.getOptions()
-                .stream().map(OptionResponseMapper::toDto).collect(Collectors.toSet());
-        return new OptionQuestionWithResultsDTO(optionQuestionEntity.getQuestionText(), optionResponseDTOSet);
+        final Set<OptionResponseWithResultsDTO> optionResponseWithResultsDTOSet = optionQuestionEntity.getOptions()
+                .stream().map(OptionResponseMapper::toDtoWithResults).collect(Collectors.toSet());
+        return new
+                OptionQuestionWithResultsDTO(optionQuestionEntity.getQuestionText(), optionResponseWithResultsDTOSet);
     }
     // From DTO to entity
     public static OptionQuestionEntity toEntity(final OptionQuestionDTO optionQuestionDTO) {
