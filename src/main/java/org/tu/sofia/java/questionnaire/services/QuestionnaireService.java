@@ -155,7 +155,7 @@ public class QuestionnaireService {
         }
 
         // Update questionnaire state
-        questionnaire.setIsOpen(false);
+        questionnaire.setIsOpen(isOpen);
         questionnaireRepository.save(questionnaire);
     }
 
