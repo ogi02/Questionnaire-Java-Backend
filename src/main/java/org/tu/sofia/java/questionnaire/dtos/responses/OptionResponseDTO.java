@@ -11,5 +11,4 @@ import lombok.Setter;
 @NoArgsConstructor
 public class OptionResponseDTO {
     private String option;
-    private Integer votes = 0;
 }

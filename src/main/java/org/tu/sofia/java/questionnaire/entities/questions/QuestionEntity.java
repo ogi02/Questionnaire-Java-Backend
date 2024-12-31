@@ -30,5 +30,11 @@ public abstract class QuestionEntity {
         this.questionText = questionText;
     }
 
+    public QuestionEntity(final Long id, final String questionText, final QuestionnaireEntity questionnaire) {
+        this.id = id;
+        this.questionText = questionText;
+        this.questionnaire = questionnaire;
+    }
+
     public abstract <T> void answerQuestion(T response) throws IllegalArgumentException;
 }

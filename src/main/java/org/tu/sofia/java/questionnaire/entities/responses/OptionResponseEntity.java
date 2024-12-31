@@ -1,5 +1,6 @@
 package org.tu.sofia.java.questionnaire.entities.responses;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import org.tu.sofia.java.questionnaire.entities.questions.OptionQuestionEntity;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class OptionResponseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "option_generator")

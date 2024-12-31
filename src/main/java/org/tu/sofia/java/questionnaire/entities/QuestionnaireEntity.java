@@ -68,4 +68,16 @@ public class QuestionnaireEntity {
         this.isOpen = isOpen;
         this.isPublic = isPublic;
     }
+
+    public QuestionnaireEntity(
+            final String title, final String description, final UserEntity owner,
+            final Set<UserEntity> administrators, final Boolean isOpen, final Boolean isPublic
+    ) {
+        this.title = title;
+        this.description = description;
+        this.owner = owner;
+        this.administrators = administrators;
+        this.isOpen = isOpen;
+        this.isPublic = isPublic;
+    }
 }

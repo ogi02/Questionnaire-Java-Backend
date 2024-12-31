@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.tu.sofia.java.questionnaire.config.JwtTokenUtil;
 import org.tu.sofia.java.questionnaire.entities.UserEntity;
@@ -78,15 +77,9 @@ public class AuthenticationService implements UserDetailsService {
 
             // Generate and return token
             return jwtTokenUtil.generateToken(userDetails);
-        } catch (DisabledException e) {
-            // User is disabled
-            throw new RuntimeException("User account is disabled.", e);
         } catch (BadCredentialsException e) {
             // Invalid user credentials
             throw new RuntimeException("Invalid username or password.", e);
-        } catch (UsernameNotFoundException e) {
-            // Username not found
-            throw new RuntimeException("Username not found.", e);
         } catch (Exception e) {
             // Any other exception
             throw new RuntimeException("An unexpected error occurred during login.", e);
