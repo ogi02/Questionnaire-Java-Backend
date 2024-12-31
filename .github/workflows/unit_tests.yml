@@ -50,9 +50,14 @@ jobs:
           name: jacoco-report
           path: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
 
+      # Generate Jacoco badge
+      - name: Generate JaCoCo Badge
+        uses: cicirello/jacoco-badge-generator@v2
+
       # Post Jacoco Report to PR
       - name: Post Jacoco Report to PR
         id: jacoco
+        if: ${{ github.event_name != 'push' }}
         uses: madrapps/jacoco-report@v1.7.1
         with:
           paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
