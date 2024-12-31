@@ -15,15 +15,18 @@ import org.tu.sofia.java.questionnaire.dtos.QuestionnaireDTO;
 import org.tu.sofia.java.questionnaire.dtos.QuestionnaireWithResultsDTO;
 import org.tu.sofia.java.questionnaire.entities.QuestionnaireEntity;
 import org.tu.sofia.java.questionnaire.entities.UserEntity;
+import org.tu.sofia.java.questionnaire.entities.questions.BooleanQuestionEntity;
+import org.tu.sofia.java.questionnaire.entities.questions.OpenQuestionEntity;
+import org.tu.sofia.java.questionnaire.entities.questions.OptionQuestionEntity;
+import org.tu.sofia.java.questionnaire.entities.responses.OpenResponseEntity;
+import org.tu.sofia.java.questionnaire.entities.responses.OptionResponseEntity;
 import org.tu.sofia.java.questionnaire.repositories.AuthenticationRepository;
 import org.tu.sofia.java.questionnaire.repositories.QuestionnaireRepository;
 import org.tu.sofia.java.questionnaire.services.QuestionnaireService;
 import org.tu.sofia.java.questionnaire.unit.creators.QuestionnaireCreator;
 import org.tu.sofia.java.questionnaire.unit.creators.UserCreator;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -805,7 +808,7 @@ public class QuestionnaireServiceTests {
         }
 
         @Test
-        public void failQuestionnaireNotFound() {
+        public void failQuestionnaireAnswerURLNotFound() {
             // Init test questionnaire
             final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(UserCreator.createEntity());
 
@@ -939,6 +942,309 @@ public class QuestionnaireServiceTests {
 
             // Assert the exception
             assertEquals("Questionnaire not found or user has no access to it.", exception.getMessage());
+        }
+    }
+
+    @Nested
+    @NoArgsConstructor
+    public class AnswerQuestionnaire {
+        @SneakyThrows
+        @Test
+        public void success() {
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire =
+                    QuestionnaireCreator.createEntityWithoutIDs(UserCreator.createEntity());
+
+            // Add ID 1 to the first Boolean question
+            final BooleanQuestionEntity booleanQuestion =
+                    (BooleanQuestionEntity) questionnaire.getQuestions().stream().filter(questionEntity ->
+                            questionEntity instanceof BooleanQuestionEntity).findFirst().orElse(null);
+            assertNotNull(booleanQuestion);
+            booleanQuestion.setId(1L);
+            // Add ID 2 to the first Open question
+            final OpenQuestionEntity openQuestion =
+                    (OpenQuestionEntity) questionnaire.getQuestions().stream().filter(questionEntity ->
+                            questionEntity instanceof OpenQuestionEntity).findFirst().orElse(null);
+            assertNotNull(openQuestion);
+            openQuestion.setId(2L);
+            // Add ID 3 to the first Option question and Add ID 4 to the first option of this question
+            final OptionQuestionEntity optionQuestion =
+                    (OptionQuestionEntity) questionnaire.getQuestions().stream().filter(questionEntity ->
+                            questionEntity instanceof OptionQuestionEntity).findFirst().orElse(null);
+            assertNotNull(optionQuestion);
+            optionQuestion.setId(3L);
+            Objects.requireNonNull(optionQuestion.getOptions().stream().findFirst().orElse(null)).setId(4L);
+
+            // Init test answers
+            final Map<Long, Object> answers = new HashMap<>(){{
+                put(1L, true);
+                put(2L, "Test Answer");
+                put(3L, 4L);
+            }};
+
+            // Mock the "findByAnswerURL" method of the questionnaire repository
+            doReturn(Optional.of(questionnaire))
+                    .when(questionnaireRepository).findByAnswerURL(questionnaire.getAnswerURL());
+
+            // Mock the "save" method of the questionnaire repository
+            doReturn(questionnaire)
+                    .when(questionnaireRepository).save(questionnaire);
+
+            // Call the "answerQuestionnaire" method of the service and assert that exception is not thrown
+            assertDoesNotThrow(() -> questionnaireService.answerQuestionnaire(
+                    questionnaire.getAnswerURL(), QuestionnaireCreator.createResponseDTO(answers)));
+
+            // Create argument capture for the questionnaire entity
+            final ArgumentCaptor<QuestionnaireEntity> argument = ArgumentCaptor.forClass(QuestionnaireEntity.class);
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(questionnaireRepository, times(1)).findByAnswerURL(any());
+            verify(questionnaireRepository, times(1)).save(argument.capture());
+
+            // Assert the captured questionnaire
+            final QuestionnaireEntity capturedQuestionnaire = argument.getValue();
+            assertEquals(questionnaire.getTitle(), capturedQuestionnaire.getTitle());
+            assertEquals(questionnaire.getDescription(), capturedQuestionnaire.getDescription());
+
+            // Assert the Boolean question
+            final BooleanQuestionEntity capturedBooleanQuestion =
+                    (BooleanQuestionEntity) capturedQuestionnaire.getQuestions().stream()
+                            .filter(questionEntity -> Objects.nonNull(questionEntity.getId()))
+                            .filter(questionEntity -> questionEntity.getId().equals(1L)).findFirst().orElse(null);
+            assertNotNull(capturedBooleanQuestion);
+            assertEquals(1, capturedBooleanQuestion.getTrueVotes());
+            assertEquals(0, capturedBooleanQuestion.getFalseVotes());
+
+            // Assert the Open question
+            final OpenQuestionEntity capturedOpenQuestion =
+                    (OpenQuestionEntity) capturedQuestionnaire.getQuestions().stream()
+                            .filter(questionEntity -> Objects.nonNull(questionEntity.getId()))
+                            .filter(questionEntity -> questionEntity.getId().equals(2L)).findFirst().orElse(null);
+            assertNotNull(capturedOpenQuestion);
+            assertEquals(1, capturedOpenQuestion.getAnswers().size());
+            // Get the Open question response
+            final OpenResponseEntity capturedOpenResponse =
+                    capturedOpenQuestion.getAnswers().stream().findFirst().orElse(null);
+            assertNotNull(capturedOpenResponse);
+            assertEquals("Test Answer", capturedOpenResponse.getResponseText());
+
+            // Assert the Option question
+            final OptionQuestionEntity capturedOptionQuestion =
+                    (OptionQuestionEntity) capturedQuestionnaire.getQuestions().stream()
+                            .filter(questionEntity -> Objects.nonNull(questionEntity.getId()))
+                            .filter(questionEntity -> questionEntity.getId().equals(3L)).findFirst().orElse(null);
+            assertNotNull(capturedOptionQuestion);
+            // Get the Option question response
+            final OptionResponseEntity capturedOptionResponse =
+                    capturedOptionQuestion.getOptions().stream().filter(optionResponseEntity ->
+                            optionResponseEntity.getId().equals(4L)).findFirst().orElse(null);
+            assertNotNull(capturedOptionResponse);
+            assertEquals(1, capturedOptionResponse.getVotes());
+        }
+
+        @Test
+        public void failQuestionnaireAnswerURLNotFound() {
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(UserCreator.createEntity());
+
+            // Mock the "findByAnswerURL" method of the questionnaire repository
+            doReturn(Optional.empty()).when(questionnaireRepository)
+                    .findByAnswerURL(any());
+
+            // Call the "answerQuestionnaire" method of the service and assert that exception is thrown
+            final EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
+                    questionnaireService.answerQuestionnaire(
+                            questionnaire.getAnswerURL(), QuestionnaireCreator.createResponseDTO(new HashMap<>())));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(questionnaireRepository, times(1)).findByAnswerURL(any());
+
+            // Assert the exception
+            assertEquals("Questionnaire with this answer URL was not found.", exception.getMessage());
+        }
+
+        @Test
+        public void failQuestionnaireClosed() {
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(UserCreator.createEntity());
+            questionnaire.setIsOpen(false);
+
+            // Mock the "findByAnswerURL" method of the questionnaire repository
+            doReturn(Optional.of(questionnaire)).when(questionnaireRepository)
+                    .findByAnswerURL(questionnaire.getAnswerURL());
+
+            // Call the "answerQuestionnaire" method of the service and assert that exception is thrown
+            final IllegalAccessException exception = assertThrows(IllegalAccessException.class, () ->
+                    questionnaireService.answerQuestionnaire(
+                            questionnaire.getAnswerURL(), QuestionnaireCreator.createResponseDTO(new HashMap<>())));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(questionnaireRepository, times(1)).findByAnswerURL(any());
+
+            // Assert the exception
+            assertEquals("Questionnaire is closed.", exception.getMessage());
+        }
+
+        @Test
+        public void failQuestionIdNotFound() {
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire =
+                    QuestionnaireCreator.createEntityWithoutIDs(UserCreator.createEntity());
+            // Init test answers
+            final Map<Long, Object> answers = new HashMap<>(){{
+                put(1L, "");
+            }};
+
+            // Mock the "findByAnswerURL" method of the questionnaire repository
+            doReturn(Optional.of(questionnaire)).when(questionnaireRepository)
+                    .findByAnswerURL(questionnaire.getAnswerURL());
+
+            // Call the "answerQuestionnaire" method of the service and assert that exception is thrown
+            final EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
+                    questionnaireService.answerQuestionnaire(
+                            questionnaire.getAnswerURL(), QuestionnaireCreator.createResponseDTO(answers)));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(questionnaireRepository, times(1)).findByAnswerURL(any());
+
+            // Assert the exception
+            assertEquals("Question with this ID - 1 was not found.", exception.getMessage());
+        }
+
+        @Test
+        public void failInvalidAnswerTypeBooleanQuestion() {
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire =
+                    QuestionnaireCreator.createEntityWithoutIDs(UserCreator.createEntity());
+
+            // Add ID 1 to the first Boolean question
+            final BooleanQuestionEntity booleanQuestion =
+                    (BooleanQuestionEntity) questionnaire.getQuestions().stream().filter(questionEntity ->
+                            questionEntity instanceof BooleanQuestionEntity).findFirst().orElse(null);
+            assertNotNull(booleanQuestion);
+            booleanQuestion.setId(1L);
+
+            // Init test answers with invalid value
+            final Map<Long, Object> answers = new HashMap<>(){{
+                put(1L, "");
+            }};
+
+            // Mock the "findByAnswerURL" method of the questionnaire repository
+            doReturn(Optional.of(questionnaire))
+                    .when(questionnaireRepository).findByAnswerURL(questionnaire.getAnswerURL());
+
+            // Call the "answerQuestionnaire" method of the service and assert that exception is not thrown
+            final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                    questionnaireService.answerQuestionnaire(
+                            questionnaire.getAnswerURL(), QuestionnaireCreator.createResponseDTO(answers)));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(questionnaireRepository, times(1)).findByAnswerURL(any());
+
+            // Assert the exception
+            assertEquals("Invalid answer type for option question.", exception.getMessage());
+        }
+
+        @Test
+        public void failInvalidAnswerTypeOpenQuestion() {
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire =
+                    QuestionnaireCreator.createEntityWithoutIDs(UserCreator.createEntity());
+
+            // Add ID 1 to the first Open question
+            final OpenQuestionEntity openQuestion =
+                    (OpenQuestionEntity) questionnaire.getQuestions().stream().filter(questionEntity ->
+                            questionEntity instanceof OpenQuestionEntity).findFirst().orElse(null);
+            assertNotNull(openQuestion);
+            openQuestion.setId(1L);
+
+            // Init test answers with invalid value
+            final Map<Long, Object> answers = new HashMap<>(){{
+                put(1L, true);
+            }};
+
+            // Mock the "findByAnswerURL" method of the questionnaire repository
+            doReturn(Optional.of(questionnaire))
+                    .when(questionnaireRepository).findByAnswerURL(questionnaire.getAnswerURL());
+
+            // Call the "answerQuestionnaire" method of the service and assert that exception is not thrown
+            final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                    questionnaireService.answerQuestionnaire(
+                            questionnaire.getAnswerURL(), QuestionnaireCreator.createResponseDTO(answers)));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(questionnaireRepository, times(1)).findByAnswerURL(any());
+
+            // Assert the exception
+            assertEquals("Invalid answer type for option question.", exception.getMessage());
+        }
+
+        @Test
+        public void failInvalidAnswerTypeOptionQuestion() {
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire =
+                    QuestionnaireCreator.createEntityWithoutIDs(UserCreator.createEntity());
+
+            // Add ID 1 to the first Option question
+            final OptionQuestionEntity optionQuestion =
+                    (OptionQuestionEntity) questionnaire.getQuestions().stream().filter(questionEntity ->
+                            questionEntity instanceof OptionQuestionEntity).findFirst().orElse(null);
+            assertNotNull(optionQuestion);
+            optionQuestion.setId(1L);
+
+            // Init test answers with invalid value
+            final Map<Long, Object> answers = new HashMap<>(){{
+                put(1L, true);
+            }};
+
+            // Mock the "findByAnswerURL" method of the questionnaire repository
+            doReturn(Optional.of(questionnaire))
+                    .when(questionnaireRepository).findByAnswerURL(questionnaire.getAnswerURL());
+
+            // Call the "answerQuestionnaire" method of the service and assert that exception is not thrown
+            final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                    questionnaireService.answerQuestionnaire(
+                            questionnaire.getAnswerURL(), QuestionnaireCreator.createResponseDTO(answers)));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(questionnaireRepository, times(1)).findByAnswerURL(any());
+
+            // Assert the exception
+            assertEquals("Invalid answer type for option question.", exception.getMessage());
+        }
+
+        @Test
+        public void failOptionIdNotFound() {
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire =
+                    QuestionnaireCreator.createEntityWithoutIDs(UserCreator.createEntity());
+
+            // Add ID 1 to the first Option question and leave the options without IDs
+            final OptionQuestionEntity optionQuestion =
+                    (OptionQuestionEntity) questionnaire.getQuestions().stream().filter(questionEntity ->
+                            questionEntity instanceof OptionQuestionEntity).findFirst().orElse(null);
+            assertNotNull(optionQuestion);
+            optionQuestion.setId(1L);
+
+            // Init test answers with invalid value
+            final Map<Long, Object> answers = new HashMap<>(){{
+                put(1L, 2L);
+            }};
+
+            // Mock the "findByAnswerURL" method of the questionnaire repository
+            doReturn(Optional.of(questionnaire))
+                    .when(questionnaireRepository).findByAnswerURL(questionnaire.getAnswerURL());
+
+            // Call the "answerQuestionnaire" method of the service and assert that exception is not thrown
+            final EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
+                    questionnaireService.answerQuestionnaire(
+                            questionnaire.getAnswerURL(), QuestionnaireCreator.createResponseDTO(answers)));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(questionnaireRepository, times(1)).findByAnswerURL(any());
+
+            // Assert the exception
+            assertEquals("Option with this ID for this question was not found.", exception.getMessage());
         }
     }
 }

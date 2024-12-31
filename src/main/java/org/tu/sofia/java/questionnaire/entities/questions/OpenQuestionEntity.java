@@ -39,7 +39,7 @@ public class OpenQuestionEntity extends QuestionEntity {
         if (response instanceof String responseText) {
             answers.add(new OpenResponseEntity(this, responseText));
         } else {
-            throw new IllegalArgumentException("Invalid response type for open question!");
+            throw new IllegalArgumentException("Invalid answer type for option question.");
         }
     }
 }

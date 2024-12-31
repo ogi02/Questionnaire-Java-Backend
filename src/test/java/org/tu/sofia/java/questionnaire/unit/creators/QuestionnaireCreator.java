@@ -3,6 +3,7 @@ package org.tu.sofia.java.questionnaire.unit.creators;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.tu.sofia.java.questionnaire.dtos.QuestionnaireDTO;
+import org.tu.sofia.java.questionnaire.dtos.QuestionnaireResponseDTO;
 import org.tu.sofia.java.questionnaire.dtos.QuestionnaireWithResultsDTO;
 import org.tu.sofia.java.questionnaire.entities.QuestionnaireEntity;
 import org.tu.sofia.java.questionnaire.entities.UserEntity;
@@ -10,6 +11,7 @@ import org.tu.sofia.java.questionnaire.entities.questions.OptionQuestionEntity;
 import org.tu.sofia.java.questionnaire.entities.questions.QuestionEntity;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Component
@@ -99,5 +101,9 @@ public final class QuestionnaireCreator {
         }};
         questionnaire.setQuestions(questions);
         return questionnaire;
+    }
+
+    public static QuestionnaireResponseDTO createResponseDTO(final Map<Long, Object> answers) {
+        return new QuestionnaireResponseDTO(answers);
     }
 }

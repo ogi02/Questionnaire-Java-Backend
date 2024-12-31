@@ -239,13 +239,13 @@ public class QuestionnaireService {
         // Get the questionnaire by its answer URL
         final Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByAnswerURL(answerURL);
         if (optionalQuestionnaire.isEmpty()) {
-            throw new EntityNotFoundException("Questionnaire with this answer URL not found.");
+            throw new EntityNotFoundException("Questionnaire with this answer URL was not found.");
         }
         final QuestionnaireEntity questionnaire = optionalQuestionnaire.get();
 
         // Check if the questionnaire is closed
         if (!questionnaire.getIsOpen()) {
-            throw new IllegalAccessException("Questionnaire is closed!");
+            throw new IllegalAccessException("Questionnaire is closed.");
         }
 
         // Iterate through the answered questions

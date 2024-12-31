@@ -43,7 +43,7 @@ public class BooleanQuestionEntity extends QuestionEntity {
                 falseVotes++;
             }
         } else {
-            throw new IllegalArgumentException("Invalid response type for boolean question!");
+            throw new IllegalArgumentException("Invalid answer type for option question.");
         }
     }
 }

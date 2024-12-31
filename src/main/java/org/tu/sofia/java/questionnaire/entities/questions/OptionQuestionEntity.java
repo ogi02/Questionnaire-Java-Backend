@@ -33,12 +33,12 @@ public class OptionQuestionEntity extends QuestionEntity {
 
     @Override
     public <T> void answerQuestion(final T response) throws IllegalArgumentException {
-        if (response instanceof Integer optionResponseEntityId) {
+        if (response instanceof Long optionResponseEntityId) {
             // Get option by the passed ID
             final Optional<OptionResponseEntity> optionalOptionResponse = options
                     .stream()
                     .filter(optionResponseEntity ->
-                            Objects.equals(optionResponseEntity.getId(), optionResponseEntityId.longValue()))
+                            Objects.equals(optionResponseEntity.getId(), optionResponseEntityId))
                     .findFirst();
             if (optionalOptionResponse.isEmpty()) {
                 throw new EntityNotFoundException("Option with this ID for this question was not found.");
@@ -46,7 +46,7 @@ public class OptionQuestionEntity extends QuestionEntity {
             // Get the Option response entity and add response to it
             optionalOptionResponse.get().addResponse();
         } else {
-            throw new IllegalArgumentException("Invalid response type for option question!");
+            throw new IllegalArgumentException("Invalid answer type for option question.");
         }
     }
 }
