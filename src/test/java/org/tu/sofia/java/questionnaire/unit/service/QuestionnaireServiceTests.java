@@ -2,6 +2,7 @@ package org.tu.sofia.java.questionnaire.unit.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -770,6 +771,174 @@ public class QuestionnaireServiceTests {
 
             // Assert the exception
             assertEquals("User with this ID was not found.", exception.getMessage());
+        }
+    }
+
+    @Nested
+    @NoArgsConstructor
+    public class FindQuestionnaireByAnswerURL {
+        @SneakyThrows
+        @Test
+        public void success() {
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(UserCreator.createEntity());
+
+            // Mock the "findByAnswerURL" method of the questionnaire repository
+            doReturn(Optional.of(questionnaire)).when(questionnaireRepository)
+                    .findByAnswerURL(any());
+
+            // Call the "findQuestionnaireByResultsURL" method of the service and assert that no exception is thrown
+            final QuestionnaireDTO questionnaireDTO = questionnaireService
+                    .findQuestionnaireByAnswerURL(questionnaire.getAnswerURL());
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(questionnaireRepository, times(1)).findByAnswerURL(any());
+
+            // Assert that a questionnaire was returned
+            assertEquals(title, questionnaireDTO.getTitle());
+            assertEquals(description, questionnaireDTO.getDescription());
+            assertEquals(isOpen, questionnaireDTO.getIsOpen());
+            assertEquals(isPublic, questionnaireDTO.getIsPublic());
+            assertEquals(3, questionnaireDTO.getBooleanQuestionDTOSet().size());
+            assertEquals(3, questionnaireDTO.getOpenQuestionDTOSet().size());
+            assertEquals(3, questionnaireDTO.getOptionQuestionDTOSet().size());
+        }
+
+        @Test
+        public void failQuestionnaireNotFound() {
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(UserCreator.createEntity());
+
+            // Mock the "findByAnswerURL" method of the questionnaire repository
+            doReturn(Optional.empty()).when(questionnaireRepository)
+                    .findByAnswerURL(any());
+
+            // Call the "findQuestionnaireByResultsURL" method of the service and assert that exception is thrown
+            final EntityNotFoundException exception =
+                    assertThrows(EntityNotFoundException.class, () ->
+                            questionnaireService.findQuestionnaireByAnswerURL(questionnaire.getAnswerURL()));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(questionnaireRepository, times(1)).findByAnswerURL(any());
+
+            // Assert the exception
+            assertEquals("Questionnaire with this answer URL was not found.", exception.getMessage());
+        }
+
+        @Test
+        public void failQuestionnaireClosed() {
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(UserCreator.createEntity());
+            questionnaire.setIsOpen(false);
+
+            // Mock the "findByAnswerURL" method of the questionnaire repository
+            doReturn(Optional.of(questionnaire)).when(questionnaireRepository)
+                    .findByAnswerURL(questionnaire.getAnswerURL());
+
+            // Call the "findQuestionnaireByResultsURL" method of the service and assert that exception is thrown
+            final IllegalAccessException exception =
+                    assertThrows(IllegalAccessException.class, () ->
+                            questionnaireService.findQuestionnaireByAnswerURL(questionnaire.getAnswerURL()));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(questionnaireRepository, times(1)).findByAnswerURL(any());
+
+            // Assert the exception
+            assertEquals("Questionnaire is closed.", exception.getMessage());
+        }
+    }
+
+    @Nested
+    @NoArgsConstructor
+    public class FindQuestionnaireByResultsURL {
+        @Test
+        public void success() {
+            // Init test users
+            final UserEntity owner = UserCreator.createEntity();
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+            // Add questionnaire to user administrated and user owned questionnaires
+            owner.getQuestionnaires().add(questionnaire);
+            owner.getAdminQuestionnaires().add(questionnaire);
+
+            // Mock the "findByUsername" method of the authentication repository
+            doReturn(Optional.of(owner))
+                    .when(authenticationRepository).findByUsername(owner.getUsername());
+
+            // Mock the "findByResultsUrlAndAdministratorId" method of the questionnaire repository
+            doReturn(Optional.of(questionnaire)).when(questionnaireRepository)
+                    .findByResultsUrlAndAdministratorId(questionnaire.getResultsURL(), owner.getId());
+
+            // Call the "findQuestionnaireByResultsURL" method of the service and assert that no exception is thrown
+            final QuestionnaireWithResultsDTO questionnaireDTO = questionnaireService
+                    .findQuestionnaireByResultsURL(owner.getUsername(), questionnaire.getResultsURL());
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(authenticationRepository, times(1)).findByUsername(owner.getUsername());
+            verify(questionnaireRepository, times(1))
+                    .findByResultsUrlAndAdministratorId(questionnaire.getResultsURL(), owner.getId());
+
+            // Assert that a questionnaire was returned
+            assertEquals(title, questionnaireDTO.getTitle());
+            assertEquals(description, questionnaireDTO.getDescription());
+            assertEquals(isOpen, questionnaireDTO.getIsOpen());
+            assertEquals(isPublic, questionnaireDTO.getIsPublic());
+            assertEquals(3, questionnaireDTO.getBooleanQuestionsResults().size());
+            assertEquals(3, questionnaireDTO.getOpenQuestionsResults().size());
+            assertEquals(3, questionnaireDTO.getOptionQuestionsResults().size());
+        }
+
+        @Test
+        public void failUsernameNotFound() {
+            // Init test users
+            final UserEntity owner = UserCreator.createEntity();
+
+            // Mock the "findByUsername" method of the authentication repository
+            doReturn(Optional.empty())
+                    .when(authenticationRepository).findByUsername(owner.getUsername());
+
+            // Call the "findQuestionnaireByResultsURL" method of the service and assert that exception is thrown
+            final EntityNotFoundException exception =
+                    assertThrows(EntityNotFoundException.class, () -> questionnaireService
+                            .findQuestionnaireByResultsURL(owner.getUsername(), ""));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(authenticationRepository, times(1)).findByUsername(owner.getUsername());
+
+            // Assert the exception
+            assertEquals("Username not found!", exception.getMessage());
+        }
+
+        @Test
+        public void failQuestionnaireResultsURLNotFound() {
+            // Init test users
+            final UserEntity owner = UserCreator.createEntity();
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+            // Add questionnaire to user administrated and user owned questionnaires
+            owner.getQuestionnaires().add(questionnaire);
+            owner.getAdminQuestionnaires().add(questionnaire);
+
+            // Mock the "findByUsername" method of the authentication repository
+            doReturn(Optional.of(owner))
+                    .when(authenticationRepository).findByUsername(owner.getUsername());
+
+            // Mock the "findByResultsUrlAndAdministratorId" method of the questionnaire repository
+            doReturn(Optional.empty()).when(questionnaireRepository)
+                    .findByResultsUrlAndAdministratorId(questionnaire.getResultsURL(), questionnaire.getId());
+
+            // Call the "findQuestionnaireByResultsURL" method of the service and assert that no exception is thrown
+            final EntityNotFoundException exception =
+                    assertThrows(EntityNotFoundException.class, () -> questionnaireService
+                            .findQuestionnaireByResultsURL(owner.getUsername(), questionnaire.getResultsURL()));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(authenticationRepository, times(1)).findByUsername(owner.getUsername());
+            verify(questionnaireRepository, times(1))
+                    .findByResultsUrlAndAdministratorId(questionnaire.getResultsURL(), owner.getId());
+
+            // Assert the exception
+            assertEquals("Questionnaire not found or user has no access to it.", exception.getMessage());
         }
     }
 }

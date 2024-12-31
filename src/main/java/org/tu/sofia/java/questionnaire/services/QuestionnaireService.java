@@ -204,7 +204,7 @@ public class QuestionnaireService {
         // Get the questionnaire
         final Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByAnswerURL(answerURL);
         if (optionalQuestionnaire.isEmpty()) {
-            throw new EntityNotFoundException("Questionnaire with this voting URL was not found.");
+            throw new EntityNotFoundException("Questionnaire with this answer URL was not found.");
         }
         final QuestionnaireEntity questionnaire = optionalQuestionnaire.get();
 
