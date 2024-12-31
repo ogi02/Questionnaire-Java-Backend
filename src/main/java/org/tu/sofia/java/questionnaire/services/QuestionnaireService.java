@@ -155,7 +155,8 @@ public class QuestionnaireService {
         }
 
         // Update questionnaire state
-        questionnaireRepository.updateQuestionnaireState(questionnaireId, isOpen);
+        questionnaire.setIsOpen(false);
+        questionnaireRepository.save(questionnaire);
     }
 
     public void addAdministratorToQuestionnaire(
@@ -190,10 +191,12 @@ public class QuestionnaireService {
         final UserEntity administrator = candidateAdministrator.get();
 
         // Update the questionnaire with a new administrator
-        final Set<UserEntity> administrators = questionnaire.getAdministrators();
-        administrators.add(administrator);
-        questionnaire.setAdministrators(administrators);
+        questionnaire.getAdministrators().add(administrator);
         questionnaireRepository.save(questionnaire);
+
+        // Update the administrator
+        administrator.getAdminQuestionnaires().add(questionnaire);
+        authenticationRepository.save(administrator);
     }
 
     public QuestionnaireDTO findQuestionnaireByAnswerURL(final String answerURL)

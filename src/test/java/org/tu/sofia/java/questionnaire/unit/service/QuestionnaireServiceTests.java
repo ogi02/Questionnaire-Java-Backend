@@ -475,4 +475,301 @@ public class QuestionnaireServiceTests {
             assertEquals("Username not found!", exception.getMessage());
         }
     }
+
+    @Nested
+    @NoArgsConstructor
+    public class UpdateQuestionnaireState {
+        @Test
+        public void success() {
+            // Init test users
+            final UserEntity owner = UserCreator.createEntity();
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+            // Add questionnaire to user administrated and user owned questionnaires
+            owner.getQuestionnaires().add(questionnaire);
+            owner.getAdminQuestionnaires().add(questionnaire);
+
+            // Mock the "findByUsername" method of the authentication repository
+            doReturn(Optional.of(owner))
+                    .when(authenticationRepository).findByUsername(owner.getUsername());
+
+            // Mock the "findById" method of the questionnaire repository
+            doReturn(Optional.of(questionnaire))
+                    .when(questionnaireRepository).findById(questionnaire.getId());
+
+            // Mock the "save" method of the questionnaire repository
+            doReturn(questionnaire)
+                    .when(questionnaireRepository).save(questionnaire);
+
+            // Call the "updateQuestionnaireState" method of the service and assert that no exception is thrown
+            assertDoesNotThrow(() -> questionnaireService
+                    .updateQuestionnaireState(owner.getUsername(), questionnaire.getId(), false));
+
+            // Create a captor for the questionnaire
+            final ArgumentCaptor<QuestionnaireEntity> questionnaireArgument =
+                    ArgumentCaptor.forClass(QuestionnaireEntity.class);
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(authenticationRepository, times(1)).findByUsername(owner.getUsername());
+            verify(questionnaireRepository, times(1)).findById(questionnaire.getId());
+            // Capture the output of the "save" method of the questionnaire repositories
+            verify(questionnaireRepository, times(1)).save(questionnaireArgument.capture());
+
+            // Assert that the returned Questionnaire Entity is closed
+            assertFalse(questionnaireArgument.getValue().getIsOpen());
+        }
+
+        @Test
+        public void failUsernameNotFound() {
+            // Init test users
+            final UserEntity owner = UserCreator.createEntity();
+
+            // Mock the "findByUsername" method of the authentication repository
+            doReturn(Optional.empty())
+                    .when(authenticationRepository).findByUsername(owner.getUsername());
+
+            // Call the "updateQuestionnaireState" method of the service and assert that exception is thrown
+            final EntityNotFoundException exception =
+                    assertThrows(EntityNotFoundException.class, () -> questionnaireService
+                            .updateQuestionnaireState(owner.getUsername(), 0L, false));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(authenticationRepository, times(1)).findByUsername(owner.getUsername());
+
+            // Assert the exception
+            assertEquals("Username not found!", exception.getMessage());
+        }
+
+        @Test
+        public void failQuestionnaireIdNotFound() {
+            // Init test users
+            final UserEntity owner = UserCreator.createEntity();
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+
+            // Mock the "findByUsername" method of the authentication repository
+            doReturn(Optional.of(owner))
+                    .when(authenticationRepository).findByUsername(owner.getUsername());
+
+            // Mock the "findById" method of the questionnaire repository
+            doReturn(Optional.empty())
+                    .when(questionnaireRepository).findById(questionnaire.getId());
+
+            // Call the "updateQuestionnaireState" method of the service and assert that exception is thrown
+            final EntityNotFoundException exception =
+                    assertThrows(EntityNotFoundException.class, () -> questionnaireService
+                            .updateQuestionnaireState(owner.getUsername(), questionnaire.getId(), false));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(authenticationRepository, times(1)).findByUsername(owner.getUsername());
+            verify(questionnaireRepository, times(1)).findById(questionnaire.getId());
+
+            // Assert the exception
+            assertEquals("Questionnaire with this ID was not found.", exception.getMessage());
+        }
+
+        @Test
+        public void failUserNotAdministrator() {
+            // Init test users
+            final UserEntity owner = UserCreator.createEntity();
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+
+            // Mock the "findByUsername" method of the authentication repository
+            doReturn(Optional.of(owner))
+                    .when(authenticationRepository).findByUsername(owner.getUsername());
+
+            // Mock the "findById" method of the questionnaire repository
+            doReturn(Optional.of(questionnaire))
+                    .when(questionnaireRepository).findById(questionnaire.getId());
+
+            // Call the "updateQuestionnaireState" method of the service and assert that exception is thrown
+            final IllegalAccessException exception =
+                    assertThrows(IllegalAccessException.class, () -> questionnaireService
+                            .updateQuestionnaireState(owner.getUsername(), questionnaire.getId(), false));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(authenticationRepository, times(1)).findByUsername(owner.getUsername());
+            verify(questionnaireRepository, times(1)).findById(questionnaire.getId());
+
+            // Assert the exception
+            assertEquals("User is not an administrator of this entity", exception.getMessage());
+        }
+    }
+
+    @Nested
+    @NoArgsConstructor
+    public class AddAdministratorToQuestionnaire {
+        @Test
+        public void success() {
+            // Init test users
+            final UserEntity owner = UserCreator.createEntity();
+            final UserEntity admin = UserCreator.createEntity();
+            admin.setId(2L);
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+            // Add questionnaire to user administrated and user owned questionnaires
+            owner.getQuestionnaires().add(questionnaire);
+            owner.getAdminQuestionnaires().add(questionnaire);
+
+            // Mock the "findByUsername" method of the authentication repository
+            doReturn(Optional.of(owner))
+                    .when(authenticationRepository).findByUsername(owner.getUsername());
+
+            // Mock the "findById" method of the questionnaire repository
+            doReturn(Optional.of(questionnaire))
+                    .when(questionnaireRepository).findById(questionnaire.getId());
+
+            // Mock the "findById" method of the authentication repository (for the candidate admin)
+            doReturn(Optional.of(admin))
+                    .when(authenticationRepository).findById(admin.getId());
+
+            // Mock the "save" method of the questionnaire repository
+            doReturn(questionnaire)
+                    .when(questionnaireRepository).save(questionnaire);
+
+            // Mock the "save" method of the authentication repository
+            doReturn(admin)
+                    .when(authenticationRepository).save(admin);
+
+            // Call the "addAdministratorToQuestionnaire" method of the service and assert that no exception is thrown
+            assertDoesNotThrow(() -> questionnaireService
+                    .addAdministratorToQuestionnaire(owner.getUsername(), questionnaire.getId(), admin.getId()));
+
+            // Create captors for the admin and the questionnaire
+            final ArgumentCaptor<UserEntity> userArgument = ArgumentCaptor.forClass(UserEntity.class);
+            final ArgumentCaptor<QuestionnaireEntity> questionnaireArgument =
+                    ArgumentCaptor.forClass(QuestionnaireEntity.class);
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(authenticationRepository, times(1)).findByUsername(owner.getUsername());
+            verify(questionnaireRepository, times(1)).findById(questionnaire.getId());
+            verify(authenticationRepository, times(1)).findById(admin.getId());
+            // Capture the output of the "save" method of both repositories
+            verify(questionnaireRepository, times(1)).save(questionnaireArgument.capture());
+            verify(authenticationRepository, times(1)).save(userArgument.capture());
+
+            // Assert that the returned Questionnaire Entity has the admin added
+            assertEquals(2, questionnaireArgument.getValue().getAdministrators().size());
+
+            // Assert that the returned User Entity has the questionnaire add to the user administrated set
+            assertTrue(userArgument.getValue().getQuestionnaires().isEmpty());
+            assertFalse(userArgument.getValue().getAdminQuestionnaires().isEmpty());
+        }
+
+        @Test
+        public void failUsernameNotFound() {
+            // Init test users
+            final UserEntity owner = UserCreator.createEntity();
+
+            // Mock the "findByUsername" method of the authentication repository
+            doReturn(Optional.empty())
+                    .when(authenticationRepository).findByUsername(owner.getUsername());
+
+            // Call the "addAdministratorToQuestionnaire" method of the service and assert that exception is thrown
+            final EntityNotFoundException exception =
+                    assertThrows(EntityNotFoundException.class, () -> questionnaireService
+                            .addAdministratorToQuestionnaire(owner.getUsername(), 0L, 0L));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(authenticationRepository, times(1)).findByUsername(owner.getUsername());
+
+            // Assert the exception
+            assertEquals("Username not found!", exception.getMessage());
+        }
+
+        @Test
+        public void failQuestionnaireIdNotFound() {
+            // Init test users
+            final UserEntity owner = UserCreator.createEntity();
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+
+            // Mock the "findByUsername" method of the authentication repository
+            doReturn(Optional.of(owner))
+                    .when(authenticationRepository).findByUsername(owner.getUsername());
+
+            // Mock the "findById" method of the questionnaire repository
+            doReturn(Optional.empty())
+                    .when(questionnaireRepository).findById(questionnaire.getId());
+
+            // Call the "addAdministratorToQuestionnaire" method of the service and assert that exception is thrown
+            final EntityNotFoundException exception =
+                    assertThrows(EntityNotFoundException.class, () -> questionnaireService
+                            .addAdministratorToQuestionnaire(owner.getUsername(), questionnaire.getId(), any()));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(authenticationRepository, times(1)).findByUsername(owner.getUsername());
+            verify(questionnaireRepository, times(1)).findById(questionnaire.getId());
+
+            // Assert the exception
+            assertEquals("Questionnaire with this ID was not found.", exception.getMessage());
+        }
+
+        @Test
+        public void failUserIsNotAdministrator() {
+            // Init test users
+            final UserEntity owner = UserCreator.createEntity();
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+
+            // Mock the "findByUsername" method of the authentication repository
+            doReturn(Optional.of(owner))
+                    .when(authenticationRepository).findByUsername(owner.getUsername());
+
+            // Mock the "findById" method of the questionnaire repository
+            doReturn(Optional.of(questionnaire))
+                    .when(questionnaireRepository).findById(questionnaire.getId());
+
+            // Call the "addAdministratorToQuestionnaire" method of the service and assert that exception is thrown
+            final IllegalAccessException exception =
+                    assertThrows(IllegalAccessException.class, () -> questionnaireService
+                            .addAdministratorToQuestionnaire(owner.getUsername(), questionnaire.getId(), any()));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(authenticationRepository, times(1)).findByUsername(owner.getUsername());
+            verify(questionnaireRepository, times(1)).findById(questionnaire.getId());
+
+            // Assert the exception
+            assertEquals("User is not an administrator of this entity", exception.getMessage());
+        }
+
+        @Test
+        public void failCandidateAdministratorIdNotFound() {
+            // Init test users
+            final UserEntity owner = UserCreator.createEntity();
+            final UserEntity admin = UserCreator.createEntity();
+            admin.setId(2L);
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+            // Add questionnaire to user administrated and user owned questionnaires
+            owner.getQuestionnaires().add(questionnaire);
+            owner.getAdminQuestionnaires().add(questionnaire);
+
+            // Mock the "findByUsername" method of the authentication repository
+            doReturn(Optional.of(owner))
+                    .when(authenticationRepository).findByUsername(owner.getUsername());
+
+            // Mock the "findById" method of the questionnaire repository
+            doReturn(Optional.of(questionnaire))
+                    .when(questionnaireRepository).findById(questionnaire.getId());
+
+            // Mock the "findById" method of the authentication repository (for the candidate admin)
+            doReturn(Optional.empty())
+                    .when(authenticationRepository).findById(admin.getId());
+
+            // Call the "addAdministratorToQuestionnaire" method of the service and assert that exception is thrown
+            final EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
+                    questionnaireService.addAdministratorToQuestionnaire(
+                            owner.getUsername(), questionnaire.getId(), admin.getId()));
+
+            // Verify every repository method was called with the specific arguments in the specific order
+            verify(authenticationRepository, times(1)).findByUsername(owner.getUsername());
+            verify(questionnaireRepository, times(1)).findById(questionnaire.getId());
+            verify(authenticationRepository, times(1)).findById(admin.getId());
+
+            // Assert the exception
+            assertEquals("User with this ID was not found.", exception.getMessage());
+        }
+    }
 }

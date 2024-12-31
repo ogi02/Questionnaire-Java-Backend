@@ -65,7 +65,7 @@ public final class QuestionnaireCreator {
     public static QuestionnaireEntity createEntity(final UserEntity owner) {
         // Questionnaire entity without results
         final QuestionnaireEntity questionnaire =
-                new QuestionnaireEntity(title, description, owner, Set.of(owner), isOpen, isPublic);
+                new QuestionnaireEntity(title, description, owner, new HashSet<>(){{add(owner);}}, isOpen, isPublic);
         final Set<QuestionEntity> questions = new HashSet<>() {{
             addAll(QuestionsCreator.BooleanQuestion.createEntities(3, questionnaire));
             addAll(QuestionsCreator.OpenQuestion.createEntities(3, questionnaire));
@@ -91,7 +91,7 @@ public final class QuestionnaireCreator {
     public static QuestionnaireEntity createEntityWithResults(final UserEntity owner) {
         // Questionnaire entity without results
         final QuestionnaireEntity questionnaire =
-                new QuestionnaireEntity(title, description, owner, Set.of(owner), isOpen, isPublic);
+                new QuestionnaireEntity(title, description, owner, new HashSet<>(){{add(owner);}}, isOpen, isPublic);
         final Set<QuestionEntity> questions = new HashSet<>() {{
             addAll(QuestionsCreator.BooleanQuestion.createEntitiesWithResults(3, questionnaire));
             addAll(QuestionsCreator.OpenQuestion.createEntitiesWithResults(3, questionnaire));
