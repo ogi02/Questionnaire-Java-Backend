@@ -12,22 +12,23 @@ public class OptionResponseMapper {
         if (optionResponseEntity == null) {
             return null;
         }
-        return new OptionResponseWithResultsDTO(optionResponseEntity.getOption(), optionResponseEntity.getVotes());
+        return OptionResponseWithResultsDTO.builder()
+                .withOption(optionResponseEntity.getOption())
+                .withVotes(optionResponseEntity.getVotes())
+                .build();
     }
     // From entity to DTO without results
     public static OptionResponseDTO toDtoWithoutVotes(final OptionResponseEntity optionResponseEntity) {
         if (optionResponseEntity == null) {
             return null;
         }
-        return new OptionResponseDTO(optionResponseEntity.getOption());
+        return OptionResponseDTO.builder().withOption(optionResponseEntity.getOption()).build();
     }
     // From DTO to entity
     public static OptionResponseEntity toEntity(final OptionResponseDTO optionResponseDTO) {
         if (optionResponseDTO == null) {
             return null;
         }
-        final OptionResponseEntity optionResponseEntity = new OptionResponseEntity();
-        optionResponseEntity.setOption(optionResponseEntity.getOption());
-        return optionResponseEntity;
+        return OptionResponseEntity.builder().withOption(optionResponseDTO.getOption()).build();
     }
 }

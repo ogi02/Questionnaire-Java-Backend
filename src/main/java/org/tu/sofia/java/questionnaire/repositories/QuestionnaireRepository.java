@@ -20,5 +20,5 @@ public interface QuestionnaireRepository extends JpaRepository<QuestionnaireEnti
 
     @Query("SELECT q FROM QuestionnaireEntity q JOIN q.administrators u " +
             "WHERE q.resultsURL = :resultsURL AND u.id = :administratorId")
-    Optional<QuestionnaireEntity> findByResultsUrlAndAdministratorId(String resultsURL, Long administratorId);
+    Optional<QuestionnaireEntity> findByResultsURLAndAdministratorId(String resultsURL, Long administratorId);
 }

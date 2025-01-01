@@ -32,7 +32,8 @@ public class AuthenticationRepositoryTests {
     @Rollback
     public void testSaveUser() {
         // Create a user with the test data
-        final UserEntity user = new UserEntity(testUsername, testPassword);
+        final UserEntity user = new UserEntity.Builder()
+                .withUsername(testUsername).withPassword(testPassword).build();
 
         // Save the user
         final UserEntity savedUser = authenticationRepository.save(user);
@@ -49,7 +50,8 @@ public class AuthenticationRepositoryTests {
     @Rollback
     public void testFindByUsernameUserFound() {
         // Create a user with the test data
-        final UserEntity user = new UserEntity(testUsername, testPassword);
+        final UserEntity user = new UserEntity.Builder()
+                .withUsername(testUsername).withPassword(testPassword).build();
 
         // Save the user
         authenticationRepository.save(user);

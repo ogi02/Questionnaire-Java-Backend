@@ -22,15 +22,6 @@ public class OptionQuestionEntity extends QuestionEntity {
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OptionResponseEntity> options = new HashSet<>();
 
-    public OptionQuestionEntity(final String questionText, final Set<OptionResponseEntity> options) {
-        super(questionText);
-        this.options = options;
-    }
-
-    public OptionQuestionEntity(final Long id, final String questionText, final QuestionnaireEntity questionnaire) {
-        super(id, questionText, questionnaire);
-    }
-
     @Override
     public <T> void answerQuestion(final T response) throws IllegalArgumentException {
         if (response instanceof Long optionResponseEntityId) {
@@ -47,6 +38,43 @@ public class OptionQuestionEntity extends QuestionEntity {
             optionalOptionResponse.get().addResponse();
         } else {
             throw new IllegalArgumentException("Invalid answer type for option question.");
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private final OptionQuestionEntity optionQuestion;
+
+        public Builder() {
+            this.optionQuestion = new OptionQuestionEntity();
+        }
+
+        public Builder withId(final Long id) {
+            this.optionQuestion.setId(id);
+            return this;
+        }
+
+        public Builder withQuestionText(final String questionText) {
+            this.optionQuestion.setQuestionText(questionText);
+            return this;
+        }
+
+        public Builder withQuestionnaire(final QuestionnaireEntity questionnaire) {
+            this.optionQuestion.setQuestionnaire(questionnaire);
+            return this;
+        }
+
+        public Builder withOptions(final Set<OptionResponseEntity> options) {
+            this.optionQuestion.setOptions(options);
+            return this;
+        }
+
+        public OptionQuestionEntity build() {
+            return this.optionQuestion;
         }
     }
 }

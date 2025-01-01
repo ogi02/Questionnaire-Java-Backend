@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.tu.sofia.java.questionnaire.dtos.responses.OpenResponseWithResultsDTO;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -14,14 +13,29 @@ import java.util.Set;
 public class OpenQuestionWithResultsDTO extends QuestionDTO {
     private Set<OpenResponseWithResultsDTO> openResponseWithResultsDTOSet;
 
-    public OpenQuestionWithResultsDTO(final String questionText) {
-        super(questionText);
-        this.openResponseWithResultsDTOSet = new HashSet<>();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public OpenQuestionWithResultsDTO(final String questionText,
-                                      final Set<OpenResponseWithResultsDTO> openResponseWithResultsDTOSet) {
-        super(questionText);
-        this.openResponseWithResultsDTOSet = openResponseWithResultsDTOSet;
+    public static class Builder {
+        private final OpenQuestionWithResultsDTO openQuestionWithResults;
+
+        public Builder() {
+            this.openQuestionWithResults = new OpenQuestionWithResultsDTO();
+        }
+
+        public Builder withQuestionText(final String questionText) {
+            this.openQuestionWithResults.setQuestionText(questionText);
+            return this;
+        }
+
+        public Builder withOpenResponseWithResultsDTOSet(final Set<OpenResponseWithResultsDTO> set) {
+            this.openQuestionWithResults.setOpenResponseWithResultsDTOSet(set);
+            return this;
+        }
+
+        public OpenQuestionWithResultsDTO build() {
+            return this.openQuestionWithResults;
+        }
     }
 }

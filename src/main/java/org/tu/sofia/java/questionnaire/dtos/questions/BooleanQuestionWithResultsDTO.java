@@ -11,15 +11,34 @@ public class BooleanQuestionWithResultsDTO extends QuestionDTO {
     private Integer trueVotes;
     private Integer falseVotes;
 
-    public BooleanQuestionWithResultsDTO(final String questionText) {
-        super(questionText);
-        this.trueVotes = 0;
-        this.falseVotes = 0;
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public BooleanQuestionWithResultsDTO(final String questionText, final Integer trueVotes, final Integer falseVotes) {
-        super(questionText);
-        this.trueVotes = trueVotes;
-        this.falseVotes = falseVotes;
+    public static class Builder {
+        private final BooleanQuestionWithResultsDTO booleanQuestionWithResults;
+
+        public Builder() {
+            this.booleanQuestionWithResults = new BooleanQuestionWithResultsDTO();
+        }
+
+        public Builder withQuestionText(final String questionText) {
+            this.booleanQuestionWithResults.setQuestionText(questionText);
+            return this;
+        }
+
+        public Builder withTrueVotes(final Integer trueVotes) {
+            this.booleanQuestionWithResults.setTrueVotes(trueVotes);
+            return this;
+        }
+
+        public Builder withFalseVotes(final Integer falseVotes) {
+            this.booleanQuestionWithResults.setFalseVotes(falseVotes);
+            return this;
+        }
+
+        public BooleanQuestionWithResultsDTO build() {
+            return this.booleanQuestionWithResults;
+        }
     }
 }

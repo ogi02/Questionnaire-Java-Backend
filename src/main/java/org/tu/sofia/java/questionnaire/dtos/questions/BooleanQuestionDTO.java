@@ -8,7 +8,25 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class BooleanQuestionDTO extends QuestionDTO {
-    public BooleanQuestionDTO(final String questionText) {
-        super(questionText);
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private final BooleanQuestionDTO booleanQuestion;
+
+        public Builder() {
+            this.booleanQuestion = new BooleanQuestionDTO();
+        }
+
+        public Builder withQuestionText(final String questionText) {
+            this.booleanQuestion.setQuestionText(questionText);
+            return this;
+        }
+
+        public BooleanQuestionDTO build() {
+            return this.booleanQuestion;
+        }
     }
 }

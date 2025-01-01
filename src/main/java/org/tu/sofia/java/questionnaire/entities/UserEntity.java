@@ -1,11 +1,12 @@
 package org.tu.sofia.java.questionnaire.entities;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import jakarta.persistence.*; // NOPMD
+
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -13,7 +14,6 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_generator")
@@ -32,12 +32,36 @@ public class UserEntity {
     @ManyToMany(mappedBy = "administrators")
     private Set<QuestionnaireEntity> adminQuestionnaires;
 
-    public UserEntity(final Long id) {
-        this.id = id;
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public UserEntity(final String username, final String password) {
-        this.username = username;
-        this.password = password;
+    public static class Builder {
+        private final UserEntity userEntity;
+
+        public Builder() {
+            this.userEntity = new UserEntity();
+            this.userEntity.setQuestionnaires(new HashSet<>());
+            this.userEntity.setAdminQuestionnaires(new HashSet<>());
+        }
+
+        public Builder withId(final Long id) {
+            this.userEntity.setId(id);
+            return this;
+        }
+
+        public Builder withUsername(final String username) {
+            this.userEntity.setUsername(username);
+            return this;
+        }
+
+        public Builder withPassword(final String password) {
+            this.userEntity.setPassword(password);
+            return this;
+        }
+
+        public UserEntity build() {
+            return this.userEntity;
+        }
     }
 }

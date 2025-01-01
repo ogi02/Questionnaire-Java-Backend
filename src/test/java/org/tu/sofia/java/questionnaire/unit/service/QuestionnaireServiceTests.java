@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.tu.sofia.java.questionnaire.dtos.QuestionnaireDTO;
+import org.tu.sofia.java.questionnaire.dtos.QuestionnaireResponseDTO;
 import org.tu.sofia.java.questionnaire.dtos.QuestionnaireWithResultsDTO;
 import org.tu.sofia.java.questionnaire.entities.QuestionnaireEntity;
 import org.tu.sofia.java.questionnaire.entities.UserEntity;
@@ -23,8 +24,7 @@ import org.tu.sofia.java.questionnaire.entities.responses.OptionResponseEntity;
 import org.tu.sofia.java.questionnaire.repositories.AuthenticationRepository;
 import org.tu.sofia.java.questionnaire.repositories.QuestionnaireRepository;
 import org.tu.sofia.java.questionnaire.services.QuestionnaireService;
-import org.tu.sofia.java.questionnaire.unit.creators.QuestionnaireCreator;
-import org.tu.sofia.java.questionnaire.unit.creators.UserCreator;
+import org.tu.sofia.java.questionnaire.unit.utilities.QuestionnaireCreator;
 
 import java.util.*;
 
@@ -46,6 +46,12 @@ public class QuestionnaireServiceTests {
     @Autowired
     protected QuestionnaireService questionnaireService;
 
+    @Value("${unit.test.username}")
+    protected String testUsername;
+
+    @Value("${unit.test.password}")
+    protected String testPassword;
+
     @Value("${unit.test.questionnaire.title}")
     protected String title;
 
@@ -64,9 +70,11 @@ public class QuestionnaireServiceTests {
         @Test
         public void success() {
             // Init test user
-            final UserEntity testUser = UserCreator.createEntity();
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(testUser);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
 
             // Mock the "findByUsername" method of the authentication repository
             doReturn(Optional.of(testUser))
@@ -77,8 +85,8 @@ public class QuestionnaireServiceTests {
                     .when(questionnaireRepository).save(any());
 
             // Call the "attemptRegister" method of the service
-            final QuestionnaireWithResultsDTO questionnaireDTO =
-                    questionnaireService.createQuestionnaire(testUser.getUsername(), QuestionnaireCreator.createDTO());
+            final QuestionnaireWithResultsDTO questionnaireDTO = questionnaireService
+                    .createQuestionnaire(testUser.getUsername(), QuestionnaireCreator.createDefaultDTO().build());
 
             // Assert that a questionnaire was returned
             assertEquals(title, questionnaireDTO.getTitle());
@@ -97,9 +105,11 @@ public class QuestionnaireServiceTests {
         @Test
         public void successAsOwner() {
             // Init test user
-            final UserEntity testUser = UserCreator.createEntity();
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init test questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(testUser);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
             // Add questionnaire to user administrated and user owned questionnaires
             testUser.getQuestionnaires().add(questionnaire);
             testUser.getAdminQuestionnaires().add(questionnaire);
@@ -142,12 +152,13 @@ public class QuestionnaireServiceTests {
         @Test
         public void successAsAdministrator() {
             // Init test users (owner and admin)
-            final UserEntity owner = UserCreator.createEntity();
-            final UserEntity admin = UserCreator.createEntity();
-            admin.setId(2L);
-            admin.setUsername("secondTestUsername");
+            final UserEntity owner =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+            final UserEntity admin =
+                    UserEntity.builder().withId(2L).withUsername("secondUsername").withPassword(testPassword).build();
+
             // Init test questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(owner, true);
 
             // Add questionnaire to user administrated and owned questionnaires of the owner
             owner.getQuestionnaires().add(questionnaire);
@@ -206,7 +217,8 @@ public class QuestionnaireServiceTests {
         @Test
         public void failUsernameNotFound() {
             // Init test user
-            final UserEntity testUser = UserCreator.createEntity();
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
 
             // Mock the "findByUsername" method of the authentication repository
             doReturn(Optional.empty())
@@ -226,9 +238,11 @@ public class QuestionnaireServiceTests {
         @Test
         public void failQuestionnaireNotFound() {
             // Init test user
-            final UserEntity testUser = UserCreator.createEntity();
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(testUser);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
 
             // Mock the "findByUsername" method of the authentication repository
             doReturn(Optional.of(testUser))
@@ -253,9 +267,11 @@ public class QuestionnaireServiceTests {
         @Test
         public void failUserIsNotAdministratorOfQuestionnaire() {
             // Init test user
-            final UserEntity testUser = UserCreator.createEntity();
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(testUser);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
 
             // Mock the "findByUsername" method of the authentication repository
             doReturn(Optional.of(testUser))
@@ -280,12 +296,13 @@ public class QuestionnaireServiceTests {
         @Test
         public void failOwnerIdNotFound() {
             // Init test users (owner and admin)
-            final UserEntity owner = UserCreator.createEntity();
-            final UserEntity admin = UserCreator.createEntity();
-            admin.setId(2L);
-            admin.setUsername("secondTestUsername");
+            final UserEntity owner =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+            final UserEntity admin =
+                    UserEntity.builder().withId(2L).withUsername("secondUsername").withPassword(testPassword).build();
+
             // Init test questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(owner, true);
 
             // Add questionnaire to user administrated and owned questionnaires of the owner
             owner.getQuestionnaires().add(questionnaire);
@@ -326,9 +343,11 @@ public class QuestionnaireServiceTests {
         @Test
         public void successPresent() {
             // Init test user
-            final UserEntity testUser = UserCreator.createEntity();
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(testUser);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
 
             // Mock the "findPublic" method of the questionnaire repository
             doReturn(Optional.of(Set.of(questionnaire)))
@@ -360,9 +379,11 @@ public class QuestionnaireServiceTests {
         @Test
         public void successEmpty() {
             // Init test user
-            final UserEntity testUser = UserCreator.createEntity();
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(testUser);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
             questionnaire.setIsPublic(false);
 
             // Mock the "findPublic" method of the questionnaire repository
@@ -387,9 +408,11 @@ public class QuestionnaireServiceTests {
         @Test
         public void successPresent() {
             // Init test user
-            final UserEntity testUser = UserCreator.createEntity();
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(testUser);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
             // Add questionnaire to user administrated
             testUser.getAdminQuestionnaires().add(questionnaire);
 
@@ -429,9 +452,11 @@ public class QuestionnaireServiceTests {
         @Test
         public void successEmpty() {
             // Init test user
-            final UserEntity testUser = UserCreator.createEntity();
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(testUser);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
             // Remove owner from questionnaire
             questionnaire.setOwner(null);
 
@@ -462,7 +487,8 @@ public class QuestionnaireServiceTests {
         @Test
         public void failUsernameNotFound() {
             // Init test user
-            final UserEntity testUser = UserCreator.createEntity();
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
 
             // Mock the "findByUsername" method of the authentication repository
             doReturn(Optional.empty())
@@ -486,9 +512,11 @@ public class QuestionnaireServiceTests {
         @Test
         public void success() {
             // Init test users
-            final UserEntity owner = UserCreator.createEntity();
+            final UserEntity owner =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init test questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(owner, true);
             // Add questionnaire to user administrated and user owned questionnaires
             owner.getQuestionnaires().add(questionnaire);
             owner.getAdminQuestionnaires().add(questionnaire);
@@ -526,7 +554,8 @@ public class QuestionnaireServiceTests {
         @Test
         public void failUsernameNotFound() {
             // Init test users
-            final UserEntity owner = UserCreator.createEntity();
+            final UserEntity owner =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
 
             // Mock the "findByUsername" method of the authentication repository
             doReturn(Optional.empty())
@@ -547,9 +576,11 @@ public class QuestionnaireServiceTests {
         @Test
         public void failQuestionnaireIdNotFound() {
             // Init test users
-            final UserEntity owner = UserCreator.createEntity();
+            final UserEntity owner =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init test questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(owner, true);
 
             // Mock the "findByUsername" method of the authentication repository
             doReturn(Optional.of(owner))
@@ -575,9 +606,11 @@ public class QuestionnaireServiceTests {
         @Test
         public void failUserNotAdministrator() {
             // Init test users
-            final UserEntity owner = UserCreator.createEntity();
+            final UserEntity owner =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init test questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(owner, true);
 
             // Mock the "findByUsername" method of the authentication repository
             doReturn(Optional.of(owner))
@@ -607,11 +640,13 @@ public class QuestionnaireServiceTests {
         @Test
         public void success() {
             // Init test users
-            final UserEntity owner = UserCreator.createEntity();
-            final UserEntity admin = UserCreator.createEntity();
-            admin.setId(2L);
+            final UserEntity owner =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+            final UserEntity admin =
+                    UserEntity.builder().withId(2L).withUsername("secondUsername").withPassword(testPassword).build();
+
             // Init test questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(owner, true);
             // Add questionnaire to user administrated and user owned questionnaires
             owner.getQuestionnaires().add(questionnaire);
             owner.getAdminQuestionnaires().add(questionnaire);
@@ -664,7 +699,8 @@ public class QuestionnaireServiceTests {
         @Test
         public void failUsernameNotFound() {
             // Init test users
-            final UserEntity owner = UserCreator.createEntity();
+            final UserEntity owner =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
 
             // Mock the "findByUsername" method of the authentication repository
             doReturn(Optional.empty())
@@ -685,9 +721,11 @@ public class QuestionnaireServiceTests {
         @Test
         public void failQuestionnaireIdNotFound() {
             // Init test users
-            final UserEntity owner = UserCreator.createEntity();
+            final UserEntity owner =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init test questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(owner, true);
 
             // Mock the "findByUsername" method of the authentication repository
             doReturn(Optional.of(owner))
@@ -713,9 +751,11 @@ public class QuestionnaireServiceTests {
         @Test
         public void failUserIsNotAdministrator() {
             // Init test users
-            final UserEntity owner = UserCreator.createEntity();
+            final UserEntity owner =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init test questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(owner, true);
 
             // Mock the "findByUsername" method of the authentication repository
             doReturn(Optional.of(owner))
@@ -741,11 +781,13 @@ public class QuestionnaireServiceTests {
         @Test
         public void failCandidateAdministratorIdNotFound() {
             // Init test users
-            final UserEntity owner = UserCreator.createEntity();
-            final UserEntity admin = UserCreator.createEntity();
-            admin.setId(2L);
+            final UserEntity owner =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+            final UserEntity admin =
+                    UserEntity.builder().withId(2L).withUsername("secondUsername").withPassword(testPassword).build();
+
             // Init test questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(owner, true);
             // Add questionnaire to user administrated and user owned questionnaires
             owner.getQuestionnaires().add(questionnaire);
             owner.getAdminQuestionnaires().add(questionnaire);
@@ -783,8 +825,12 @@ public class QuestionnaireServiceTests {
         @SneakyThrows
         @Test
         public void success() {
+            // Init test users
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init test questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(UserCreator.createEntity());
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
 
             // Mock the "findByAnswerURL" method of the questionnaire repository
             doReturn(Optional.of(questionnaire)).when(questionnaireRepository)
@@ -809,8 +855,12 @@ public class QuestionnaireServiceTests {
 
         @Test
         public void failQuestionnaireAnswerURLNotFound() {
+            // Init test users
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init test questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(UserCreator.createEntity());
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
 
             // Mock the "findByAnswerURL" method of the questionnaire repository
             doReturn(Optional.empty()).when(questionnaireRepository)
@@ -830,8 +880,12 @@ public class QuestionnaireServiceTests {
 
         @Test
         public void failQuestionnaireClosed() {
+            // Init test users
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init test questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(UserCreator.createEntity());
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
             questionnaire.setIsOpen(false);
 
             // Mock the "findByAnswerURL" method of the questionnaire repository
@@ -857,9 +911,11 @@ public class QuestionnaireServiceTests {
         @Test
         public void success() {
             // Init test users
-            final UserEntity owner = UserCreator.createEntity();
+            final UserEntity owner =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init test questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(owner, true);
             // Add questionnaire to user administrated and user owned questionnaires
             owner.getQuestionnaires().add(questionnaire);
             owner.getAdminQuestionnaires().add(questionnaire);
@@ -870,7 +926,7 @@ public class QuestionnaireServiceTests {
 
             // Mock the "findByResultsUrlAndAdministratorId" method of the questionnaire repository
             doReturn(Optional.of(questionnaire)).when(questionnaireRepository)
-                    .findByResultsUrlAndAdministratorId(questionnaire.getResultsURL(), owner.getId());
+                    .findByResultsURLAndAdministratorId(questionnaire.getResultsURL(), owner.getId());
 
             // Call the "findQuestionnaireByResultsURL" method of the service and assert that no exception is thrown
             final QuestionnaireWithResultsDTO questionnaireDTO = questionnaireService
@@ -879,7 +935,7 @@ public class QuestionnaireServiceTests {
             // Verify every repository method was called with the specific arguments in the specific order
             verify(authenticationRepository, times(1)).findByUsername(owner.getUsername());
             verify(questionnaireRepository, times(1))
-                    .findByResultsUrlAndAdministratorId(questionnaire.getResultsURL(), owner.getId());
+                    .findByResultsURLAndAdministratorId(questionnaire.getResultsURL(), owner.getId());
 
             // Assert that a questionnaire was returned
             assertEquals(title, questionnaireDTO.getTitle());
@@ -894,7 +950,8 @@ public class QuestionnaireServiceTests {
         @Test
         public void failUsernameNotFound() {
             // Init test users
-            final UserEntity owner = UserCreator.createEntity();
+            final UserEntity owner =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
 
             // Mock the "findByUsername" method of the authentication repository
             doReturn(Optional.empty())
@@ -915,9 +972,11 @@ public class QuestionnaireServiceTests {
         @Test
         public void failQuestionnaireResultsURLNotFound() {
             // Init test users
-            final UserEntity owner = UserCreator.createEntity();
+            final UserEntity owner =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init test questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(owner);
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(owner, true);
             // Add questionnaire to user administrated and user owned questionnaires
             owner.getQuestionnaires().add(questionnaire);
             owner.getAdminQuestionnaires().add(questionnaire);
@@ -928,7 +987,7 @@ public class QuestionnaireServiceTests {
 
             // Mock the "findByResultsUrlAndAdministratorId" method of the questionnaire repository
             doReturn(Optional.empty()).when(questionnaireRepository)
-                    .findByResultsUrlAndAdministratorId(questionnaire.getResultsURL(), questionnaire.getId());
+                    .findByResultsURLAndAdministratorId(questionnaire.getResultsURL(), questionnaire.getId());
 
             // Call the "findQuestionnaireByResultsURL" method of the service and assert that no exception is thrown
             final EntityNotFoundException exception =
@@ -938,7 +997,7 @@ public class QuestionnaireServiceTests {
             // Verify every repository method was called with the specific arguments in the specific order
             verify(authenticationRepository, times(1)).findByUsername(owner.getUsername());
             verify(questionnaireRepository, times(1))
-                    .findByResultsUrlAndAdministratorId(questionnaire.getResultsURL(), owner.getId());
+                    .findByResultsURLAndAdministratorId(questionnaire.getResultsURL(), owner.getId());
 
             // Assert the exception
             assertEquals("Questionnaire not found or user has no access to it.", exception.getMessage());
@@ -951,35 +1010,18 @@ public class QuestionnaireServiceTests {
         @SneakyThrows
         @Test
         public void success() {
-            // Init test questionnaire
-            final QuestionnaireEntity questionnaire =
-                    QuestionnaireCreator.createEntityWithoutIDs(UserCreator.createEntity());
+            // Init test users
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
 
-            // Add ID 1 to the first Boolean question
-            final BooleanQuestionEntity booleanQuestion =
-                    (BooleanQuestionEntity) questionnaire.getQuestions().stream().filter(questionEntity ->
-                            questionEntity instanceof BooleanQuestionEntity).findFirst().orElse(null);
-            assertNotNull(booleanQuestion);
-            booleanQuestion.setId(1L);
-            // Add ID 2 to the first Open question
-            final OpenQuestionEntity openQuestion =
-                    (OpenQuestionEntity) questionnaire.getQuestions().stream().filter(questionEntity ->
-                            questionEntity instanceof OpenQuestionEntity).findFirst().orElse(null);
-            assertNotNull(openQuestion);
-            openQuestion.setId(2L);
-            // Add ID 3 to the first Option question and Add ID 4 to the first option of this question
-            final OptionQuestionEntity optionQuestion =
-                    (OptionQuestionEntity) questionnaire.getQuestions().stream().filter(questionEntity ->
-                            questionEntity instanceof OptionQuestionEntity).findFirst().orElse(null);
-            assertNotNull(optionQuestion);
-            optionQuestion.setId(3L);
-            Objects.requireNonNull(optionQuestion.getOptions().stream().findFirst().orElse(null)).setId(4L);
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
 
             // Init test answers
             final Map<Long, Object> answers = new HashMap<>(){{
                 put(1L, true);
-                put(2L, "Test Answer");
-                put(3L, 4L);
+                put(4L, "Test Answer");
+                put(7L, 1L);
             }};
 
             // Mock the "findByAnswerURL" method of the questionnaire repository
@@ -992,7 +1034,7 @@ public class QuestionnaireServiceTests {
 
             // Call the "answerQuestionnaire" method of the service and assert that exception is not thrown
             assertDoesNotThrow(() -> questionnaireService.answerQuestionnaire(
-                    questionnaire.getAnswerURL(), QuestionnaireCreator.createResponseDTO(answers)));
+                    questionnaire.getAnswerURL(), QuestionnaireResponseDTO.builder().withAnswers(answers).build()));
 
             // Create argument capture for the questionnaire entity
             final ArgumentCaptor<QuestionnaireEntity> argument = ArgumentCaptor.forClass(QuestionnaireEntity.class);
@@ -1019,7 +1061,7 @@ public class QuestionnaireServiceTests {
             final OpenQuestionEntity capturedOpenQuestion =
                     (OpenQuestionEntity) capturedQuestionnaire.getQuestions().stream()
                             .filter(questionEntity -> Objects.nonNull(questionEntity.getId()))
-                            .filter(questionEntity -> questionEntity.getId().equals(2L)).findFirst().orElse(null);
+                            .filter(questionEntity -> questionEntity.getId().equals(4L)).findFirst().orElse(null);
             assertNotNull(capturedOpenQuestion);
             assertEquals(1, capturedOpenQuestion.getAnswers().size());
             // Get the Open question response
@@ -1032,20 +1074,24 @@ public class QuestionnaireServiceTests {
             final OptionQuestionEntity capturedOptionQuestion =
                     (OptionQuestionEntity) capturedQuestionnaire.getQuestions().stream()
                             .filter(questionEntity -> Objects.nonNull(questionEntity.getId()))
-                            .filter(questionEntity -> questionEntity.getId().equals(3L)).findFirst().orElse(null);
+                            .filter(questionEntity -> questionEntity.getId().equals(7L)).findFirst().orElse(null);
             assertNotNull(capturedOptionQuestion);
             // Get the Option question response
             final OptionResponseEntity capturedOptionResponse =
                     capturedOptionQuestion.getOptions().stream().filter(optionResponseEntity ->
-                            optionResponseEntity.getId().equals(4L)).findFirst().orElse(null);
+                            optionResponseEntity.getId().equals(1L)).findFirst().orElse(null);
             assertNotNull(capturedOptionResponse);
             assertEquals(1, capturedOptionResponse.getVotes());
         }
 
         @Test
         public void failQuestionnaireAnswerURLNotFound() {
+            // Init test users
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init test questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(UserCreator.createEntity());
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
 
             // Mock the "findByAnswerURL" method of the questionnaire repository
             doReturn(Optional.empty()).when(questionnaireRepository)
@@ -1054,7 +1100,7 @@ public class QuestionnaireServiceTests {
             // Call the "answerQuestionnaire" method of the service and assert that exception is thrown
             final EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
                     questionnaireService.answerQuestionnaire(
-                            questionnaire.getAnswerURL(), QuestionnaireCreator.createResponseDTO(new HashMap<>())));
+                            questionnaire.getAnswerURL(), QuestionnaireResponseDTO.builder().build()));
 
             // Verify every repository method was called with the specific arguments in the specific order
             verify(questionnaireRepository, times(1)).findByAnswerURL(any());
@@ -1065,8 +1111,12 @@ public class QuestionnaireServiceTests {
 
         @Test
         public void failQuestionnaireClosed() {
+            // Init test users
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init test questionnaire
-            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createEntity(UserCreator.createEntity());
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
             questionnaire.setIsOpen(false);
 
             // Mock the "findByAnswerURL" method of the questionnaire repository
@@ -1076,7 +1126,7 @@ public class QuestionnaireServiceTests {
             // Call the "answerQuestionnaire" method of the service and assert that exception is thrown
             final IllegalAccessException exception = assertThrows(IllegalAccessException.class, () ->
                     questionnaireService.answerQuestionnaire(
-                            questionnaire.getAnswerURL(), QuestionnaireCreator.createResponseDTO(new HashMap<>())));
+                            questionnaire.getAnswerURL(), QuestionnaireResponseDTO.builder().build()));
 
             // Verify every repository method was called with the specific arguments in the specific order
             verify(questionnaireRepository, times(1)).findByAnswerURL(any());
@@ -1087,9 +1137,14 @@ public class QuestionnaireServiceTests {
 
         @Test
         public void failQuestionIdNotFound() {
+            // Init test users
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
+
             // Init test questionnaire
             final QuestionnaireEntity questionnaire =
-                    QuestionnaireCreator.createEntityWithoutIDs(UserCreator.createEntity());
+                    QuestionnaireCreator.createDefaultEntity(testUser, false);
+
             // Init test answers
             final Map<Long, Object> answers = new HashMap<>(){{
                 put(1L, "");
@@ -1101,8 +1156,8 @@ public class QuestionnaireServiceTests {
 
             // Call the "answerQuestionnaire" method of the service and assert that exception is thrown
             final EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
-                    questionnaireService.answerQuestionnaire(
-                            questionnaire.getAnswerURL(), QuestionnaireCreator.createResponseDTO(answers)));
+                    questionnaireService.answerQuestionnaire(questionnaire.getAnswerURL(),
+                            QuestionnaireResponseDTO.builder().withAnswers(answers).build()));
 
             // Verify every repository method was called with the specific arguments in the specific order
             verify(questionnaireRepository, times(1)).findByAnswerURL(any());
@@ -1113,16 +1168,12 @@ public class QuestionnaireServiceTests {
 
         @Test
         public void failInvalidAnswerTypeBooleanQuestion() {
-            // Init test questionnaire
-            final QuestionnaireEntity questionnaire =
-                    QuestionnaireCreator.createEntityWithoutIDs(UserCreator.createEntity());
+            // Init test users
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
 
-            // Add ID 1 to the first Boolean question
-            final BooleanQuestionEntity booleanQuestion =
-                    (BooleanQuestionEntity) questionnaire.getQuestions().stream().filter(questionEntity ->
-                            questionEntity instanceof BooleanQuestionEntity).findFirst().orElse(null);
-            assertNotNull(booleanQuestion);
-            booleanQuestion.setId(1L);
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
 
             // Init test answers with invalid value
             final Map<Long, Object> answers = new HashMap<>(){{
@@ -1135,8 +1186,8 @@ public class QuestionnaireServiceTests {
 
             // Call the "answerQuestionnaire" method of the service and assert that exception is not thrown
             final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                    questionnaireService.answerQuestionnaire(
-                            questionnaire.getAnswerURL(), QuestionnaireCreator.createResponseDTO(answers)));
+                    questionnaireService.answerQuestionnaire(questionnaire.getAnswerURL(),
+                            QuestionnaireResponseDTO.builder().withAnswers(answers).build()));
 
             // Verify every repository method was called with the specific arguments in the specific order
             verify(questionnaireRepository, times(1)).findByAnswerURL(any());
@@ -1147,20 +1198,16 @@ public class QuestionnaireServiceTests {
 
         @Test
         public void failInvalidAnswerTypeOpenQuestion() {
-            // Init test questionnaire
-            final QuestionnaireEntity questionnaire =
-                    QuestionnaireCreator.createEntityWithoutIDs(UserCreator.createEntity());
+            // Init test users
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
 
-            // Add ID 1 to the first Open question
-            final OpenQuestionEntity openQuestion =
-                    (OpenQuestionEntity) questionnaire.getQuestions().stream().filter(questionEntity ->
-                            questionEntity instanceof OpenQuestionEntity).findFirst().orElse(null);
-            assertNotNull(openQuestion);
-            openQuestion.setId(1L);
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
 
             // Init test answers with invalid value
             final Map<Long, Object> answers = new HashMap<>(){{
-                put(1L, true);
+                put(4L, true);
             }};
 
             // Mock the "findByAnswerURL" method of the questionnaire repository
@@ -1169,8 +1216,8 @@ public class QuestionnaireServiceTests {
 
             // Call the "answerQuestionnaire" method of the service and assert that exception is not thrown
             final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                    questionnaireService.answerQuestionnaire(
-                            questionnaire.getAnswerURL(), QuestionnaireCreator.createResponseDTO(answers)));
+                    questionnaireService.answerQuestionnaire(questionnaire.getAnswerURL(),
+                            QuestionnaireResponseDTO.builder().withAnswers(answers).build()));
 
             // Verify every repository method was called with the specific arguments in the specific order
             verify(questionnaireRepository, times(1)).findByAnswerURL(any());
@@ -1181,20 +1228,16 @@ public class QuestionnaireServiceTests {
 
         @Test
         public void failInvalidAnswerTypeOptionQuestion() {
-            // Init test questionnaire
-            final QuestionnaireEntity questionnaire =
-                    QuestionnaireCreator.createEntityWithoutIDs(UserCreator.createEntity());
+            // Init test users
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
 
-            // Add ID 1 to the first Option question
-            final OptionQuestionEntity optionQuestion =
-                    (OptionQuestionEntity) questionnaire.getQuestions().stream().filter(questionEntity ->
-                            questionEntity instanceof OptionQuestionEntity).findFirst().orElse(null);
-            assertNotNull(optionQuestion);
-            optionQuestion.setId(1L);
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
 
             // Init test answers with invalid value
             final Map<Long, Object> answers = new HashMap<>(){{
-                put(1L, true);
+                put(7L, true);
             }};
 
             // Mock the "findByAnswerURL" method of the questionnaire repository
@@ -1203,8 +1246,8 @@ public class QuestionnaireServiceTests {
 
             // Call the "answerQuestionnaire" method of the service and assert that exception is not thrown
             final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                    questionnaireService.answerQuestionnaire(
-                            questionnaire.getAnswerURL(), QuestionnaireCreator.createResponseDTO(answers)));
+                    questionnaireService.answerQuestionnaire(questionnaire.getAnswerURL(),
+                            QuestionnaireResponseDTO.builder().withAnswers(answers).build()));
 
             // Verify every repository method was called with the specific arguments in the specific order
             verify(questionnaireRepository, times(1)).findByAnswerURL(any());
@@ -1215,20 +1258,16 @@ public class QuestionnaireServiceTests {
 
         @Test
         public void failOptionIdNotFound() {
-            // Init test questionnaire
-            final QuestionnaireEntity questionnaire =
-                    QuestionnaireCreator.createEntityWithoutIDs(UserCreator.createEntity());
+            // Init test users
+            final UserEntity testUser =
+                    UserEntity.builder().withId(1L).withUsername(testUsername).withPassword(testPassword).build();
 
-            // Add ID 1 to the first Option question and leave the options without IDs
-            final OptionQuestionEntity optionQuestion =
-                    (OptionQuestionEntity) questionnaire.getQuestions().stream().filter(questionEntity ->
-                            questionEntity instanceof OptionQuestionEntity).findFirst().orElse(null);
-            assertNotNull(optionQuestion);
-            optionQuestion.setId(1L);
+            // Init test questionnaire
+            final QuestionnaireEntity questionnaire = QuestionnaireCreator.createDefaultEntity(testUser, true);
 
             // Init test answers with invalid value
             final Map<Long, Object> answers = new HashMap<>(){{
-                put(1L, 2L);
+                put(7L, 4L);
             }};
 
             // Mock the "findByAnswerURL" method of the questionnaire repository
@@ -1237,8 +1276,8 @@ public class QuestionnaireServiceTests {
 
             // Call the "answerQuestionnaire" method of the service and assert that exception is not thrown
             final EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
-                    questionnaireService.answerQuestionnaire(
-                            questionnaire.getAnswerURL(), QuestionnaireCreator.createResponseDTO(answers)));
+                    questionnaireService.answerQuestionnaire(questionnaire.getAnswerURL(),
+                            QuestionnaireResponseDTO.builder().withAnswers(answers).build()));
 
             // Verify every repository method was called with the specific arguments in the specific order
             verify(questionnaireRepository, times(1)).findByAnswerURL(any());

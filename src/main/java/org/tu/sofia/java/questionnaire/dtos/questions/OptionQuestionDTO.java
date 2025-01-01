@@ -13,8 +13,29 @@ import java.util.Set;
 public class OptionQuestionDTO extends QuestionDTO {
     private Set<OptionResponseDTO> optionResponseDTOSet;
 
-    public OptionQuestionDTO(final String questionText, final Set<OptionResponseDTO> optionResponseDTOSet) {
-        super(questionText);
-        this.optionResponseDTOSet = optionResponseDTOSet;
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private final OptionQuestionDTO optionQuestion;
+
+        public Builder() {
+            this.optionQuestion = new OptionQuestionDTO();
+        }
+
+        public Builder withQuestionText(final String questionText) {
+            this.optionQuestion.setQuestionText(questionText);
+            return this;
+        }
+
+        public Builder withOptionResponseDTOSet(final Set<OptionResponseDTO> optionResponseDTOSet) {
+            this.optionQuestion.setOptionResponseDTOSet(optionResponseDTOSet);
+            return this;
+        }
+
+        public OptionQuestionDTO build() {
+            return this.optionQuestion;
+        }
     }
 }

@@ -94,7 +94,10 @@ public class AuthenticationService implements UserDetailsService {
 
         try {
             // Create the user entity
-            final UserEntity userEntity = new UserEntity(username, passwordEncoder.encode(password));
+            final UserEntity userEntity = UserEntity.builder()
+                    .withUsername(username)
+                    .withPassword(passwordEncoder.encode(password))
+                    .build();
 
             // Save user
             authenticationRepository.save(userEntity);

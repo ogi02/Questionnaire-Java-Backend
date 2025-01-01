@@ -52,15 +52,15 @@ public class QuestionnaireMapper {
         final Set<OptionQuestionDTO> optionQuestionDTOSet = optionQuestionEntitySet
                 .stream().map(OptionQuestionMapper::toDto).collect(Collectors.toSet());
 
-        return new QuestionnaireDTO(
-                questionnaireEntity.getTitle(),
-                questionnaireEntity.getDescription(),
-                questionnaireEntity.getIsOpen(),
-                questionnaireEntity.getIsPublic(),
-                booleanQuestionDTOSet,
-                openQuestionDTOSet,
-                optionQuestionDTOSet
-        );
+        return QuestionnaireDTO.builder()
+                .withTitle(questionnaireEntity.getTitle())
+                .withDescription(questionnaireEntity.getDescription())
+                .withIsOpen(questionnaireEntity.getIsOpen())
+                .withIsPublic(questionnaireEntity.getIsPublic())
+                .withBooleanQuestionDTOSet(booleanQuestionDTOSet)
+                .withOpenQuestionDTOSet(openQuestionDTOSet)
+                .withOptionQuestionDTOSet(optionQuestionDTOSet)
+                .build();
     }
 
     // From entity to DTO with results
@@ -96,15 +96,15 @@ public class QuestionnaireMapper {
         final Set<OptionQuestionWithResultsDTO> optionQuestionWithResults = optionQuestionEntitySet
                 .stream().map(OptionQuestionMapper::toDtoWithResults).collect(Collectors.toSet());
 
-        return new QuestionnaireWithResultsDTO(
-                questionnaireEntity.getTitle(),
-                questionnaireEntity.getDescription(),
-                questionnaireEntity.getIsOpen(),
-                questionnaireEntity.getIsPublic(),
-                booleanQuestionWithResults,
-                openQuestionWithResults,
-                optionQuestionWithResults
-        );
+        return QuestionnaireWithResultsDTO.builder()
+                .withTitle(questionnaireEntity.getTitle())
+                .withDescription(questionnaireEntity.getDescription())
+                .withIsOpen(questionnaireEntity.getIsOpen())
+                .withIsPublic(questionnaireEntity.getIsPublic())
+                .withBooleanQuestionDTOSet(booleanQuestionWithResults)
+                .withOpenQuestionDTOSet(openQuestionWithResults)
+                .withOptionQuestionDTOSet(optionQuestionWithResults)
+                .build();
     }
 
     // From DTO to entity
@@ -112,11 +112,12 @@ public class QuestionnaireMapper {
         if (questionnaireDTO == null) {
             return null;
         }
-        final QuestionnaireEntity questionnaireEntity = new QuestionnaireEntity();
-        questionnaireEntity.setTitle(questionnaireDTO.getTitle());
-        questionnaireEntity.setDescription(questionnaireDTO.getDescription());
-        questionnaireEntity.setIsOpen(questionnaireDTO.getIsOpen());
-        questionnaireEntity.setIsPublic(questionnaireDTO.getIsPublic());
+        final QuestionnaireEntity questionnaireEntity = QuestionnaireEntity.builder()
+                .withTitle(questionnaireDTO.getTitle())
+                .withDescription(questionnaireDTO.getDescription())
+                .withIsOpen(questionnaireDTO.getIsOpen())
+                .withIsPublic(questionnaireDTO.getIsPublic())
+                .build();
 
         // Cast to child classes of the QuestionEntity
         final Set<QuestionEntity> questions = new HashSet<>();

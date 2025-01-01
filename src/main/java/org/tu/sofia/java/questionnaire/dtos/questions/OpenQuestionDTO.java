@@ -8,7 +8,25 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class OpenQuestionDTO extends QuestionDTO {
-    public OpenQuestionDTO(final String questionText) {
-        super(questionText);
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private final OpenQuestionDTO openQuestion;
+
+        public Builder() {
+            this.openQuestion = new OpenQuestionDTO();
+        }
+
+        public Builder withQuestionText(final String questionText) {
+            this.openQuestion.setQuestionText(questionText);
+            return this;
+        }
+
+        public OpenQuestionDTO build() {
+            return this.openQuestion;
+        }
     }
 }

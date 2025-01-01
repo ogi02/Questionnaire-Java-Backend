@@ -56,28 +56,59 @@ public class QuestionnaireEntity {
     @Column(name = "results_url")
     private String resultsURL = UUID.randomUUID().toString().replace("-", "");
 
-    public QuestionnaireEntity(
-            final String title, final String description, final UserEntity owner, final Set<UserEntity> administrators,
-            final Set<QuestionEntity> questions, final Boolean isOpen, final Boolean isPublic
-    ) {
-        this.title = title;
-        this.description = description;
-        this.owner = owner;
-        this.administrators = administrators;
-        this.questions = questions;
-        this.isOpen = isOpen;
-        this.isPublic = isPublic;
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public QuestionnaireEntity(
-            final String title, final String description, final UserEntity owner,
-            final Set<UserEntity> administrators, final Boolean isOpen, final Boolean isPublic
-    ) {
-        this.title = title;
-        this.description = description;
-        this.owner = owner;
-        this.administrators = administrators;
-        this.isOpen = isOpen;
-        this.isPublic = isPublic;
+    public static class Builder {
+        private final QuestionnaireEntity questionnaire;
+
+        public Builder() {
+            this.questionnaire = new QuestionnaireEntity();
+        }
+
+        public Builder withId(final Long id) {
+            this.questionnaire.setId(id);
+            return this;
+        }
+
+        public Builder withTitle(final String title) {
+            this.questionnaire.setTitle(title);
+            return this;
+        }
+
+        public Builder withDescription(final String description) {
+            this.questionnaire.setDescription(description);
+            return this;
+        }
+
+        public Builder withOwner(final UserEntity owner) {
+            this.questionnaire.setOwner(owner);
+            return this;
+        }
+
+        public Builder withAdministrators(final Set<UserEntity> administrators) {
+            this.questionnaire.setAdministrators(administrators);
+            return this;
+        }
+
+        public Builder withQuestions(final Set<QuestionEntity> questions) {
+            this.questionnaire.setQuestions(questions);
+            return this;
+        }
+
+        public Builder withIsOpen(final Boolean isOpen) {
+            this.questionnaire.setIsOpen(isOpen);
+            return this;
+        }
+
+        public Builder withIsPublic(final Boolean isPublic) {
+            this.questionnaire.setIsPublic(isPublic);
+            return this;
+        }
+
+        public QuestionnaireEntity build() {
+            return this.questionnaire;
+        }
     }
 }
