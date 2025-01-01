@@ -1,7 +1,7 @@
 package org.tu.sofia.java.questionnaire.unit.utilities;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.TestComponent;
+import org.springframework.stereotype.Component;
 import org.tu.sofia.java.questionnaire.dtos.QuestionnaireDTO;
 import org.tu.sofia.java.questionnaire.dtos.QuestionnaireWithResultsDTO;
 import org.tu.sofia.java.questionnaire.dtos.questions.*; // NOPMD
@@ -18,7 +18,7 @@ import org.tu.sofia.java.questionnaire.entities.responses.OptionResponseEntity;
 import java.util.HashSet;
 import java.util.Set;
 
-@TestComponent
+@Component
 public final class QuestionnaireCreator {
 
     private static String title;
@@ -349,19 +349,19 @@ public final class QuestionnaireCreator {
                     .withId(withIDs ? 7L : null)
                     .withQuestionText("%s %s".formatted(optionQuestionText, 1))
                     .withQuestionnaire(questionnaire)
-                    .withOptions(getOptionResponseEntities(withIDs, 1L))
+                    .withOptions(getOptionResponseEntities(withIDs, 0L))
                     .build());
             add(OptionQuestionEntity.builder()
                     .withId(withIDs ? 8L : null)
                     .withQuestionText("%s %s".formatted(optionQuestionText, 2))
                     .withQuestionnaire(questionnaire)
-                    .withOptions(getOptionResponseEntities(withIDs, 2L))
+                    .withOptions(getOptionResponseEntities(withIDs, 1L))
                     .build());
             add(OptionQuestionEntity.builder()
                     .withId(withIDs ? 9L : null)
                     .withQuestionText("%s %s".formatted(optionQuestionText, 3))
                     .withQuestionnaire(questionnaire)
-                    .withOptions(getOptionResponseEntities(withIDs, 3L))
+                    .withOptions(getOptionResponseEntities(withIDs, 2L))
                     .build());
         }};
         // Add Option Question Entities to the respective Option Response Entities
