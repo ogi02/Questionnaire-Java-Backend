@@ -1,6 +1,5 @@
 package org.tu.sofia.java.questionnaire.entities.responses;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +12,6 @@ import org.tu.sofia.java.questionnaire.entities.questions.OpenQuestionEntity;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class OpenResponseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "option_generator")
@@ -27,8 +25,34 @@ public class OpenResponseEntity {
     @Column
     private String responseText;
 
-    public OpenResponseEntity(final OpenQuestionEntity question, final String responseText) {
-        this.question = question;
-        this.responseText = responseText;
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private final OpenResponseEntity response;
+
+        public Builder() {
+            response = new OpenResponseEntity();
+        }
+
+        public Builder withId(final Long id) {
+            this.response.setId(id);
+            return this;
+        }
+
+        public Builder withQuestion(final OpenQuestionEntity question) {
+            this.response.setQuestion(question);
+            return this;
+        }
+
+        public Builder withResponseText(final String responseText) {
+            this.response.setResponseText(responseText);
+            return this;
+        }
+
+        public OpenResponseEntity build() {
+            return this.response;
+        }
     }
 }

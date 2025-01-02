@@ -22,7 +22,10 @@ public class OptionQuestionMapper {
         // Map all responses to DTOs without votes
         final Set<OptionResponseDTO> optionResponseDTOS = optionQuestionEntity.getOptions()
                 .stream().map(OptionResponseMapper::toDtoWithoutVotes).collect(Collectors.toSet());
-        return new OptionQuestionDTO(optionQuestionEntity.getQuestionText(), optionResponseDTOS);
+        return OptionQuestionDTO.builder()
+                .withQuestionText(optionQuestionEntity.getQuestionText())
+                .withOptionResponseDTOSet(optionResponseDTOS)
+                .build();
     }
     // From entity to DTO with results
     public static OptionQuestionWithResultsDTO toDtoWithResults(final OptionQuestionEntity optionQuestionEntity) {
@@ -32,22 +35,23 @@ public class OptionQuestionMapper {
         // Map all responses to DTOs
         final Set<OptionResponseWithResultsDTO> optionResponseWithResultsDTOSet = optionQuestionEntity.getOptions()
                 .stream().map(OptionResponseMapper::toDtoWithResults).collect(Collectors.toSet());
-        return new
-                OptionQuestionWithResultsDTO(optionQuestionEntity.getQuestionText(), optionResponseWithResultsDTOSet);
+        return OptionQuestionWithResultsDTO.builder()
+                .withQuestionText(optionQuestionEntity.getQuestionText())
+                .withOptionResponseWithResultsDTOSet(optionResponseWithResultsDTOSet)
+                .build();
     }
     // From DTO to entity
     public static OptionQuestionEntity toEntity(final OptionQuestionDTO optionQuestionDTO) {
         if (optionQuestionDTO == null) {
             return null;
         }
-        final OptionQuestionEntity optionQuestionEntity = new OptionQuestionEntity();
+        final OptionQuestionEntity optionQuestionEntity =
+                OptionQuestionEntity.builder().withQuestionText(optionQuestionDTO.getQuestionText()).build();
         // Map all responses to entities
         final Set<OptionResponseEntity> optionResponseEntitySet = optionQuestionDTO.getOptionResponseDTOSet()
                 .stream().map(OptionResponseMapper::toEntity).collect(Collectors.toSet());
         // Link options to the question
         optionResponseEntitySet.forEach(optionResponseEntity -> optionResponseEntity.setQuestion(optionQuestionEntity));
-        // Create OptionQuestionEntity entity
-        optionQuestionEntity.setQuestionText(optionQuestionDTO.getQuestionText());
         optionQuestionEntity.setOptions(optionResponseEntitySet);
         return optionQuestionEntity;
     }

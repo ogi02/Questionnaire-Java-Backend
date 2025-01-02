@@ -12,26 +12,24 @@ public class BooleanQuestionMapper {
         if (booleanQuestionEntity == null) {
             return null;
         }
-        return new BooleanQuestionDTO(booleanQuestionEntity.getQuestionText());
+        return BooleanQuestionDTO.builder().withQuestionText(booleanQuestionEntity.getQuestionText()).build();
     }
     // From entity to DTO with results
     public static BooleanQuestionWithResultsDTO toDtoWithResults(final BooleanQuestionEntity booleanQuestionEntity) {
         if (booleanQuestionEntity == null) {
             return null;
         }
-        return new BooleanQuestionWithResultsDTO(
-                booleanQuestionEntity.getQuestionText(),
-                booleanQuestionEntity.getTrueVotes(),
-                booleanQuestionEntity.getFalseVotes()
-        );
+        return BooleanQuestionWithResultsDTO.builder()
+                .withQuestionText(booleanQuestionEntity.getQuestionText())
+                .withTrueVotes(booleanQuestionEntity.getTrueVotes())
+                .withFalseVotes(booleanQuestionEntity.getFalseVotes())
+                .build();
     }
     // From DTO to entity
     public static BooleanQuestionEntity toEntity(final BooleanQuestionDTO booleanQuestionDTO) {
         if (booleanQuestionDTO == null) {
             return null;
         }
-        final BooleanQuestionEntity booleanQuestionEntity = new BooleanQuestionEntity();
-        booleanQuestionEntity.setQuestionText(booleanQuestionDTO.getQuestionText());
-        return booleanQuestionEntity;
+        return BooleanQuestionEntity.builder().withQuestionText(booleanQuestionDTO.getQuestionText()).build();
     }
 }

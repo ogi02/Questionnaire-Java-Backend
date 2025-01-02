@@ -14,7 +14,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.tu.sofia.java.questionnaire.entities.UserEntity;
 import org.tu.sofia.java.questionnaire.repositories.AuthenticationRepository;
 import org.tu.sofia.java.questionnaire.services.AuthenticationService;
-import org.tu.sofia.java.questionnaire.unit.creators.UserCreator;
 
 import java.util.Optional;
 
@@ -48,7 +47,8 @@ public class AuthenticationServiceTests {
         @Test
         public void success() {
             // Init test user
-            final UserEntity testUser = UserCreator.createEntity();
+            final UserEntity testUser = new UserEntity.Builder()
+                    .withId(1L).withUsername(testUsername).withPassword(testPassword).build();
 
             // Mock the "save" method of the repository
             doReturn(testUser).when(authenticationRepository).save(any());
@@ -98,7 +98,8 @@ public class AuthenticationServiceTests {
         @Test
         public void success() {
             // Init test user
-            final UserEntity testUser = UserCreator.createEntity();
+            final UserEntity testUser = new UserEntity.Builder()
+                    .withId(1L).withUsername(testUsername).withPassword(testPassword).build();
 
             // Mock the "authenticate" method of the authentication manager (return value doesn't matter)
             doReturn(null).when(authenticationManager).authenticate(any());

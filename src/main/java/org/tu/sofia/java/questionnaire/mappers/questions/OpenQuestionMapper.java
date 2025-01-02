@@ -17,7 +17,7 @@ public class OpenQuestionMapper {
         if (openQuestionEntity == null) {
             return null;
         }
-        return new OpenQuestionDTO(openQuestionEntity.getQuestionText());
+        return OpenQuestionDTO.builder().withQuestionText(openQuestionEntity.getQuestionText()).build();
     }
     // From entity to DTO with results
     public static OpenQuestionWithResultsDTO toDtoWithResults(final OpenQuestionEntity openQuestionEntity) {
@@ -25,17 +25,18 @@ public class OpenQuestionMapper {
             return null;
         }
         // Map all answers to DTOs
-        final Set<OpenResponseWithResultsDTO> openResponseWithResultsDTOSet = openQuestionEntity.getAnswers()
-                .stream().map(OpenResponseMapper::toDto).collect(Collectors.toSet());
-        return new OpenQuestionWithResultsDTO(openQuestionEntity.getQuestionText(), openResponseWithResultsDTOSet);
+        final Set<OpenResponseWithResultsDTO> openResponseWithResultsDTOSet =
+                openQuestionEntity.getAnswers().stream().map(OpenResponseMapper::toDto).collect(Collectors.toSet());
+        return OpenQuestionWithResultsDTO.builder()
+                .withQuestionText(openQuestionEntity.getQuestionText())
+                .withOpenResponseWithResultsDTOSet(openResponseWithResultsDTOSet)
+                .build();
     }
     // From DTO to entity
     public static OpenQuestionEntity toEntity(final OpenQuestionDTO openQuestionDTO) {
         if (openQuestionDTO == null) {
             return null;
         }
-        final OpenQuestionEntity openQuestionEntity = new OpenQuestionEntity();
-        openQuestionEntity.setQuestionText(openQuestionDTO.getQuestionText());
-        return openQuestionEntity;
+        return OpenQuestionEntity.builder().withQuestionText(openQuestionDTO.getQuestionText()).build();
     }
 }

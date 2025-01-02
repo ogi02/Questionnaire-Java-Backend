@@ -223,7 +223,7 @@ public class QuestionnaireService {
 
         // Get the questionnaire entity by its results URL
         final Optional<QuestionnaireEntity> optionalQuestionnaire =
-                questionnaireRepository.findByResultsUrlAndAdministratorId(resultsURL, currentUser.getId());
+                questionnaireRepository.findByResultsURLAndAdministratorId(resultsURL, currentUser.getId());
         if (optionalQuestionnaire.isEmpty()) {
             throw new EntityNotFoundException("Questionnaire not found or user has no access to it.");
         }

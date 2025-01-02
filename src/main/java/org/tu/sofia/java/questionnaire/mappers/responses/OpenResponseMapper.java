@@ -11,6 +11,6 @@ public class OpenResponseMapper {
         if (openResponseEntity == null) {
             return null;
         }
-        return new OpenResponseWithResultsDTO(openResponseEntity.getResponseText());
+        return OpenResponseWithResultsDTO.builder().withResponseText(openResponseEntity.getResponseText()).build();
     }
 }

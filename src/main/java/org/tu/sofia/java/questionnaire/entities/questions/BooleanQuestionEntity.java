@@ -19,21 +19,6 @@ public class BooleanQuestionEntity extends QuestionEntity {
     @Column
     private Integer falseVotes = 0;
 
-    public BooleanQuestionEntity(final String questionText) {
-        super(questionText);
-    }
-
-    public BooleanQuestionEntity(final Long id, final String questionText, final QuestionnaireEntity questionnaire) {
-        super(id, questionText, questionnaire);
-    }
-
-    public BooleanQuestionEntity(final Long id, final String questionText, final QuestionnaireEntity questionnaire,
-                                 final Integer trueVotes, final Integer falseVotes) {
-        super(id, questionText, questionnaire);
-        this.trueVotes = trueVotes;
-        this.falseVotes = falseVotes;
-    }
-
     @Override
     public <T> void answerQuestion(final T response) throws IllegalArgumentException {
         if (response instanceof Boolean answer) {
@@ -44,6 +29,48 @@ public class BooleanQuestionEntity extends QuestionEntity {
             }
         } else {
             throw new IllegalArgumentException("Invalid answer type for option question.");
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private final BooleanQuestionEntity booleanQuestion;
+
+        public Builder() {
+            this.booleanQuestion = new BooleanQuestionEntity();
+        }
+
+        public Builder withId(final Long id) {
+            this.booleanQuestion.setId(id);
+            return this;
+        }
+
+        public Builder withQuestionText(final String questionText) {
+            this.booleanQuestion.setQuestionText(questionText);
+            return this;
+        }
+
+        public Builder withQuestionnaire(final QuestionnaireEntity questionnaire) {
+            this.booleanQuestion.setQuestionnaire(questionnaire);
+            return this;
+        }
+
+        public Builder withTrueVotes(final Integer trueVotes) {
+            this.booleanQuestion.setTrueVotes(trueVotes);
+            return this;
+        }
+
+        public Builder withFalseVotes(final Integer falseVotes) {
+            this.booleanQuestion.setFalseVotes(falseVotes);
+            return this;
+        }
+
+        public BooleanQuestionEntity build() {
+            return this.booleanQuestion;
         }
     }
 }

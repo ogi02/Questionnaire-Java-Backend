@@ -26,15 +26,5 @@ public abstract class QuestionEntity {
     @JoinColumn(name = "questionnaire_id", referencedColumnName = "id")
     private QuestionnaireEntity questionnaire;
 
-    public QuestionEntity(final String questionText) {
-        this.questionText = questionText;
-    }
-
-    public QuestionEntity(final Long id, final String questionText, final QuestionnaireEntity questionnaire) {
-        this.id = id;
-        this.questionText = questionText;
-        this.questionnaire = questionnaire;
-    }
-
     public abstract <T> void answerQuestion(T response) throws IllegalArgumentException;
 }

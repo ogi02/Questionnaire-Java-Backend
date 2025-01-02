@@ -20,6 +20,7 @@
         <exclude name="AvoidCatchingGenericException" />
         <exclude name="AvoidThrowingRawExceptionTypes" />
         <exclude name="SignatureDeclareThrowsException" />
+        <exclude name="DataClass" />
     </rule>
     <rule ref="category/java/codestyle.xml">
         <exclude name="OnlyOneReturn" />
