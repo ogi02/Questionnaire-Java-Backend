@@ -110,7 +110,7 @@ public class AuthenticationService implements UserDetailsService {
             return jwtTokenUtil.generateToken(userDetails);
         } catch (DataIntegrityViolationException e) {
             // If username already exists (violates "UNIQUE" constraint in the DB)
-            throw new RuntimeException("Username is already taken.", e);
+            throw new DataIntegrityViolationException("Username is already taken.", e);
         } catch (Exception e) {
             // Any other exception
             throw new RuntimeException("An unexpected error occurred during registration.", e);

@@ -56,6 +56,11 @@
             <version>42.7.4</version>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>8.0.2.Final</version>
+        </dependency>
 
         <!-- JSON & JSON Web Token -->
         <dependency>
