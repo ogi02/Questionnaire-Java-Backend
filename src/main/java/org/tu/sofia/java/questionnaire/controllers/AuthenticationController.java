@@ -5,7 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.*; // NOPMD
 import org.tu.sofia.java.questionnaire.schemas.ErrorResponseSchema;
@@ -18,13 +19,18 @@ import org.springframework.http.ResponseEntity;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 
-@AllArgsConstructor
+@NoArgsConstructor
 @RestController
 @RequestMapping(value = "/api/auth", consumes = "application/json", produces = "application/json")
 @Tag(name = "Authentication")
 public class AuthenticationController {
 
-    private final AuthenticationService authenticationService;
+    private AuthenticationService authenticationService;
+
+    @Autowired
+    public void setAuthenticationService(final AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
+    }
 
     @PostMapping("/login")
     @ApiResponses({
