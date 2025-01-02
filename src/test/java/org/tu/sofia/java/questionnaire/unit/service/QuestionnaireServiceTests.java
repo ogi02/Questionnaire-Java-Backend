@@ -339,7 +339,7 @@ public class QuestionnaireServiceTests {
 
     @Nested
     @NoArgsConstructor
-    public class FindPublicQuestionnaires {
+    public class GetPublicQuestionnaires {
         @Test
         public void successPresent() {
             // Init test user
@@ -355,7 +355,7 @@ public class QuestionnaireServiceTests {
 
             // Call the "findPublicQuestionnaires" method of the service
             final Set<QuestionnaireDTO> questionnaireDTOSet =
-                    questionnaireService.findPublicQuestionnaires();
+                    questionnaireService.getPublicQuestionnaires();
 
             // Get the questionnaire DTO
             final QuestionnaireDTO questionnaireDTO = questionnaireDTOSet.stream().findFirst().orElse(null);
@@ -392,7 +392,7 @@ public class QuestionnaireServiceTests {
 
             // Call the "findPublicQuestionnaires" method of the service
             final Set<QuestionnaireDTO> questionnaireDTOSet =
-                    questionnaireService.findPublicQuestionnaires();
+                    questionnaireService.getPublicQuestionnaires();
 
             // Verify "findPublic" was called
             verify(questionnaireRepository, times(1)).findPublic();
@@ -426,7 +426,7 @@ public class QuestionnaireServiceTests {
 
             // Call the "findUserAdministratedQuestionnaires" method of the service
             final Set<QuestionnaireWithResultsDTO> questionnaireDTOSet =
-                    questionnaireService.findUserAdministratedQuestionnaires(testUser.getUsername());
+                    questionnaireService.getUserAdministratedQuestionnaires(testUser.getUsername());
 
             // Get the questionnaire DTO
             final QuestionnaireWithResultsDTO questionnaireDTO =
@@ -470,7 +470,7 @@ public class QuestionnaireServiceTests {
 
             // Call the "attemptRegister" method of the service
             final Set<QuestionnaireWithResultsDTO> questionnaireDTOSet =
-                    questionnaireService.findUserAdministratedQuestionnaires(testUser.getUsername());
+                    questionnaireService.getUserAdministratedQuestionnaires(testUser.getUsername());
 
             // Get the questionnaire DTO
             final QuestionnaireWithResultsDTO questionnaireDTO =
@@ -496,7 +496,7 @@ public class QuestionnaireServiceTests {
 
             // Assert exception is thrown
             final EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
-                    questionnaireService.findUserAdministratedQuestionnaires(testUser.getUsername()));
+                    questionnaireService.getUserAdministratedQuestionnaires(testUser.getUsername()));
 
             // Verify the methods were called in the correct order
             verify(authenticationRepository, times(1)).findByUsername(testUser.getUsername());
@@ -838,7 +838,7 @@ public class QuestionnaireServiceTests {
 
             // Call the "findQuestionnaireByResultsURL" method of the service and assert that no exception is thrown
             final QuestionnaireDTO questionnaireDTO = questionnaireService
-                    .findQuestionnaireByAnswerURL(questionnaire.getAnswerURL());
+                    .getQuestionnaireByAnswerURL(questionnaire.getAnswerURL());
 
             // Verify every repository method was called with the specific arguments in the specific order
             verify(questionnaireRepository, times(1)).findByAnswerURL(any());
@@ -869,7 +869,7 @@ public class QuestionnaireServiceTests {
             // Call the "findQuestionnaireByResultsURL" method of the service and assert that exception is thrown
             final EntityNotFoundException exception =
                     assertThrows(EntityNotFoundException.class, () ->
-                            questionnaireService.findQuestionnaireByAnswerURL(questionnaire.getAnswerURL()));
+                            questionnaireService.getQuestionnaireByAnswerURL(questionnaire.getAnswerURL()));
 
             // Verify every repository method was called with the specific arguments in the specific order
             verify(questionnaireRepository, times(1)).findByAnswerURL(any());
@@ -895,7 +895,7 @@ public class QuestionnaireServiceTests {
             // Call the "findQuestionnaireByResultsURL" method of the service and assert that exception is thrown
             final IllegalAccessException exception =
                     assertThrows(IllegalAccessException.class, () ->
-                            questionnaireService.findQuestionnaireByAnswerURL(questionnaire.getAnswerURL()));
+                            questionnaireService.getQuestionnaireByAnswerURL(questionnaire.getAnswerURL()));
 
             // Verify every repository method was called with the specific arguments in the specific order
             verify(questionnaireRepository, times(1)).findByAnswerURL(any());
@@ -930,7 +930,7 @@ public class QuestionnaireServiceTests {
 
             // Call the "findQuestionnaireByResultsURL" method of the service and assert that no exception is thrown
             final QuestionnaireWithResultsDTO questionnaireDTO = questionnaireService
-                    .findQuestionnaireByResultsURL(owner.getUsername(), questionnaire.getResultsURL());
+                    .getQuestionnaireByResultsURL(owner.getUsername(), questionnaire.getResultsURL());
 
             // Verify every repository method was called with the specific arguments in the specific order
             verify(authenticationRepository, times(1)).findByUsername(owner.getUsername());
@@ -960,7 +960,7 @@ public class QuestionnaireServiceTests {
             // Call the "findQuestionnaireByResultsURL" method of the service and assert that exception is thrown
             final EntityNotFoundException exception =
                     assertThrows(EntityNotFoundException.class, () -> questionnaireService
-                            .findQuestionnaireByResultsURL(owner.getUsername(), ""));
+                            .getQuestionnaireByResultsURL(owner.getUsername(), ""));
 
             // Verify every repository method was called with the specific arguments in the specific order
             verify(authenticationRepository, times(1)).findByUsername(owner.getUsername());
@@ -992,7 +992,7 @@ public class QuestionnaireServiceTests {
             // Call the "findQuestionnaireByResultsURL" method of the service and assert that no exception is thrown
             final EntityNotFoundException exception =
                     assertThrows(EntityNotFoundException.class, () -> questionnaireService
-                            .findQuestionnaireByResultsURL(owner.getUsername(), questionnaire.getResultsURL()));
+                            .getQuestionnaireByResultsURL(owner.getUsername(), questionnaire.getResultsURL()));
 
             // Verify every repository method was called with the specific arguments in the specific order
             verify(authenticationRepository, times(1)).findByUsername(owner.getUsername());

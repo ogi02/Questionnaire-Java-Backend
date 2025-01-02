@@ -21,6 +21,8 @@
         <exclude name="AvoidThrowingRawExceptionTypes" />
         <exclude name="SignatureDeclareThrowsException" />
         <exclude name="DataClass" />
+        <exclude name="ExcessiveImports" />
+        <exclude name="TooManyStaticImports" />
     </rule>
     <rule ref="category/java/codestyle.xml">
         <exclude name="OnlyOneReturn" />
@@ -33,6 +35,11 @@
     <rule ref="category/java/codestyle.xml/LongVariable">
         <properties>
             <property name="minimum" value="32" />
+        </properties>
+    </rule>
+    <rule ref="category/java/codestyle.xml/TooManyStaticImports">
+        <properties>
+            <property name="maximumStaticImports" value="6" />
         </properties>
     </rule>
 </ruleset>

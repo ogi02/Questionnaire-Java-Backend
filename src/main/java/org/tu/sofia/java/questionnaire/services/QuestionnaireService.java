@@ -102,7 +102,7 @@ public class QuestionnaireService {
         questionnaireRepository.delete(questionnaire);
     }
 
-    public Set<QuestionnaireDTO> findPublicQuestionnaires() {
+    public Set<QuestionnaireDTO> getPublicQuestionnaires() {
         // Retrieve public questionnaires from DB
         final Optional<Set<QuestionnaireEntity>> optionalQuestionnaireSet = questionnaireRepository.findPublic();
         if (optionalQuestionnaireSet.isEmpty()) {
@@ -116,7 +116,7 @@ public class QuestionnaireService {
         return questionnaireEntitySet.stream().map(QuestionnaireMapper::toDto).collect(Collectors.toSet());
     }
 
-    public Set<QuestionnaireWithResultsDTO> findUserAdministratedQuestionnaires(final String username) {
+    public Set<QuestionnaireWithResultsDTO> getUserAdministratedQuestionnaires(final String username) {
         // Get user by username
         final UserEntity currentUser = getUserByUsername(username);
 
@@ -199,7 +199,7 @@ public class QuestionnaireService {
         authenticationRepository.save(administrator);
     }
 
-    public QuestionnaireDTO findQuestionnaireByAnswerURL(final String answerURL)
+    public QuestionnaireDTO getQuestionnaireByAnswerURL(final String answerURL)
             throws EntityNotFoundException, IllegalAccessException {
         // Get the questionnaire
         final Optional<QuestionnaireEntity> optionalQuestionnaire = questionnaireRepository.findByAnswerURL(answerURL);
@@ -217,7 +217,7 @@ public class QuestionnaireService {
         return QuestionnaireMapper.toDto(questionnaire);
     }
 
-    public QuestionnaireWithResultsDTO findQuestionnaireByResultsURL(final String username, final String resultsURL) {
+    public QuestionnaireWithResultsDTO getQuestionnaireByResultsURL(final String username, final String resultsURL) {
         // Get user by username
         final UserEntity currentUser = getUserByUsername(username);
 

@@ -147,7 +147,7 @@ public class QuestionnaireController {
     })
     public ResponseEntity<?> getPublicQuestionnaires() {
         // Get public questionnaires from the questionnaire service
-        final Set<QuestionnaireDTO> publicQuestionnaires = questionnaireService.findPublicQuestionnaires();
+        final Set<QuestionnaireDTO> publicQuestionnaires = questionnaireService.getPublicQuestionnaires();
 
         // Check if the set is empty and return 204 response
         if (publicQuestionnaires.isEmpty()) {
@@ -179,7 +179,7 @@ public class QuestionnaireController {
     public ResponseEntity<?> getUserQuestionnaires(final Principal principal) {
         // Get administrated questionnaires by the user
         final Set<QuestionnaireWithResultsDTO> questionnairesWithResults =
-                questionnaireService.findUserAdministratedQuestionnaires(principal.getName());
+                questionnaireService.getUserAdministratedQuestionnaires(principal.getName());
 
         if (questionnairesWithResults.isEmpty()) {
             // Return 204 status
@@ -319,7 +319,7 @@ public class QuestionnaireController {
     public ResponseEntity<?> getQuestionnaireByAnswerURL(@PathVariable final String answerURL) {
         try {
             // Get the questionnaire from the DB
-            final QuestionnaireDTO questionnaire = questionnaireService.findQuestionnaireByAnswerURL(answerURL);
+            final QuestionnaireDTO questionnaire = questionnaireService.getQuestionnaireByAnswerURL(answerURL);
 
             // Return 200 response
             return ResponseEntity.status(HttpStatus.OK).body(questionnaire);
@@ -368,7 +368,7 @@ public class QuestionnaireController {
         try {
             // Get the questionnaire results from DB
             final QuestionnaireWithResultsDTO questionnaireWithResults =
-                    questionnaireService.findQuestionnaireByResultsURL(principal.getName(), resultsURL);
+                    questionnaireService.getQuestionnaireByResultsURL(principal.getName(), resultsURL);
 
             // Return 200 response
             return ResponseEntity.status(HttpStatus.OK).body(questionnaireWithResults);
